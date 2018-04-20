@@ -1,7 +1,5 @@
 #include <inotify-cpp/NotifierBuilder.h>
 
-#include <boost/filesystem.hpp>
-
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -16,7 +14,7 @@ int main(int argc, char** argv)
     }
 
     // Parse the directory to watch
-    boost::filesystem::path path(argv[1]);
+    std::string const path(argv[1]);
 
     // Set the event handler which will be used to process particular events
     auto handleNotification = [&](Notification notification) {

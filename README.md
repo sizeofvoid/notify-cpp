@@ -1,6 +1,5 @@
-# Inotify-cpp #
+# Inotify-cpp bare -- without 3rdparty parts#
 
-[![Build Status](https://travis-ci.org/erikzenker/inotify-cpp.svg?branch=master)](https://travis-ci.org/erikzenker/inotify-cpp) [![Coverity Scan Build Status](https://scan.coverity.com/projects/14692/badge.svg)](https://scan.coverity.com/projects/erikzenker-inotify-cpp) [![codecov](https://codecov.io/gh/erikzenker/inotify-cpp/branch/master/graph/badge.svg)](https://codecov.io/gh/erikzenker/inotify-cpp)
 ===========
 
 __Inotify-cpp__ is a C++ wrapper for linux inotify. It lets you watch for
@@ -9,10 +8,8 @@ the implementation of a simple filesystem event watcher for the commandline.
 
 ## Usage ##
 
-  ```c++
-  #include <inotify-cpp/NotifierBuilder.h>
-
-#include <boost/filesystem.hpp>
+```c++
+#include <inotify-cpp/NotifierBuilder.h>
 
 #include <iostream>
 #include <thread>
@@ -28,7 +25,7 @@ int main(int argc, char** argv)
     }
 
     // Parse the directory to watch
-    boost::filesystem::path path(argv[1]);
+    std::string const path(argv[1]);
 
     // Set the event handler which will be used to process particular events
     auto handleNotification = [&](Notification notification) {
@@ -94,7 +91,6 @@ make install
 ```
 
 ## Dependencies ##
- + boost 1.54.0
  + c++11
  + linux 2.6.13
 
@@ -103,6 +99,3 @@ MIT
 
 ## Author ##
 Written by Erik Zenker (erikzenker@hotmail.com)
-
-## Thanks for Contribution ##
-  + [spelcaster](https://github.com/spelcaster)

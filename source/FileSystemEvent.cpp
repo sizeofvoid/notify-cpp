@@ -3,7 +3,7 @@
 #include <sys/inotify.h>
 
 namespace inotify {
-FileSystemEvent::FileSystemEvent(const int wd, uint32_t mask, const boost::filesystem::path path)
+FileSystemEvent::FileSystemEvent(const int wd, uint32_t mask, const std::string path)
     : wd(wd)
     , mask(mask)
     , path(path)

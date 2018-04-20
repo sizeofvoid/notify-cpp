@@ -2,6 +2,15 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <iostream>
+#include <functional>
+
+#include <unistd.h>
+#include <fcntl.h>
+#include <dirent.h>
+#include <sys/types.h>
+#include <string.h>
 
 namespace inotify {
 
@@ -47,17 +56,18 @@ void Inotify::init()
  * @param path that will be watched recursively
  *
  */
-void Inotify::watchDirectoryRecursively(fs::path path)
+void Inotify::watchDirectoryRecursively(std::string path)
 {
-    if (fs::exists(path)) {
-        if (fs::is_directory(path)) {
+    /* XXX
+    if (isExists(path))
+        if (isDirectory(path)) {
             fs::recursive_directory_iterator it(path, fs::symlink_option::recurse);
             fs::recursive_directory_iterator end;
 
             while (it != end) {
                 fs::path currentPath = *it;
 
-                if (fs::is_directory(currentPath)) {
+                if (isDirectory(currentPath)) {
                     watchFile(currentPath);
                 }
                 if (fs::is_symlink(currentPath)) {
@@ -71,6 +81,7 @@ void Inotify::watchDirectoryRecursively(fs::path path)
         throw std::invalid_argument(
             "Can´t watch Path! Path does not exist. Path: " + path.string());
     }
+    */
 }
 
 /**
@@ -83,13 +94,13 @@ void Inotify::watchDirectoryRecursively(fs::path path)
  * @param path that will be watched
  *
  */
-void Inotify::watchFile(fs::path filePath)
+void Inotify::watchFile(std::string filePath)
 {
-    if (fs::exists(filePath)) {
+    if (isExists(filePath)) {
         mError = 0;
         int wd = 0;
-        if (!isIgnored(filePath.string())) {
-            wd = inotify_add_watch(mInotifyFd, filePath.string().c_str(), mEventMask);
+        if (!isIgnored(filePath)) {
+            wd = inotify_add_watch(mInotifyFd, filePath.c_str(), mEventMask);
         }
 
         if (wd == -1) {
@@ -103,30 +114,35 @@ void Inotify::watchFile(fs::path filePath)
             }
 
             errorStream << "Failed to watch! " << strerror(mError)
-                        << ". Path: " << filePath.string();
+                        << ". Path: " << filePath;
             throw std::runtime_error(errorStream.str());
         }
-        mDirectorieMap.left.insert({wd, filePath});
+        mDirectorieMap.emplace(wd, filePath);
     } else {
         throw std::invalid_argument(
-            "Can´t watch Path! Path does not exist. Path: " + filePath.string());
+            "Can´t watch Path! Path does not exist. Path: " + filePath);
     }
 }
 
-void Inotify::ignoreFileOnce(fs::path file)
+void Inotify::ignoreFileOnce(std::string file)
 {
-    mOnceIgnoredDirectories.push_back(file.string());
+    mOnceIgnoredDirectories.push_back(file);
 }
 
-void Inotify::ignoreFile(fs::path file)
+void Inotify::ignoreFile(std::string file)
 {
-    mIgnoredDirectories.push_back(file.string());
+    mIgnoredDirectories.push_back(file);
 }
 
 
-void Inotify::unwatchFile(fs::path file)
+void Inotify::unwatchFile(std::string file)
 {
-    removeWatch(mDirectorieMap.right.at(file));
+    auto const itFound = std::find_if(std::begin(mDirectorieMap), std::end(mDirectorieMap),
+                                      [&](std::pair<int, std::string> const& KeyString)
+                                      { return KeyString.second == file; });
+
+    if (itFound != std::end(mDirectorieMap))
+        removeWatch(itFound->first);
 }
 
 /**
@@ -147,9 +163,9 @@ void Inotify::removeWatch(int wd)
     }
 }
 
-fs::path Inotify::wdToPath(int wd)
+std::string Inotify::wdToPath(int wd)
 {
-    return mDirectorieMap.left.at(wd);
+    return mDirectorieMap.at(wd);
 }
 
 void Inotify::setEventMask(uint32_t eventMask)
@@ -179,7 +195,7 @@ void Inotify::setEventTimeout(
  * @return A new FileSystemEvent
  *
  */
-boost::optional<FileSystemEvent> Inotify::getNextEvent()
+TFileSystemEventPtr Inotify::getNextEvent()
 {
     int length = 0;
     char buffer[EVENT_BUF_LEN];
@@ -203,7 +219,7 @@ boost::optional<FileSystemEvent> Inotify::getNextEvent()
         }
 
         if (stopped) {
-            return boost::none;
+            return nullptr;
         }
 
         // Read events from buffer into queue
@@ -214,13 +230,12 @@ boost::optional<FileSystemEvent> Inotify::getNextEvent()
 
             if(event->mask & IN_IGNORED){
                 i += EVENT_SIZE + event->len;
-                mDirectorieMap.left.erase(event->wd);
+                mDirectorieMap.erase(event->wd);
                 continue;
             }
+            auto path = wdToPath(event->wd) + std::string("/") + std::string(event->name);
 
-            auto path = wdToPath(event->wd) / std::string(event->name);
-
-            if (fs::is_directory(path)) {
+            if (isDirectory(path)) {
                 event->mask |= IN_ISDIR;
             }
             FileSystemEvent fsEvent(event->wd, event->mask, path);
@@ -242,7 +257,7 @@ boost::optional<FileSystemEvent> Inotify::getNextEvent()
                 events.erase(eventIt);
                 mOnEventTimeout(currentEvent);
 
-            } else if (isIgnored(currentEvent.path.string())) {
+            } else if (isIgnored(currentEvent.path)) {
                 events.erase(eventIt);
             } else {
                 mLastEventTime = currentEventTime;
@@ -252,7 +267,7 @@ boost::optional<FileSystemEvent> Inotify::getNextEvent()
     }
 
     // Return next event
-    FileSystemEvent event = mEventQueue.front();
+    auto event = std::make_shared<FileSystemEvent>(mEventQueue.front());
     mEventQueue.pop();
     return event;
 }
@@ -290,5 +305,23 @@ bool Inotify::isIgnored(std::string file)
 bool Inotify::onTimeout(const std::chrono::steady_clock::time_point& eventTime)
 {
     return std::chrono::duration_cast<std::chrono::milliseconds>(eventTime - mLastEventTime) < mEventTimeout;
+}
+
+bool Inotify::isDirectory(const std::string& path) const
+{
+    if (access(path.c_str(), F_OK) != -1)
+    {
+        // file exists
+        DIR *dirptr;
+        if ((dirptr = opendir(path.c_str())) != NULL) {
+            closedir(dirptr);
+            return true;
+        }
+    }
+    return false;
+}
+bool Inotify::isExists(const std::string& path) const
+{
+    return (access(path.c_str(), F_OK) != -1);
 }
 }
