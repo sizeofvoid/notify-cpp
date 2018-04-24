@@ -1,6 +1,4 @@
-# Inotify-cpp bare -- without 3rdparty parts#
-
-===========
+# Inotify-cpp bare -- without 3rdparty parts
 
 __Inotify-cpp__ is a C++ wrapper for linux inotify. It lets you watch for
 filesystem events on your filesystem tree. The following usage example shows
