@@ -3,7 +3,7 @@
 namespace inotify {
 
 NotifierBuilder::NotifierBuilder()
-    : mInotify(std::make_shared<Inotify>())
+    : _Fnotify(new Inotify())
 {
 }
 
@@ -12,39 +12,33 @@ NotifierBuilder BuildNotifier()
     return {};
 }
 
-auto NotifierBuilder::watchPathRecursively(std::string path) -> NotifierBuilder&
+auto NotifierBuilder::watchMountPoint(std::string path) -> NotifierBuilder&
 {
-    mInotify->watchFile(path);
+    _Fnotify->watchMountPoint(path);
     return *this;
 }
 
 auto NotifierBuilder::watchFile(std::string file) -> NotifierBuilder&
 {
-    mInotify->watchFile(file);
+    _Fnotify->watchFile(file);
     return *this;
 }
 
-auto NotifierBuilder::unwatchFile(std::string file) -> NotifierBuilder&
+auto NotifierBuilder::unwatch(std::string file) -> NotifierBuilder&
 {
-    mInotify->unwatchFile(file);
-    return *this;
-}
-
-auto NotifierBuilder::ignoreFileOnce(std::string file) -> NotifierBuilder&
-{
-    mInotify->ignoreFileOnce(file);
+    _Fnotify->unwatch(file);
     return *this;
 }
 
 auto NotifierBuilder::ignoreFile(std::string file) -> NotifierBuilder&
 {
-    mInotify->ignoreFile(file);
+    _Fnotify->ignoreFile(file);
     return *this;
 }
 
 auto NotifierBuilder::onEvent(Event event, EventObserver eventObserver) -> NotifierBuilder&
 {
-    mInotify->setEventMask(mInotify->getEventMask() | static_cast<std::uint32_t>(event));
+    _Fnotify->setEventMask(_Fnotify->getEventMask() | static_cast<std::uint64_t>(event));
     mEventObserver[event] = eventObserver;
     return *this;
 }
@@ -53,7 +47,7 @@ auto NotifierBuilder::onEvents(std::vector<Event> events, EventObserver eventObs
     -> NotifierBuilder&
 {
     for (auto event : events) {
-        mInotify->setEventMask(mInotify->getEventMask() | static_cast<std::uint32_t>(event));
+        _Fnotify->setEventMask(_Fnotify->getEventMask() | static_cast<std::uint64_t>(event));
         mEventObserver[event] = eventObserver;
     }
 
@@ -66,52 +60,32 @@ auto NotifierBuilder::onUnexpectedEvent(EventObserver eventObserver) -> Notifier
     return *this;
 }
 
-auto NotifierBuilder::setEventTimeout(
-    std::chrono::milliseconds timeout, EventObserver eventObserver) -> NotifierBuilder&
-{
-    auto onEventTimeout = [eventObserver](FileSystemEvent fileSystemEvent) {
-
-        Notification notification;
-        notification.path = fileSystemEvent.path;
-        notification.event = static_cast<Event>(fileSystemEvent.mask);
-        eventObserver(notification);
-    };
-
-    mInotify->setEventTimeout(timeout, onEventTimeout);
-    return *this;
-}
-
 auto NotifierBuilder::runOnce() -> void
 {
-    auto fileSystemEvent = mInotify->getNextEvent();
+    auto fileSystemEvent = _Fnotify->getNextEvent();
     if (!fileSystemEvent) {
         return;
     }
-
     Event event = static_cast<Event>(fileSystemEvent->mask);
 
-    Notification notification;
-    notification.event = event;
-    notification.path = fileSystemEvent->path;
+    const auto eventAndEventObserver = mEventObserver.find(event);
 
-    auto eventAndEventObserver = mEventObserver.find(event);
     if (eventAndEventObserver == mEventObserver.end()) {
         if (mUnexpectedEventObserver) {
-          mUnexpectedEventObserver(notification);
+            mUnexpectedEventObserver({ event, fileSystemEvent->path });
         }
-
-        return;
+    } else {
+        /* handle observed processes */
+        auto eventObserver = eventAndEventObserver->second;
+        eventObserver({ event, fileSystemEvent->path });
     }
-
-    auto eventObserver = eventAndEventObserver->second;
-    eventObserver(notification);
 }
 
 auto NotifierBuilder::run() -> void
 {
     while (true) {
-        if (mInotify->hasStopped()) {
-          break;
+        if (_Fnotify->hasStopped()) {
+            break;
         }
 
         runOnce();
@@ -120,6 +94,6 @@ auto NotifierBuilder::run() -> void
 
 auto NotifierBuilder::stop() -> void
 {
-    mInotify->stop();
+    _Fnotify->stop();
 }
 }

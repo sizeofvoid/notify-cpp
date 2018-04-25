@@ -6,104 +6,82 @@
  **/
 #pragma once
 #include <assert.h>
+#include <atomic>
+#include <chrono>
 #include <errno.h>
 #include <exception>
+#include <functional>
 #include <map>
 #include <memory>
 #include <queue>
 #include <sstream>
 #include <string>
 #include <sys/inotify.h>
+#include <thread>
 #include <time.h>
 #include <vector>
-#include <chrono>
-#include <thread>
-#include <atomic>
-#include <functional>
 
 #include <inotify-cpp/FileSystemEvent.h>
+#include <sys/fanotify.h>
 
-#define MAX_EVENTS     4096
-#define EVENT_SIZE     (sizeof (inotify_event))
-#define EVENT_BUF_LEN  (MAX_EVENTS * (EVENT_SIZE + 16))
-
+#define MAX_EVENTS 4096
+#define EVENT_SIZE (sizeof(inotify_event))
+#define EVENT_BUF_LEN (MAX_EVENTS * (EVENT_SIZE + 16))
 
 /**
- * @brief C++ wrapper for linux inotify interface
- * @class Inotify
- *        Inotify.h
- *        "include/Inotify.h"
+ * @brief C++ wrapper for linux fanotify interface
  *
+ * folders will be watched by wa
  * folders will be watched by watchFolderRecursively or
  * files by watchFile. If there are changes inside this
  * folder or files events will be raised. This events
  * can be get by getNextEvent.
  *
- * @eventMask
+ * @eventMask @see Event2
  *
- * IN_ACCESS         File was accessed (read) (*).
- * IN_ATTRIB         Metadata changed—for example, permissions,
- *                   timestamps, extended attributes, link count
- *                   (since Linux 2.6.25), UID, or GID. (*).
- * IN_CLOSE_WRITE    File opened for writing was closed (*).
- * IN_CLOSE_NOWRITE  File not opened for writing was closed (*).
- * IN_CREATE         File/directory created in watched directory(*).
- * IN_DELETE         File/directory deleted from watched directory(*).
- * IN_DELETE_SELF    Watched file/directory was itself deleted.
- * IN_MODIFY         File was modified (*).
- * IN_MOVE_SELF      Watched file/directory was itself moved.
- * IN_MOVED_FROM     Generated for the directory containing the old
- *                   filename when a file is renamed (*).
- * IN_MOVED_TO       Generated for the directory containing the new
- *                   filename when a file is renamed (*).
- * IN_OPEN           File was opened (*).
- * IN_ALL_EVENTS     macro is defined as a bit mask of all of the above
- *                   events
- * IN_MOVE           IN_MOVED_FROM|IN_MOVED_TO
- * IN_CLOSE          IN_CLOSE_WRITE | IN_CLOSE_NOWRITE
- *
- * See inotify manpage for more event details
+ * See fanotify manpage for more event details
  *
  */
 namespace inotify {
 
 class Inotify {
- public:
-  Inotify();
-  ~Inotify();
-  void watchDirectoryRecursively(std::string path);
-  void watchFile(std::string file);
-  void unwatchFile(std::string file);
-  void ignoreFileOnce(std::string file);
-  void ignoreFile(std::string file);
-  void setEventMask(uint32_t eventMask);
-  uint32_t getEventMask();
-  void setEventTimeout(std::chrono::milliseconds eventTimeout, std::function<void(FileSystemEvent)> onEventTimeout);
-  TFileSystemEventPtr getNextEvent();
-  void stop();
-  bool hasStopped();
+    enum { FD_POLL_FANOTIFY = 0, FD_POLL_MAX };
 
-private:
-  std::string wdToPath(int wd);
-  bool isIgnored(std::string file);
-  bool onTimeout(const std::chrono::steady_clock::time_point& eventTime);
-  void removeWatch(int wd);
-  void init();
+  public:
+    Inotify();
+    ~Inotify();
+    void watchMountPoint(std::string);
+    void watchFile(std::string);
+    void unwatch(const std::string&);
+    void ignoreFile(std::string);
+    void setEventMask(uint64_t);
+    uint64_t getEventMask();
+    TFileSystemEventPtr getNextEvent();
+    void stop();
+    bool hasStopped();
 
-  // Member
-  int mError;
-  std::chrono::milliseconds mEventTimeout;
-  std::chrono::steady_clock::time_point mLastEventTime;
-  uint32_t mEventMask;
-  uint32_t mThreadSleep;
-  std::vector<std::string> mIgnoredDirectories;
-  std::vector<std::string> mOnceIgnoredDirectories;
-  std::queue<FileSystemEvent> mEventQueue;
-  std::map<int, std::string> mDirectorieMap;
-  int mInotifyFd;
-  std::atomic<bool> stopped;
-  std::function<void(FileSystemEvent)> mOnEventTimeout;
-  bool isDirectory(const std::string&) const;
-  bool isExists(const std::string&) const;
+  private:
+    /* Enumerate list of FDs to poll */
+
+    void watch(std::string, unsigned int);
+    std::string wdToPath(int wd);
+    bool isIgnored(std::string file);
+
+    void initFanotify();
+    void initSignals();
+
+    // Member
+    int _Error;
+    uint64_t _EventMask;
+    std::vector<std::string> _IgnoredDirectories;
+    std::queue<TFileSystemEventPtr> _Queue;
+
+    int _FanotifyFd = -1;
+    int _SignalFd = -1;
+    std::atomic<bool> _Stopped;
+
+    bool isDirectory(const std::string&) const;
+    bool isExists(const std::string&) const;
+    std::string getFilePath(int) const;
 };
 }

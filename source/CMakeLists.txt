@@ -1,5 +1,5 @@
 set(LIB_NAME inotify-cpp)
-set(LIB_SRCS NotifierBuilder.cpp Event.cpp FileSystemEvent.cpp Inotify.cpp)
+set(LIB_SRCS NotifierBuilder.cpp Event.cpp Notification.cpp FileSystemEvent.cpp Inotify.cpp)
 
 add_library(${LIB_NAME} ${LIB_SRCS})
 target_include_directories(

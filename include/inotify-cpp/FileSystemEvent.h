@@ -1,18 +1,17 @@
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace inotify {
 class FileSystemEvent {
   public:
-    FileSystemEvent(int wd, uint32_t mask, const std::string path);
-
+    FileSystemEvent(uint64_t, const std::string);
     ~FileSystemEvent();
 
-  public: // Member
-    int wd;
-    uint32_t mask;
+  public:
+    uint64_t mask;
     std::string path;
 };
 using TFileSystemEventPtr = std::shared_ptr<FileSystemEvent>;

@@ -1,49 +1,87 @@
 #include <inotify-cpp/Inotify.h>
 
+#include <algorithm>
+#include <functional>
+#include <iostream>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <iostream>
-#include <functional>
 
-#include <unistd.h>
-#include <fcntl.h>
 #include <dirent.h>
-#include <sys/types.h>
+#include <fcntl.h>
 #include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <poll.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/signalfd.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+#include <sys/fanotify.h>
 
 namespace inotify {
 
 Inotify::Inotify()
-    : mError(0)
-    , mEventTimeout(0)
-    , mLastEventTime(std::chrono::steady_clock::now())
-    , mEventMask(IN_ALL_EVENTS)
-    , mThreadSleep(250)
-    , mIgnoredDirectories(std::vector<std::string>())
-    , mInotifyFd(0)
-    , mOnEventTimeout([](FileSystemEvent) {})
+    : _Error(0)
+    , _EventMask(IN_ALL_EVENTS)
 {
-
-    // Initialize inotify
-    init();
+    initFanotify();
+    initSignals();
 }
 
 Inotify::~Inotify()
 {
-    if (!close(mInotifyFd)) {
-        mError = errno;
+    if (!close(_FanotifyFd)) {
+        _Error = errno;
+    }
+    if (!close(_SignalFd)) {
+        _Error = errno;
     }
 }
 
-void Inotify::init()
+void Inotify::initFanotify()
 {
-    stopped = false;
-    mInotifyFd = inotify_init1(IN_NONBLOCK);
-    if (mInotifyFd == -1) {
-        mError = errno;
+    _Stopped = false;
+    _FanotifyFd
+        = fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_NONBLOCK, O_RDONLY | O_LARGEFILE);
+
+    if (_FanotifyFd == -1) {
+        _Error = errno;
         std::stringstream errorStream;
-        errorStream << "Can't initialize inotify ! " << strerror(mError) << ".";
+        errorStream << "Couldn't setup new fanotify device: " << strerror(_Error) << ".";
+        throw std::runtime_error(errorStream.str());
+    }
+}
+
+void Inotify::initSignals()
+{
+    _Stopped = false;
+    sigset_t sigmask;
+
+    /* We want to handle SIGINT and SIGTERM in the _SignalFd, so we block them. */
+    sigemptyset(&sigmask);
+    sigaddset(&sigmask, SIGINT);
+    sigaddset(&sigmask, SIGTERM);
+
+    if (sigprocmask(SIG_BLOCK, &sigmask, NULL) < 0) {
+        _Error = errno;
+        std::stringstream errorStream;
+        errorStream << "Couldn't block signals: " << strerror(_Error) << ".";
+        throw std::runtime_error(errorStream.str());
+    }
+
+    /* Get new FD to read signals from it */
+    if ((_SignalFd = signalfd(-1, &sigmask, 0)) < 0) {
+        _Error = errno;
+        std::stringstream errorStream;
+        errorStream << "Couldn't setup signal FD: " << strerror(_Error) << ".";
         throw std::runtime_error(errorStream.str());
     }
 }
@@ -56,32 +94,9 @@ void Inotify::init()
  * @param path that will be watched recursively
  *
  */
-void Inotify::watchDirectoryRecursively(std::string path)
+void Inotify::watchMountPoint(std::string path)
 {
-    /* XXX
-    if (isExists(path))
-        if (isDirectory(path)) {
-            fs::recursive_directory_iterator it(path, fs::symlink_option::recurse);
-            fs::recursive_directory_iterator end;
-
-            while (it != end) {
-                fs::path currentPath = *it;
-
-                if (isDirectory(currentPath)) {
-                    watchFile(currentPath);
-                }
-                if (fs::is_symlink(currentPath)) {
-                    watchFile(currentPath);
-                }
-                ++it;
-            }
-        }
-        watchFile(path);
-    } else {
-        throw std::invalid_argument(
-            "Can´t watch Path! Path does not exist. Path: " + path.string());
-    }
-    */
+    watch(path, FAN_MARK_ADD | FAN_MARK_MOUNT);
 }
 
 /**
@@ -96,53 +111,29 @@ void Inotify::watchDirectoryRecursively(std::string path)
  */
 void Inotify::watchFile(std::string filePath)
 {
-    if (isExists(filePath)) {
-        mError = 0;
-        int wd = 0;
-        if (!isIgnored(filePath)) {
-            wd = inotify_add_watch(mInotifyFd, filePath.c_str(), mEventMask);
-        }
-
-        if (wd == -1) {
-            mError = errno;
-            std::stringstream errorStream;
-            if (mError == 28) {
-                errorStream << "Failed to watch! " << strerror(mError)
-                            << ". Please increase number of watches in "
-                               "\"/proc/sys/fs/inotify/max_user_watches\".";
-                throw std::runtime_error(errorStream.str());
-            }
-
-            errorStream << "Failed to watch! " << strerror(mError)
-                        << ". Path: " << filePath;
-            throw std::runtime_error(errorStream.str());
-        }
-        mDirectorieMap.emplace(wd, filePath);
-    } else {
-        throw std::invalid_argument(
-            "Can´t watch Path! Path does not exist. Path: " + filePath);
-    }
+    watch(filePath, FAN_MARK_ADD);
 }
 
-void Inotify::ignoreFileOnce(std::string file)
+void Inotify::watch(std::string path, unsigned int flags)
 {
-    mOnceIgnoredDirectories.push_back(file);
+    if (isExists(path)) {
+        _Error = 0;
+
+        /* Add new fanotify mark */
+        if (fanotify_mark(_FanotifyFd, flags, getEventMask(), AT_FDCWD, path.c_str()) < 0) {
+            _Error = errno;
+            std::stringstream errorStream;
+            errorStream << "Couldn't add monitor '" << path << "': " << strerror(_Error);
+            throw std::runtime_error(errorStream.str());
+        }
+    } else {
+        throw std::invalid_argument("Can´t watch Path! Path does not exist. Path: " + path);
+    }
 }
 
 void Inotify::ignoreFile(std::string file)
 {
-    mIgnoredDirectories.push_back(file);
-}
-
-
-void Inotify::unwatchFile(std::string file)
-{
-    auto const itFound = std::find_if(std::begin(mDirectorieMap), std::end(mDirectorieMap),
-                                      [&](std::pair<int, std::string> const& KeyString)
-                                      { return KeyString.second == file; });
-
-    if (itFound != std::end(mDirectorieMap))
-        removeWatch(itFound->first);
+    _IgnoredDirectories.push_back(file);
 }
 
 /**
@@ -152,37 +143,26 @@ void Inotify::unwatchFile(std::string file)
  * @param wd watchdescriptor
  *
  */
-void Inotify::removeWatch(int wd)
+void Inotify::unwatch(const std::string& path)
 {
-    int result = inotify_rm_watch(mInotifyFd, wd);
-    if (result == -1) {
-        mError = errno;
+    _Error = 0;
+    /* Add new fanotify mark */
+    if (fanotify_mark(_FanotifyFd, FAN_MARK_REMOVE, getEventMask(), AT_FDCWD, path.c_str()) < 0) {
+        _Error = errno;
         std::stringstream errorStream;
-        errorStream << "Failed to remove watch! " << strerror(mError) << ".";
+        errorStream << "Couldn't remove monitor '" << path << "': " << strerror(_Error);
         throw std::runtime_error(errorStream.str());
     }
 }
 
-std::string Inotify::wdToPath(int wd)
+void Inotify::setEventMask(uint64_t eventMask)
 {
-    return mDirectorieMap.at(wd);
+    _EventMask = eventMask;
 }
 
-void Inotify::setEventMask(uint32_t eventMask)
+uint64_t Inotify::getEventMask()
 {
-    mEventMask = eventMask;
-}
-
-uint32_t Inotify::getEventMask()
-{
-    return mEventMask;
-}
-
-void Inotify::setEventTimeout(
-    std::chrono::milliseconds eventTimeout, std::function<void(FileSystemEvent)> onEventTimeout)
-{
-    mEventTimeout = eventTimeout;
-    mOnEventTimeout = onEventTimeout;
+    return _EventMask;
 }
 
 /**
@@ -197,103 +177,72 @@ void Inotify::setEventTimeout(
  */
 TFileSystemEventPtr Inotify::getNextEvent()
 {
-    int length = 0;
-    char buffer[EVENT_BUF_LEN];
-    std::chrono::steady_clock::time_point currentEventTime;
-    std::vector<FileSystemEvent> events;
+    struct pollfd fds[FD_POLL_MAX];
+    /* Setup polling */
+    fds[FD_POLL_FANOTIFY].fd = _FanotifyFd;
+    fds[FD_POLL_FANOTIFY].events = POLLIN;
 
-    // Read Events from fd into buffer
-    while (mEventQueue.empty()) {
-        length = 0;
-        memset(buffer, '\0', sizeof(buffer));
-        while (length <= 0 && !stopped) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(mThreadSleep));
-
-            length = read(mInotifyFd, buffer, EVENT_BUF_LEN);
-            if (length == -1) {
-                mError = errno;
-                if (mError != EINTR) {
-                    continue;
-                }
-            }
+    /* Now loop */
+    while (_Queue.empty()) {
+        /* Block until there is something to be read */
+        if (poll(fds, FD_POLL_MAX, -1) < 0) {
+            _Error = errno;
+            std::stringstream errorStream;
+            errorStream << "Couldn't poll(): " << strerror(_Error) << ".";
+            throw std::runtime_error(errorStream.str());
         }
 
-        if (stopped) {
+        if (_Stopped) {
             return nullptr;
         }
 
-        // Read events from buffer into queue
-        currentEventTime = std::chrono::steady_clock::now();
-        int i = 0;
-        while (i < length) {
-            inotify_event* event = ((struct inotify_event*)&buffer[i]);
+        /* fanotify event received? */
+        if (fds[FD_POLL_FANOTIFY].revents & POLLIN) {
+            char buffer[/*FANOTIFY_BUFFER_SIZE*/ 8192];
+            ssize_t length;
 
-            if(event->mask & IN_IGNORED){
-                i += EVENT_SIZE + event->len;
-                mDirectorieMap.erase(event->wd);
-                continue;
-            }
-            auto path = wdToPath(event->wd) + std::string("/") + std::string(event->name);
+            /* Read from the FD. It will read all events available up to
+             * the given buffer size. */
+            if ((length = read(fds[FD_POLL_FANOTIFY].fd, buffer, /*FANOTIFY_BUFFER_SIZE*/ 8192))
+                > 0) {
+                struct fanotify_event_metadata* metadata;
 
-            if (isDirectory(path)) {
-                event->mask |= IN_ISDIR;
-            }
-            FileSystemEvent fsEvent(event->wd, event->mask, path);
+                metadata = (struct fanotify_event_metadata*)buffer;
 
-            if (!fsEvent.path.empty()) {
-                events.push_back(fsEvent);
+                while (FAN_EVENT_OK(metadata, length)) {
 
-            } else {
-                // Event is not complete --> ignore
-            }
-
-            i += EVENT_SIZE + event->len;
-        }
-
-        // Filter events
-        for (auto eventIt = events.begin(); eventIt < events.end(); ++eventIt) {
-            FileSystemEvent currentEvent = *eventIt;
-            if (onTimeout(currentEventTime)) {
-                events.erase(eventIt);
-                mOnEventTimeout(currentEvent);
-
-            } else if (isIgnored(currentEvent.path)) {
-                events.erase(eventIt);
-            } else {
-                mLastEventTime = currentEventTime;
-                mEventQueue.push(currentEvent);
+                    const std::string filename = getFilePath(metadata->fd);
+                    if (!filename.empty()) {
+                        // TODO Filter events
+                        _Queue.push(std::make_shared<FileSystemEvent>(metadata->mask, filename));
+                        close(metadata->fd);
+                    }
+                    metadata = FAN_EVENT_NEXT(metadata, length);
+                }
             }
         }
     }
-
     // Return next event
-    auto event = std::make_shared<FileSystemEvent>(mEventQueue.front());
-    mEventQueue.pop();
+    auto event = _Queue.front();
+    std::cout << "RETURN work.... " << event->path << std::endl;
+    _Queue.pop();
     return event;
 }
 
 void Inotify::stop()
 {
-    stopped = true;
+    _Stopped = true;
 }
 
 bool Inotify::hasStopped()
 {
-  return stopped;
+    return _Stopped;
 }
 
 bool Inotify::isIgnored(std::string file)
 {
-    for (unsigned i = 0; i < mOnceIgnoredDirectories.size(); ++i) {
-        size_t pos = file.find(mOnceIgnoredDirectories[i]);
-        if (pos != std::string::npos) {
-            mOnceIgnoredDirectories.erase(mOnceIgnoredDirectories.begin() + i);
-            return true;
-        }
-    }
-
-    for (unsigned i = 0; i < mIgnoredDirectories.size(); ++i) {
-        size_t pos = file.find(mIgnoredDirectories[i]);
+    for (unsigned i = 0; i < _IgnoredDirectories.size(); ++i) {
+        size_t pos = file.find(_IgnoredDirectories[i]);
         if (pos != std::string::npos) {
             return true;
         }
@@ -302,17 +251,11 @@ bool Inotify::isIgnored(std::string file)
     return false;
 }
 
-bool Inotify::onTimeout(const std::chrono::steady_clock::time_point& eventTime)
-{
-    return std::chrono::duration_cast<std::chrono::milliseconds>(eventTime - mLastEventTime) < mEventTimeout;
-}
-
 bool Inotify::isDirectory(const std::string& path) const
 {
-    if (access(path.c_str(), F_OK) != -1)
-    {
+    if (access(path.c_str(), F_OK) != -1) {
         // file exists
-        DIR *dirptr;
+        DIR* dirptr;
         if ((dirptr = opendir(path.c_str())) != NULL) {
             closedir(dirptr);
             return true;
@@ -323,5 +266,21 @@ bool Inotify::isDirectory(const std::string& path) const
 bool Inotify::isExists(const std::string& path) const
 {
     return (access(path.c_str(), F_OK) != -1);
+}
+
+std::string Inotify::getFilePath(int fd) const
+{
+    ssize_t len;
+    char buffer[PATH_MAX];
+
+    if (fd <= 0)
+        return {};
+
+    sprintf(buffer, "/proc/self/fd/%d", fd);
+    if ((len = readlink(buffer, buffer, PATH_MAX - 1)) < 0)
+        return {};
+
+    buffer[len] = '\0';
+    return std::string(buffer);
 }
 }
