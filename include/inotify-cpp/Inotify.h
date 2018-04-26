@@ -70,7 +70,6 @@ class Fanotify {
     bool isIgnored(std::string file);
 
     void initFanotify();
-    void initSignals();
 
     // Member
     int _Error;
@@ -79,7 +78,6 @@ class Fanotify {
     std::queue<TFileSystemEventPtr> _Queue;
 
     int _FanotifyFd = -1;
-    int _SignalFd = -1;
     std::atomic<bool> _Stopped;
 
     bool isDirectory(const std::string&) const;

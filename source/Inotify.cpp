@@ -48,15 +48,11 @@ Fanotify::Fanotify()
     , _EventMask(FAN_ALL_EVENTS)
 {
     initFanotify();
-    initSignals();
 }
 
 Fanotify::~Fanotify()
 {
     if (!close(_FanotifyFd)) {
-        _Error = errno;
-    }
-    if (!close(_SignalFd)) {
         _Error = errno;
     }
 }
@@ -71,32 +67,6 @@ void Fanotify::initFanotify()
         _Error = errno;
         std::stringstream errorStream;
         errorStream << "Couldn't setup new fanotify device: " << strerror(_Error) << ".";
-        throw std::runtime_error(errorStream.str());
-    }
-}
-
-void Fanotify::initSignals()
-{
-    _Stopped = false;
-    sigset_t sigmask;
-
-    /* We want to handle SIGINT and SIGTERM in the _SignalFd, so we block them. */
-    sigemptyset(&sigmask);
-    sigaddset(&sigmask, SIGINT);
-    sigaddset(&sigmask, SIGTERM);
-
-    if (sigprocmask(SIG_BLOCK, &sigmask, NULL) < 0) {
-        _Error = errno;
-        std::stringstream errorStream;
-        errorStream << "Couldn't block signals: " << strerror(_Error) << ".";
-        throw std::runtime_error(errorStream.str());
-    }
-
-    /* Get new FD to read signals from it */
-    if ((_SignalFd = signalfd(-1, &sigmask, 0)) < 0) {
-        _Error = errno;
-        std::stringstream errorStream;
-        errorStream << "Couldn't setup signal FD: " << strerror(_Error) << ".";
         throw std::runtime_error(errorStream.str());
     }
 }
