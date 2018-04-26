@@ -46,12 +46,12 @@
  */
 namespace inotify {
 
-class Inotify {
+class Fanotify {
     enum { FD_POLL_FANOTIFY = 0, FD_POLL_MAX };
 
   public:
-    Inotify();
-    ~Inotify();
+    Fanotify();
+    ~Fanotify();
     void watchMountPoint(std::string);
     void watchFile(std::string);
     void unwatch(const std::string&);

@@ -43,7 +43,7 @@
 
 namespace inotify {
 
-Inotify::Inotify()
+Fanotify::Fanotify()
     : _Error(0)
     , _EventMask(FAN_ALL_EVENTS)
 {
@@ -51,7 +51,7 @@ Inotify::Inotify()
     initSignals();
 }
 
-Inotify::~Inotify()
+Fanotify::~Fanotify()
 {
     if (!close(_FanotifyFd)) {
         _Error = errno;
@@ -61,7 +61,7 @@ Inotify::~Inotify()
     }
 }
 
-void Inotify::initFanotify()
+void Fanotify::initFanotify()
 {
     _Stopped = false;
     _FanotifyFd
@@ -75,7 +75,7 @@ void Inotify::initFanotify()
     }
 }
 
-void Inotify::initSignals()
+void Fanotify::initSignals()
 {
     _Stopped = false;
     sigset_t sigmask;
@@ -109,7 +109,7 @@ void Inotify::initSignals()
  * @param path that will be watched recursively
  *
  */
-void Inotify::watchMountPoint(std::string path)
+void Fanotify::watchMountPoint(std::string path)
 {
     watch(path, FAN_MARK_ADD | FAN_MARK_MOUNT);
 }
@@ -124,12 +124,12 @@ void Inotify::watchMountPoint(std::string path)
  * @param path that will be watched
  *
  */
-void Inotify::watchFile(std::string filePath)
+void Fanotify::watchFile(std::string filePath)
 {
     watch(filePath, FAN_MARK_ADD);
 }
 
-void Inotify::watch(std::string path, unsigned int flags)
+void Fanotify::watch(std::string path, unsigned int flags)
 {
     if (isExists(path)) {
         _Error = 0;
@@ -146,7 +146,7 @@ void Inotify::watch(std::string path, unsigned int flags)
     }
 }
 
-void Inotify::ignoreFile(std::string file)
+void Fanotify::ignoreFile(std::string file)
 {
     _IgnoredDirectories.push_back(file);
 }
@@ -158,7 +158,7 @@ void Inotify::ignoreFile(std::string file)
  * @param wd watchdescriptor
  *
  */
-void Inotify::unwatch(const std::string& path)
+void Fanotify::unwatch(const std::string& path)
 {
     _Error = 0;
     /* Add new fanotify mark */
@@ -170,12 +170,12 @@ void Inotify::unwatch(const std::string& path)
     }
 }
 
-void Inotify::setEventMask(uint64_t eventMask)
+void Fanotify::setEventMask(uint64_t eventMask)
 {
     _EventMask = eventMask;
 }
 
-uint64_t Inotify::getEventMask()
+uint64_t Fanotify::getEventMask()
 {
     return _EventMask;
 }
@@ -190,7 +190,7 @@ uint64_t Inotify::getEventMask()
  * @return A new FileSystemEvent
  *
  */
-TFileSystemEventPtr Inotify::getNextEvent()
+TFileSystemEventPtr Fanotify::getNextEvent()
 {
     struct pollfd fds[FD_POLL_MAX];
     /* Setup polling */
@@ -243,17 +243,17 @@ TFileSystemEventPtr Inotify::getNextEvent()
     return event;
 }
 
-void Inotify::stop()
+void Fanotify::stop()
 {
     _Stopped = true;
 }
 
-bool Inotify::hasStopped()
+bool Fanotify::hasStopped()
 {
     return _Stopped;
 }
 
-bool Inotify::isIgnored(std::string file)
+bool Fanotify::isIgnored(std::string file)
 {
     for (unsigned i = 0; i < _IgnoredDirectories.size(); ++i) {
         size_t pos = file.find(_IgnoredDirectories[i]);
@@ -265,7 +265,7 @@ bool Inotify::isIgnored(std::string file)
     return false;
 }
 
-bool Inotify::isDirectory(const std::string& path) const
+bool Fanotify::isDirectory(const std::string& path) const
 {
     if (access(path.c_str(), F_OK) != -1) {
         // file exists
@@ -277,12 +277,12 @@ bool Inotify::isDirectory(const std::string& path) const
     }
     return false;
 }
-bool Inotify::isExists(const std::string& path) const
+bool Fanotify::isExists(const std::string& path) const
 {
     return (access(path.c_str(), F_OK) != -1);
 }
 
-std::string Inotify::getFilePath(int fd) const
+std::string Fanotify::getFilePath(int fd) const
 {
     ssize_t len;
     char buffer[PATH_MAX];

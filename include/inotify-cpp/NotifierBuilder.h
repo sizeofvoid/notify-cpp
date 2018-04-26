@@ -28,7 +28,7 @@ class NotifierBuilder {
     auto onUnexpectedEvent(EventObserver) -> NotifierBuilder&;
 
   private:
-    std::unique_ptr<Inotify> _Fnotify;
+    std::unique_ptr<Fanotify> _Fanotify;
     std::map<Event, EventObserver> mEventObserver;
     EventObserver mUnexpectedEventObserver;
 };

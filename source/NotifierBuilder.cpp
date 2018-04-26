@@ -26,7 +26,7 @@
 namespace inotify {
 
 NotifierBuilder::NotifierBuilder()
-    : _Fnotify(new Inotify())
+    : _Fanotify(new Fanotify())
 {
 }
 
@@ -37,31 +37,31 @@ NotifierBuilder BuildNotifier()
 
 auto NotifierBuilder::watchMountPoint(std::string path) -> NotifierBuilder&
 {
-    _Fnotify->watchMountPoint(path);
+    _Fanotify->watchMountPoint(path);
     return *this;
 }
 
 auto NotifierBuilder::watchFile(std::string file) -> NotifierBuilder&
 {
-    _Fnotify->watchFile(file);
+    _Fanotify->watchFile(file);
     return *this;
 }
 
 auto NotifierBuilder::unwatch(std::string file) -> NotifierBuilder&
 {
-    _Fnotify->unwatch(file);
+    _Fanotify->unwatch(file);
     return *this;
 }
 
 auto NotifierBuilder::ignoreFile(std::string file) -> NotifierBuilder&
 {
-    _Fnotify->ignoreFile(file);
+    _Fanotify->ignoreFile(file);
     return *this;
 }
 
 auto NotifierBuilder::onEvent(Event event, EventObserver eventObserver) -> NotifierBuilder&
 {
-    _Fnotify->setEventMask(_Fnotify->getEventMask() | static_cast<std::uint64_t>(event));
+    _Fanotify->setEventMask(_Fanotify->getEventMask() | static_cast<std::uint64_t>(event));
     mEventObserver[event] = eventObserver;
     return *this;
 }
@@ -70,7 +70,7 @@ auto NotifierBuilder::onEvents(std::vector<Event> events, EventObserver eventObs
     -> NotifierBuilder&
 {
     for (auto event : events) {
-        _Fnotify->setEventMask(_Fnotify->getEventMask() | static_cast<std::uint64_t>(event));
+        _Fanotify->setEventMask(_Fanotify->getEventMask() | static_cast<std::uint64_t>(event));
         mEventObserver[event] = eventObserver;
     }
 
@@ -85,7 +85,7 @@ auto NotifierBuilder::onUnexpectedEvent(EventObserver eventObserver) -> Notifier
 
 auto NotifierBuilder::runOnce() -> void
 {
-    auto fileSystemEvent = _Fnotify->getNextEvent();
+    auto fileSystemEvent = _Fanotify->getNextEvent();
     if (!fileSystemEvent) {
         return;
     }
@@ -107,7 +107,7 @@ auto NotifierBuilder::runOnce() -> void
 auto NotifierBuilder::run() -> void
 {
     while (true) {
-        if (_Fnotify->hasStopped()) {
+        if (_Fanotify->hasStopped()) {
             break;
         }
 
@@ -117,6 +117,6 @@ auto NotifierBuilder::run() -> void
 
 auto NotifierBuilder::stop() -> void
 {
-    _Fnotify->stop();
+    _Fanotify->stop();
 }
 }
