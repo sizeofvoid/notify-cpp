@@ -40,7 +40,7 @@ enum class Event : std::uint64_t {
     close = FAN_CLOSE,
 
     /* interested in child events */
-    even_no_child = FAN_EVENT_ON_CHILD,
+    event_on_child = FAN_EVENT_ON_CHILD,
     /*
      * All of the events - we build the list by hand so that we can add flags in
      * the future and not break backward compatibility.  Apps will get only the

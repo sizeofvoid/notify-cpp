@@ -75,8 +75,8 @@ std::ostream& operator<<(std::ostream& stream, const Event& event)
         maskString.append("ondir ");
     if (containsEvent(event, Event::close))
         maskString.append("close ");
-    if (containsEvent(event, Event::even_no_child))
-        maskString.append("even_no_child ");
+    if (containsEvent(event, Event::event_on_child))
+        maskString.append("event_on_child ");
     if (containsEvent(event, Event::all_events))
         maskString.append("all_events ");
     if (containsEvent(event, Event::all_outgoing_events))
