@@ -5,28 +5,16 @@
  * @copyright MIT
  **/
 #pragma once
-#include <assert.h>
+#include <inotify-cpp/FileSystemEvent.h>
+
 #include <atomic>
-#include <chrono>
-#include <errno.h>
-#include <exception>
-#include <functional>
-#include <map>
-#include <memory>
 #include <queue>
-#include <sstream>
 #include <string>
-#include <sys/inotify.h>
-#include <thread>
-#include <time.h>
 #include <vector>
 
-#include <inotify-cpp/FileSystemEvent.h>
 #include <sys/fanotify.h>
 
 #define MAX_EVENTS 4096
-#define EVENT_SIZE (sizeof(inotify_event))
-#define EVENT_BUF_LEN (MAX_EVENTS * (EVENT_SIZE + 16))
 
 /**
  * @brief C++ wrapper for linux fanotify interface

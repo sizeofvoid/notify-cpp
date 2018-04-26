@@ -23,24 +23,11 @@
 
 #include <inotify-cpp/Inotify.h>
 
-#include <algorithm>
-#include <functional>
-#include <iostream>
-#include <string>
-#include <vector>
-
 #include <dirent.h>
-#include <fcntl.h>
-#include <string.h>
-#include <sys/types.h>
-#include <unistd.h>
-
 #include <errno.h>
 #include <fcntl.h>
-#include <limits.h>
 #include <poll.h>
 #include <signal.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/signalfd.h>
@@ -49,11 +36,16 @@
 
 #include <sys/fanotify.h>
 
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+
 namespace inotify {
 
 Inotify::Inotify()
     : _Error(0)
-    , _EventMask(IN_ALL_EVENTS)
+    , _EventMask(FAN_ALL_EVENTS)
 {
     initFanotify();
     initSignals();
@@ -247,7 +239,6 @@ TFileSystemEventPtr Inotify::getNextEvent()
     }
     // Return next event
     auto event = _Queue.front();
-    std::cout << "RETURN work.... " << event->path << std::endl;
     _Queue.pop();
     return event;
 }

@@ -3,6 +3,8 @@
 #include <inotify-cpp/Inotify.h>
 #include <inotify-cpp/Notification.h>
 
+#include <functional>
+#include <map>
 #include <memory>
 #include <string>
 

@@ -89,18 +89,18 @@ auto NotifierBuilder::runOnce() -> void
     if (!fileSystemEvent) {
         return;
     }
-    Event event = static_cast<Event>(fileSystemEvent->mask);
+    Event event = static_cast<Event>(fileSystemEvent->getMask());
 
     const auto eventAndEventObserver = mEventObserver.find(event);
 
     if (eventAndEventObserver == mEventObserver.end()) {
         if (mUnexpectedEventObserver) {
-            mUnexpectedEventObserver({ event, fileSystemEvent->path });
+            mUnexpectedEventObserver({ event, fileSystemEvent->getPath() });
         }
     } else {
         /* handle observed processes */
         auto eventObserver = eventAndEventObserver->second;
-        eventObserver({ event, fileSystemEvent->path });
+        eventObserver({ event, fileSystemEvent->getPath() });
     }
 }
 

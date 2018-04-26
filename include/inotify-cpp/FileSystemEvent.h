@@ -7,12 +7,18 @@
 namespace inotify {
 class FileSystemEvent {
   public:
-    FileSystemEvent(uint64_t, const std::string);
+    FileSystemEvent(uint64_t, const std::string&);
     ~FileSystemEvent();
 
-  public:
-    uint64_t mask;
-    std::string path;
+    uint64_t getMask() const;
+    std::string getPath() const;
+
+  private:
+    //!
+    uint64_t _Mask;
+
+    //! absoulte path + filename
+    std::string _Path;
 };
 using TFileSystemEventPtr = std::shared_ptr<FileSystemEvent>;
 }

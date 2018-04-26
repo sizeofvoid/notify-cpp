@@ -23,16 +23,22 @@
 
 #include <inotify-cpp/FileSystemEvent.h>
 
-#include <sys/inotify.h>
-
 namespace inotify {
-FileSystemEvent::FileSystemEvent(uint64_t mask, const std::string path)
-    : mask(mask)
-    , path(path)
+FileSystemEvent::FileSystemEvent(uint64_t mask, const std::string& path)
+    : _Mask(mask)
+    , _Path(path)
 {
 }
 
 FileSystemEvent::~FileSystemEvent()
 {
+}
+uint64_t FileSystemEvent::getMask() const
+{
+    return _Mask;
+}
+std::string FileSystemEvent::getPath() const
+{
+    return _Path;
 }
 }
