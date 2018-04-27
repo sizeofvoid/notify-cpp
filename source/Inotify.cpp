@@ -75,7 +75,7 @@ void Fanotify::initFanotify()
  * @param path that will be watched recursively
  *
  */
-void Fanotify::watchMountPoint(std::string path)
+void Fanotify::watchMountPoint(const std::string& path)
 {
     watch(path, FAN_MARK_ADD | FAN_MARK_MOUNT);
 }
@@ -90,12 +90,12 @@ void Fanotify::watchMountPoint(std::string path)
  * @param path that will be watched
  *
  */
-void Fanotify::watchFile(std::string filePath)
+void Fanotify::watchFile(const std::string& filePath)
 {
     watch(filePath, FAN_MARK_ADD);
 }
 
-void Fanotify::watch(std::string path, unsigned int flags)
+void Fanotify::watch(const std::string& path, unsigned int flags)
 {
     if (isExists(path)) {
         /* Add new fanotify mark */
@@ -109,7 +109,7 @@ void Fanotify::watch(std::string path, unsigned int flags)
     }
 }
 
-void Fanotify::ignoreFile(std::string file)
+void Fanotify::ignoreFile(const std::string& file)
 {
     _IgnoredDirectories.push_back(file);
 }
@@ -213,7 +213,7 @@ bool Fanotify::hasStopped()
     return _Stopped;
 }
 
-bool Fanotify::isIgnored(std::string file)
+bool Fanotify::isIgnored(const std::string& file)
 {
     for (unsigned i = 0; i < _IgnoredDirectories.size(); ++i) {
         size_t pos = file.find(_IgnoredDirectories[i]);

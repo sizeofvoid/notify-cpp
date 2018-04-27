@@ -52,35 +52,36 @@ class Fanotify {
   public:
     Fanotify();
     ~Fanotify();
-    void watchMountPoint(std::string);
-    void watchFile(std::string);
+
+    void watchMountPoint(const std::string&);
+    void watchFile(const std::string&);
     void unwatch(const std::string&);
-    void ignoreFile(std::string);
-    void setEventMask(uint64_t);
-    uint64_t getEventMask();
+    void ignoreFile(const std::string&);
+
     TFileSystemEventPtr getNextEvent();
+
     void stop();
     bool hasStopped();
 
+    void setEventMask(uint64_t);
+    uint64_t getEventMask();
+
   private:
-    /* Enumerate list of FDs to poll */
-
-    void watch(std::string, unsigned int);
-    std::string wdToPath(int wd);
-    bool isIgnored(std::string file);
-
+    void watch(const std::string&, unsigned int);
+    bool isIgnored(const std::string&);
     void initFanotify();
-
-    // Member
-    uint64_t _EventMask;
-    std::vector<std::string> _IgnoredDirectories;
-    std::queue<TFileSystemEventPtr> _Queue;
-
-    int _FanotifyFd = -1;
-    std::atomic<bool> _Stopped;
-
     bool isDirectory(const std::string&) const;
     bool isExists(const std::string&) const;
     std::string getFilePath(int) const;
+
+    uint64_t _EventMask;
+
+    std::vector<std::string> _IgnoredDirectories;
+
+    std::queue<TFileSystemEventPtr> _Queue;
+
+    int _FanotifyFd = -1;
+
+    std::atomic<bool> _Stopped;
 };
 }
