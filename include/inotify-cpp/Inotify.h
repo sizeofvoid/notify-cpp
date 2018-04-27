@@ -72,7 +72,6 @@ class Fanotify {
     void initFanotify();
 
     // Member
-    int _Error;
     uint64_t _EventMask;
     std::vector<std::string> _IgnoredDirectories;
     std::queue<TFileSystemEventPtr> _Queue;

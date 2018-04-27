@@ -44,29 +44,25 @@
 namespace inotify {
 
 Fanotify::Fanotify()
-    : _Error(0)
-    , _EventMask(FAN_ALL_EVENTS)
+    : _EventMask(FAN_ALL_EVENTS)
+    , _Stopped(false)
 {
     initFanotify();
 }
 
 Fanotify::~Fanotify()
 {
-    if (!close(_FanotifyFd)) {
-        _Error = errno;
-    }
+    close(_FanotifyFd);
 }
 
 void Fanotify::initFanotify()
 {
-    _Stopped = false;
     _FanotifyFd
         = fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_NONBLOCK, O_RDONLY | O_LARGEFILE);
 
     if (_FanotifyFd == -1) {
-        _Error = errno;
         std::stringstream errorStream;
-        errorStream << "Couldn't setup new fanotify device: " << strerror(_Error) << ".";
+        errorStream << "Couldn't setup new fanotify device: " << strerror(errno) << ".";
         throw std::runtime_error(errorStream.str());
     }
 }
@@ -102,13 +98,10 @@ void Fanotify::watchFile(std::string filePath)
 void Fanotify::watch(std::string path, unsigned int flags)
 {
     if (isExists(path)) {
-        _Error = 0;
-
         /* Add new fanotify mark */
         if (fanotify_mark(_FanotifyFd, flags, getEventMask(), AT_FDCWD, path.c_str()) < 0) {
-            _Error = errno;
             std::stringstream errorStream;
-            errorStream << "Couldn't add monitor '" << path << "': " << strerror(_Error);
+            errorStream << "Couldn't add monitor '" << path << "': " << strerror(errno);
             throw std::runtime_error(errorStream.str());
         }
     } else {
@@ -130,12 +123,10 @@ void Fanotify::ignoreFile(std::string file)
  */
 void Fanotify::unwatch(const std::string& path)
 {
-    _Error = 0;
     /* Add new fanotify mark */
     if (fanotify_mark(_FanotifyFd, FAN_MARK_REMOVE, getEventMask(), AT_FDCWD, path.c_str()) < 0) {
-        _Error = errno;
         std::stringstream errorStream;
-        errorStream << "Couldn't remove monitor '" << path << "': " << strerror(_Error);
+        errorStream << "Couldn't remove monitor '" << path << "': " << strerror(errno);
         throw std::runtime_error(errorStream.str());
     }
 }
@@ -168,12 +159,11 @@ TFileSystemEventPtr Fanotify::getNextEvent()
     fds[FD_POLL_FANOTIFY].events = POLLIN;
 
     /* Now loop */
-    while (_Queue.empty()) {
+    while (_Queue.empty() && !_Stopped) {
         /* Block until there is something to be read */
         if (poll(fds, FD_POLL_MAX, -1) < 0) {
-            _Error = errno;
             std::stringstream errorStream;
-            errorStream << "Couldn't poll(): " << strerror(_Error) << ".";
+            errorStream << "Couldn't poll(): " << strerror(errno) << ".";
             throw std::runtime_error(errorStream.str());
         }
 

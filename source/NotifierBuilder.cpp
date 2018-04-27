@@ -106,13 +106,8 @@ auto NotifierBuilder::runOnce() -> void
 
 auto NotifierBuilder::run() -> void
 {
-    while (true) {
-        if (_Fanotify->hasStopped()) {
-            break;
-        }
-
+    while (!_Fanotify->hasStopped())
         runOnce();
-    }
 }
 
 auto NotifierBuilder::stop() -> void
