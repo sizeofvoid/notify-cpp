@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-#include <inotify-cpp/Inotify.h>
+#include <inotify-cpp/fanotify.h>
 
 #include <dirent.h>
 #include <errno.h>
@@ -44,9 +44,10 @@
 namespace inotify {
 
 Fanotify::Fanotify()
-    : _EventMask(FAN_ALL_EVENTS)
-    , _Stopped(false)
+    : Notify()
 {
+
+    setEventMask(FAN_ALL_EVENTS);
     initFanotify();
 }
 
@@ -109,11 +110,6 @@ void Fanotify::watch(const std::string& path, unsigned int flags)
     }
 }
 
-void Fanotify::ignoreFile(const std::string& file)
-{
-    _IgnoredDirectories.push_back(file);
-}
-
 /**
  * @brief Removes watch from set of watches. This
  *        is not done recursively!
@@ -129,16 +125,6 @@ void Fanotify::unwatch(const std::string& path)
         errorStream << "Couldn't remove monitor '" << path << "': " << strerror(errno);
         throw std::runtime_error(errorStream.str());
     }
-}
-
-void Fanotify::setEventMask(uint64_t eventMask)
-{
-    _EventMask = eventMask;
-}
-
-uint64_t Fanotify::getEventMask()
-{
-    return _EventMask;
 }
 
 /**
@@ -201,60 +187,5 @@ TFileSystemEventPtr Fanotify::getNextEvent()
     auto event = _Queue.front();
     _Queue.pop();
     return event;
-}
-
-void Fanotify::stop()
-{
-    _Stopped = true;
-}
-
-bool Fanotify::hasStopped()
-{
-    return _Stopped;
-}
-
-bool Fanotify::isIgnored(const std::string& file)
-{
-    for (unsigned i = 0; i < _IgnoredDirectories.size(); ++i) {
-        size_t pos = file.find(_IgnoredDirectories[i]);
-        if (pos != std::string::npos) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool Fanotify::isDirectory(const std::string& path) const
-{
-    if (access(path.c_str(), F_OK) != -1) {
-        // file exists
-        DIR* dirptr;
-        if ((dirptr = opendir(path.c_str())) != NULL) {
-            closedir(dirptr);
-            return true;
-        }
-    }
-    return false;
-}
-bool Fanotify::isExists(const std::string& path) const
-{
-    return (access(path.c_str(), F_OK) != -1);
-}
-
-std::string Fanotify::getFilePath(int fd) const
-{
-    ssize_t len;
-    char buffer[PATH_MAX];
-
-    if (fd <= 0)
-        return {};
-
-    sprintf(buffer, "/proc/self/fd/%d", fd);
-    if ((len = readlink(buffer, buffer, PATH_MAX - 1)) < 0)
-        return {};
-
-    buffer[len] = '\0';
-    return std::string(buffer);
 }
 }

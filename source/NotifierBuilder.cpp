@@ -22,46 +22,47 @@
  */
 
 #include <inotify-cpp/NotifierBuilder.h>
+#include <inotify-cpp/fanotify.h>
 
 namespace inotify {
 
-NotifierBuilder::NotifierBuilder()
-    : _Fanotify(new Fanotify())
+FanotifyNotifierBuilder::FanotifyNotifierBuilder()
+    : NotifierBuilder(new Fanotify)
 {
 }
 
-NotifierBuilder BuildNotifier()
+NotifierBuilder::NotifierBuilder(Notify* n)
+    : _Notify(n)
 {
-    return {};
 }
 
 auto NotifierBuilder::watchMountPoint(std::string path) -> NotifierBuilder&
 {
-    _Fanotify->watchMountPoint(path);
+    _Notify->watchMountPoint(path);
     return *this;
 }
 
 auto NotifierBuilder::watchFile(std::string file) -> NotifierBuilder&
 {
-    _Fanotify->watchFile(file);
+    _Notify->watchFile(file);
     return *this;
 }
 
 auto NotifierBuilder::unwatch(std::string file) -> NotifierBuilder&
 {
-    _Fanotify->unwatch(file);
+    _Notify->unwatch(file);
     return *this;
 }
 
 auto NotifierBuilder::ignoreFile(std::string file) -> NotifierBuilder&
 {
-    _Fanotify->ignoreFile(file);
+    _Notify->ignoreFile(file);
     return *this;
 }
 
 auto NotifierBuilder::onEvent(Event event, EventObserver eventObserver) -> NotifierBuilder&
 {
-    _Fanotify->setEventMask(_Fanotify->getEventMask() | static_cast<std::uint64_t>(event));
+    _Notify->setEventMask(_Notify->getEventMask() | static_cast<std::uint64_t>(event));
     mEventObserver[event] = eventObserver;
     return *this;
 }
@@ -70,7 +71,7 @@ auto NotifierBuilder::onEvents(std::vector<Event> events, EventObserver eventObs
     -> NotifierBuilder&
 {
     for (auto event : events) {
-        _Fanotify->setEventMask(_Fanotify->getEventMask() | static_cast<std::uint64_t>(event));
+        _Notify->setEventMask(_Notify->getEventMask() | static_cast<std::uint64_t>(event));
         mEventObserver[event] = eventObserver;
     }
 
@@ -85,7 +86,7 @@ auto NotifierBuilder::onUnexpectedEvent(EventObserver eventObserver) -> Notifier
 
 auto NotifierBuilder::runOnce() -> void
 {
-    auto fileSystemEvent = _Fanotify->getNextEvent();
+    auto fileSystemEvent = _Notify->getNextEvent();
     if (!fileSystemEvent) {
         return;
     }
@@ -106,12 +107,12 @@ auto NotifierBuilder::runOnce() -> void
 
 auto NotifierBuilder::run() -> void
 {
-    while (!_Fanotify->hasStopped())
+    while (!_Notify->hasStopped())
         runOnce();
 }
 
 auto NotifierBuilder::stop() -> void
 {
-    _Fanotify->stop();
+    _Notify->stop();
 }
 }

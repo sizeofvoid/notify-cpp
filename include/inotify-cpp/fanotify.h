@@ -24,11 +24,7 @@
 #pragma once
 
 #include <inotify-cpp/FileSystemEvent.h>
-
-#include <atomic>
-#include <queue>
-#include <string>
-#include <vector>
+#include <inotify-cpp/notify.h>
 
 /**
  * @brief C++ wrapper for linux fanotify interface
@@ -46,42 +42,22 @@
  */
 namespace inotify {
 
-class Fanotify {
+class Fanotify : public Notify {
     enum { FD_POLL_FANOTIFY = 0, FD_POLL_MAX };
 
   public:
     Fanotify();
     ~Fanotify();
 
-    void watchMountPoint(const std::string&);
-    void watchFile(const std::string&);
-    void unwatch(const std::string&);
-    void ignoreFile(const std::string&);
-
-    TFileSystemEventPtr getNextEvent();
-
-    void stop();
-    bool hasStopped();
-
-    void setEventMask(uint64_t);
-    uint64_t getEventMask();
+    virtual void watchMountPoint(const std::string&) override;
+    virtual void watchFile(const std::string&) override;
+    virtual void unwatch(const std::string&) override;
+    TFileSystemEventPtr getNextEvent() override;
 
   private:
-    void watch(const std::string&, unsigned int);
-    bool isIgnored(const std::string&);
     void initFanotify();
-    bool isDirectory(const std::string&) const;
-    bool isExists(const std::string&) const;
-    std::string getFilePath(int) const;
-
-    uint64_t _EventMask;
-
-    std::vector<std::string> _IgnoredDirectories;
-
-    std::queue<TFileSystemEventPtr> _Queue;
+    void watch(const std::string&, unsigned int);
 
     int _FanotifyFd = -1;
-
-    std::atomic<bool> _Stopped;
 };
 }

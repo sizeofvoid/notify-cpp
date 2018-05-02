@@ -1,7 +1,7 @@
 #pragma once
 
-#include <inotify-cpp/Inotify.h>
 #include <inotify-cpp/Notification.h>
+#include <inotify-cpp/notify.h>
 
 #include <functional>
 #include <map>
@@ -13,9 +13,8 @@ namespace inotify {
 using EventObserver = std::function<void(Notification)>;
 
 class NotifierBuilder {
-  public:
-    NotifierBuilder();
-
+  protected:
+    NotifierBuilder(Notify*);
     auto run() -> void;
     auto runOnce() -> void;
     auto stop() -> void;
@@ -27,11 +26,14 @@ class NotifierBuilder {
     auto onEvents(std::vector<Event> event, EventObserver) -> NotifierBuilder&;
     auto onUnexpectedEvent(EventObserver) -> NotifierBuilder&;
 
+    std::unique_ptr<Notify> _Notify;
+
   private:
-    std::unique_ptr<Fanotify> _Fanotify;
     std::map<Event, EventObserver> mEventObserver;
     EventObserver mUnexpectedEventObserver;
 };
 
-NotifierBuilder BuildNotifier();
+class FanotifyNotifierBuilder : public NotifierBuilder {
+    FanotifyNotifierBuilder();
+};
 }
