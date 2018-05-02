@@ -10,6 +10,7 @@ target_include_directories(
 install(
   TARGETS ${LIB_NAME}
   ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
 )
 
 install(
