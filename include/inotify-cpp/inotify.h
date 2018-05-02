@@ -6,27 +6,27 @@
  **/
 #pragma once
 #include <assert.h>
+#include <atomic>
+#include <chrono>
 #include <errno.h>
 #include <exception>
+#include <functional>
 #include <map>
 #include <memory>
 #include <queue>
 #include <sstream>
 #include <string>
 #include <sys/inotify.h>
+#include <thread>
 #include <time.h>
 #include <vector>
-#include <chrono>
-#include <thread>
-#include <atomic>
-#include <functional>
 
 #include <inotify-cpp/FileSystemEvent.h>
+#include <inotify-cpp/notify.h>
 
-#define MAX_EVENTS     4096
-#define EVENT_SIZE     (sizeof (inotify_event))
-#define EVENT_BUF_LEN  (MAX_EVENTS * (EVENT_SIZE + 16))
-
+#define MAX_EVENTS 4096
+#define EVENT_SIZE (sizeof(inotify_event))
+#define EVENT_BUF_LEN (MAX_EVENTS * (EVENT_SIZE + 16))
 
 /**
  * @brief C++ wrapper for linux inotify interface
@@ -67,43 +67,31 @@
  */
 namespace inotify {
 
-class Inotify {
- public:
-  Inotify();
-  ~Inotify();
-  void watchDirectoryRecursively(std::string path);
-  void watchFile(std::string file);
-  void unwatchFile(std::string file);
-  void ignoreFileOnce(std::string file);
-  void ignoreFile(std::string file);
-  void setEventMask(uint32_t eventMask);
-  uint32_t getEventMask();
-  void setEventTimeout(std::chrono::milliseconds eventTimeout, std::function<void(FileSystemEvent)> onEventTimeout);
-  TFileSystemEventPtr getNextEvent();
-  void stop();
-  bool hasStopped();
+class Inotify : Notify {
+  public:
+    Inotify();
+    ~Inotify();
+    virtual void watchMountPoint(const std::string&) override;
+    virtual void watchFile(const std::string&) override;
+    virtual void unwatch(const std::string&) override;
+    virtual TFileSystemEventPtr getNextEvent() override;
 
-private:
-  std::string wdToPath(int wd);
-  bool isIgnored(std::string file);
-  bool onTimeout(const std::chrono::steady_clock::time_point& eventTime);
-  void removeWatch(int wd);
-  void init();
+  private:
+    std::string wdToPath(int wd);
+    void init();
 
-  // Member
-  int mError;
-  std::chrono::milliseconds mEventTimeout;
-  std::chrono::steady_clock::time_point mLastEventTime;
-  uint32_t mEventMask;
-  uint32_t mThreadSleep;
-  std::vector<std::string> mIgnoredDirectories;
-  std::vector<std::string> mOnceIgnoredDirectories;
-  std::queue<FileSystemEvent> mEventQueue;
-  std::map<int, std::string> mDirectorieMap;
-  int mInotifyFd;
-  std::atomic<bool> stopped;
-  std::function<void(FileSystemEvent)> mOnEventTimeout;
-  bool isDirectory(const std::string&) const;
-  bool isExists(const std::string&) const;
+    // Member
+    int mError;
+    std::chrono::milliseconds mEventTimeout;
+    std::chrono::steady_clock::time_point mLastEventTime;
+    uint32_t mEventMask;
+    uint32_t mThreadSleep;
+    std::vector<std::string> mIgnoredDirectories;
+    std::vector<std::string> mOnceIgnoredDirectories;
+    std::queue<FileSystemEvent> mEventQueue;
+    std::map<int, std::string> mDirectorieMap;
+    int mInotifyFd;
+    std::atomic<bool> stopped;
+    std::function<void(FileSystemEvent)> mOnEventTimeout;
 };
 }
