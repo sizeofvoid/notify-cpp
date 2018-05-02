@@ -6,9 +6,6 @@
  **/
 #pragma once
 #include <assert.h>
-#include <boost/filesystem.hpp>
-#include <boost/optional.hpp>
-#include <boost/bimap.hpp>
 #include <errno.h>
 #include <exception>
 #include <map>
@@ -22,6 +19,7 @@
 #include <chrono>
 #include <thread>
 #include <atomic>
+#include <functional>
 
 #include <inotify-cpp/FileSystemEvent.h>
 
@@ -29,7 +27,6 @@
 #define EVENT_SIZE     (sizeof (inotify_event))
 #define EVENT_BUF_LEN  (MAX_EVENTS * (EVENT_SIZE + 16))
 
-namespace fs = boost::filesystem;
 
 /**
  * @brief C++ wrapper for linux inotify interface
@@ -74,20 +71,20 @@ class Inotify {
  public:
   Inotify();
   ~Inotify();
-  void watchDirectoryRecursively(fs::path path);
-  void watchFile(fs::path file);
-  void unwatchFile(fs::path file);
-  void ignoreFileOnce(fs::path file);
-  void ignoreFile(fs::path file);
+  void watchDirectoryRecursively(std::string path);
+  void watchFile(std::string file);
+  void unwatchFile(std::string file);
+  void ignoreFileOnce(std::string file);
+  void ignoreFile(std::string file);
   void setEventMask(uint32_t eventMask);
   uint32_t getEventMask();
   void setEventTimeout(std::chrono::milliseconds eventTimeout, std::function<void(FileSystemEvent)> onEventTimeout);
-  boost::optional<FileSystemEvent> getNextEvent();
+  TFileSystemEventPtr getNextEvent();
   void stop();
   bool hasStopped();
 
 private:
-  fs::path wdToPath(int wd);
+  std::string wdToPath(int wd);
   bool isIgnored(std::string file);
   bool onTimeout(const std::chrono::steady_clock::time_point& eventTime);
   void removeWatch(int wd);
@@ -102,9 +99,11 @@ private:
   std::vector<std::string> mIgnoredDirectories;
   std::vector<std::string> mOnceIgnoredDirectories;
   std::queue<FileSystemEvent> mEventQueue;
-  boost::bimap<int, fs::path> mDirectorieMap;
+  std::map<int, std::string> mDirectorieMap;
   int mInotifyFd;
   std::atomic<bool> stopped;
   std::function<void(FileSystemEvent)> mOnEventTimeout;
+  bool isDirectory(const std::string&) const;
+  bool isExists(const std::string&) const;
 };
 }
