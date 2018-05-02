@@ -16,7 +16,6 @@ namespace inotify {
 
 Inotify::Inotify()
     : mError(0)
-    , mEventTimeout(0)
     , mEventMask(IN_ALL_EVENTS)
     , mThreadSleep(250)
     , mIgnoredDirectories(std::vector<std::string>())
@@ -117,6 +116,35 @@ void Inotify::watchFile(const std::string& filePath)
         mDirectorieMap.emplace(wd, filePath);
     } else {
         throw std::invalid_argument("Can´t watch Path! Path does not exist. Path: " + filePath);
+    }
+}
+
+void Inotify::unwatch(const std::string& path)
+{
+    auto const itFound = std::find_if(
+        std::begin(mDirectorieMap),
+        std::end(mDirectorieMap),
+        [&](std::pair<int, std::string> const& KeyString) { return KeyString.second == path; });
+
+    if (itFound != std::end(mDirectorieMap))
+        removeWatch(itFound->first);
+}
+
+/**
+ * @brief Removes watch from set of watches. This
+ *        is not done recursively!
+ *
+ * @param wd watchdescriptor
+ *
+ */
+void Inotify::removeWatch(int wd)
+{
+    int result = inotify_rm_watch(mInotifyFd, wd);
+    if (result == -1) {
+        mError = errno;
+        std::stringstream errorStream;
+        errorStream << "Failed to remove watch! " << strerror(mError) << ".";
+        throw std::runtime_error(errorStream.str());
     }
 }
 

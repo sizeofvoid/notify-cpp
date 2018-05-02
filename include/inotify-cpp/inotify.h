@@ -7,7 +7,6 @@
 #pragma once
 #include <assert.h>
 #include <atomic>
-#include <chrono>
 #include <errno.h>
 #include <exception>
 #include <functional>
@@ -78,12 +77,11 @@ class Inotify : Notify {
 
   private:
     std::string wdToPath(int wd);
+    void removeWatch(int wd);
     void init();
 
     // Member
     int mError;
-    std::chrono::milliseconds mEventTimeout;
-    std::chrono::steady_clock::time_point mLastEventTime;
     uint32_t mEventMask;
     uint32_t mThreadSleep;
     std::vector<std::string> mIgnoredDirectories;
