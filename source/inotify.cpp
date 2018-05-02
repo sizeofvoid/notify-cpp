@@ -207,7 +207,6 @@ TFileSystemEventPtr Inotify::getNextEvent()
 
             i += EVENT_SIZE + event->len;
         }
-
         // XXX Filter events
     }
 

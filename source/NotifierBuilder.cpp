@@ -23,11 +23,17 @@
 
 #include <inotify-cpp/NotifierBuilder.h>
 #include <inotify-cpp/fanotify.h>
+#include <inotify-cpp/inotify.h>
 
 namespace inotify {
 
 FanotifyNotifierBuilder::FanotifyNotifierBuilder()
     : NotifierBuilder(new Fanotify)
+{
+}
+
+InotifyNotifierBuilder::InotifyNotifierBuilder()
+    : NotifierBuilder(new Inotify)
 {
 }
 

@@ -13,7 +13,7 @@ namespace inotify {
 using EventObserver = std::function<void(Notification)>;
 
 class NotifierBuilder {
-  protected:
+  public:
     NotifierBuilder(Notify*);
     auto run() -> void;
     auto runOnce() -> void;
@@ -26,6 +26,7 @@ class NotifierBuilder {
     auto onEvents(std::vector<Event> event, EventObserver) -> NotifierBuilder&;
     auto onUnexpectedEvent(EventObserver) -> NotifierBuilder&;
 
+  protected:
     std::unique_ptr<Notify> _Notify;
 
   private:
@@ -34,6 +35,12 @@ class NotifierBuilder {
 };
 
 class FanotifyNotifierBuilder : public NotifierBuilder {
+  public:
     FanotifyNotifierBuilder();
+};
+
+class InotifyNotifierBuilder : public NotifierBuilder {
+  public:
+    InotifyNotifierBuilder();
 };
 }
