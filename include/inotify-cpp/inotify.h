@@ -66,7 +66,7 @@
  */
 namespace inotify {
 
-class Inotify : Notify {
+class Inotify : public Notify {
   public:
     Inotify();
     ~Inotify();
