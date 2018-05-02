@@ -52,7 +52,7 @@ class Fanotify : public Notify {
     virtual void watchMountPoint(const std::string&) override;
     virtual void watchFile(const std::string&) override;
     virtual void unwatch(const std::string&) override;
-    TFileSystemEventPtr getNextEvent() override;
+    virtual TFileSystemEventPtr getNextEvent() override;
 
   private:
     void initFanotify();
