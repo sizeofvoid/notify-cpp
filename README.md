@@ -23,7 +23,7 @@ int main(int argc, char** argv)
     }
 
     // Parse the directory to watch
-    std::string const path(argv[1]);
+    const std::string const path(argv[1]);
 
     // Set the event handler which will be used to process particular events
     auto handleNotification = [&](Notification notification) {
@@ -81,9 +81,6 @@ mkdir build; cd bulid
 cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
 cmake --build .
 
-# run tests
-make test
-
 # install the library
 make install
 ```
@@ -96,4 +93,4 @@ make install
 MIT
 
 ## Author ##
-Written by Erik Zenker (erikzenker@hotmail.com)
+Initially written by Erik Zenker (erikzenker@hotmail.com)
