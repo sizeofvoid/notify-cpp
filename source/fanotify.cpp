@@ -34,6 +34,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <linux/version.h>
 #include <sys/fanotify.h>
 
 #include <iostream>
@@ -58,8 +59,16 @@ Fanotify::~Fanotify()
 
 void Fanotify::initFanotify()
 {
+/**
+ * Linux Kernel < 3.15.0 workaround
+ * https://github.com/torvalds/linux/commit/1e2ee49f7f1b79f0b14884fe6a602f0411b39552
+ */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0)
+    _FanotifyFd = fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_NONBLOCK, O_RDONLY | 0100000);
+#else
     _FanotifyFd
         = fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_NONBLOCK, O_RDONLY | O_LARGEFILE);
+#endif
 
     if (_FanotifyFd == -1) {
         std::stringstream errorStream;
