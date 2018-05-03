@@ -86,7 +86,6 @@ class Inotify : public Notify {
     uint32_t mThreadSleep;
     std::vector<std::string> mIgnoredDirectories;
     std::vector<std::string> mOnceIgnoredDirectories;
-    std::queue<FileSystemEvent> mEventQueue;
     std::map<int, std::string> mDirectorieMap;
     int mInotifyFd;
     std::atomic<bool> stopped;

@@ -16,9 +16,8 @@ namespace inotify {
 
 Inotify::Inotify()
     : mError(0)
-    , mEventMask(IN_ALL_EVENTS)
+    , mEventMask(IN_CLOSE_WRITE)
     , mThreadSleep(250)
-    , mIgnoredDirectories(std::vector<std::string>())
     , mInotifyFd(0)
 {
 
@@ -53,8 +52,9 @@ void Inotify::init()
  * @param path that will be watched recursively
  *
  */
-void Inotify::watchMountPoint(const std::string&)
+void Inotify::watchMountPoint(const std::string& path)
 {
+    watchFile(path);
     /* XXX
     if (isExists(path))
         if (isDirectory(path)) {
@@ -169,7 +169,7 @@ TFileSystemEventPtr Inotify::getNextEvent()
     char buffer[EVENT_BUF_LEN];
 
     // Read Events from fd into buffer
-    while (_Queue.empty()) {
+    while (_Queue.empty() && !_Stopped) {
         length = 0;
         memset(buffer, '\0', sizeof(buffer));
         while (length <= 0 && !stopped) {
@@ -199,9 +199,8 @@ TFileSystemEventPtr Inotify::getNextEvent()
             }
             auto path = wdToPath(event->wd) + std::string("/") + std::string(event->name);
 
-            if (isDirectory(path)) {
+            if (isDirectory(path))
                 event->mask |= IN_ISDIR;
-            }
 
             _Queue.push(std::make_shared<FileSystemEvent>(event->mask, path));
 
