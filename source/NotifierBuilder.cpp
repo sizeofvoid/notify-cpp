@@ -107,7 +107,7 @@ auto NotifierBuilder::runOnce() -> void
     } else {
         /* handle observed processes */
         auto eventObserver = eventAndEventObserver->second;
-        eventObserver({ event, fileSystemEvent->getPath() });
+        eventObserver({ eventAndEventObserver->first, fileSystemEvent->getPath() });
     }
 }
 

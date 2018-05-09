@@ -47,8 +47,7 @@ namespace inotify {
 Fanotify::Fanotify()
     : Notify()
 {
-
-    setEventMask(FAN_ALL_EVENTS);
+    setEventMask(FAN_CLOSE_WRITE);
     initFanotify();
 }
 
