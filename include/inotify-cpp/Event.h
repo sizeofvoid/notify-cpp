@@ -57,5 +57,6 @@ enum class Event : std::uint64_t {
 
 Event operator|(Event lhs, Event rhs);
 Event operator&(Event lhs, Event rhs);
-std::ostream& operator<<(std::ostream& stream, const Event& event);
+std::ostream& operator<<(std::ostream&, const Event&);
+std::string toString(const Event&);
 }
