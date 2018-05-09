@@ -59,7 +59,7 @@ class Notify {
     bool isExists(const std::string&) const;
     std::string getFilePath(int) const;
 
-    uint64_t _EventMask;
+    uint64_t _EventMask = 0;
 
     std::vector<std::string> _IgnoredDirectories;
 
