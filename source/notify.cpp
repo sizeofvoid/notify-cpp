@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-#include <inotify-cpp/notify.h>
+#include <notify-cpp/notify.h>
 
 #include <dirent.h>
 #include <errno.h>
@@ -39,7 +39,7 @@
 #include <string>
 #include <vector>
 
-namespace inotify {
+namespace notifycpp {
 
 Notify::Notify()
     : _Stopped(false)

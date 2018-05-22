@@ -21,9 +21,9 @@
  * SOFTWARE.
  */
 
-#include <inotify-cpp/notification.h>
+#include <notify-cpp/notification.h>
 
-namespace inotify {
+namespace notifycpp {
 
 Notification::Notification(Event event, const std::string& path)
     : _Event(event)

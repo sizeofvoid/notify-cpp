@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <inotify-cpp/file_system_event.h>
+#include <notify-cpp/file_system_event.h>
 
 #include <atomic>
 #include <queue>
@@ -32,7 +32,7 @@
 /**
  * @brief Base class
  */
-namespace inotify {
+namespace notifycpp {
 
 class Notify {
 

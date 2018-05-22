@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-#include <inotify-cpp/fanotify.h>
+#include <notify-cpp/fanotify.h>
 
 #include <dirent.h>
 #include <errno.h>
@@ -42,7 +42,7 @@
 #include <string>
 #include <vector>
 
-namespace inotify {
+namespace notifycpp {
 
 Fanotify::Fanotify()
     : Notify()

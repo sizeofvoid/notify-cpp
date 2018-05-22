@@ -1,4 +1,4 @@
-#include <inotify-cpp/inotify.h>
+#include <notify-cpp/inotify.h>
 
 #include <algorithm>
 #include <functional>
@@ -12,7 +12,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-namespace inotify {
+namespace notifycpp {
 
 Inotify::Inotify()
     : mError(0)

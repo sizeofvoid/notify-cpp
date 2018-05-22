@@ -21,13 +21,13 @@
  * SOFTWARE.
  */
 
-#include <inotify-cpp/event.h>
+#include <notify-cpp/event.h>
 
 #include <cstdint>
 #include <iostream>
 #include <type_traits>
 
-namespace inotify {
+namespace notifycpp {
 Event operator|(Event lhs, Event rhs)
 {
     return static_cast<Event>(

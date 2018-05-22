@@ -1,14 +1,14 @@
 #pragma once
 
-#include <inotify-cpp/notification.h>
-#include <inotify-cpp/notify.h>
+#include <notify-cpp/notification.h>
+#include <notify-cpp/notify.h>
 
 #include <functional>
 #include <map>
 #include <memory>
 #include <string>
 
-namespace inotify {
+namespace notifycpp {
 
 using EventObserver = std::function<void(Notification)>;
 

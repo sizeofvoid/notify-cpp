@@ -1,8 +1,8 @@
 #pragma once
 
-#include <inotify-cpp/event.h>
+#include <notify-cpp/event.h>
 
-namespace inotify {
+namespace notifycpp {
 
 class Notification {
   public:

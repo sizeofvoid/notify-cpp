@@ -23,8 +23,8 @@
 
 #pragma once
 
-#include <inotify-cpp/file_system_event.h>
-#include <inotify-cpp/notify.h>
+#include <notify-cpp/file_system_event.h>
+#include <notify-cpp/notify.h>
 
 /**
  * @brief C++ wrapper for linux fanotify interface
@@ -40,7 +40,7 @@
  * See fanotify manpage for more event details
  *
  */
-namespace inotify {
+namespace notifycpp {
 
 class Fanotify : public Notify {
     enum { FD_POLL_FANOTIFY = 0, FD_POLL_MAX };

@@ -5,7 +5,7 @@
 
 #include <sys/fanotify.h>
 
-namespace inotify {
+namespace notifycpp {
 
 /* All these defined in fanotify.h. */
 enum class Event : std::uint64_t {

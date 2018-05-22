@@ -20,8 +20,8 @@
 #include <time.h>
 #include <vector>
 
-#include <inotify-cpp/file_system_event.h>
-#include <inotify-cpp/notify.h>
+#include <notify-cpp/file_system_event.h>
+#include <notify-cpp/notify.h>
 
 #define MAX_EVENTS 4096
 #define EVENT_SIZE (sizeof(inotify_event))
@@ -64,7 +64,7 @@
  * See inotify manpage for more event details
  *
  */
-namespace inotify {
+namespace notifycpp {
 
 class Inotify : public Notify {
   public:

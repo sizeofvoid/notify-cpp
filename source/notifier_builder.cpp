@@ -21,11 +21,11 @@
  * SOFTWARE.
  */
 
-#include <inotify-cpp/notifier_builder.h>
-#include <inotify-cpp/fanotify.h>
-#include <inotify-cpp/inotify.h>
+#include <notify-cpp/notifier_builder.h>
+#include <notify-cpp/fanotify.h>
+#include <notify-cpp/inotify.h>
 
-namespace inotify {
+namespace notifycpp {
 
 FanotifyNotifierBuilder::FanotifyNotifierBuilder()
     : NotifierBuilder(new Fanotify)

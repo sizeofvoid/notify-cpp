@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace inotify {
+namespace notifycpp {
 class FileSystemEvent {
   public:
     FileSystemEvent(uint64_t, const std::string&);
