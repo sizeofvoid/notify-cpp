@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-#include <inotify-cpp/NotifierBuilder.h>
+#include <inotify-cpp/notifier_builder.h>
 #include <inotify-cpp/fanotify.h>
 #include <inotify-cpp/inotify.h>
 

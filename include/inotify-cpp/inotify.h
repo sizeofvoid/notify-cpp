@@ -20,7 +20,7 @@
 #include <time.h>
 #include <vector>
 
-#include <inotify-cpp/FileSystemEvent.h>
+#include <inotify-cpp/file_system_event.h>
 #include <inotify-cpp/notify.h>
 
 #define MAX_EVENTS 4096

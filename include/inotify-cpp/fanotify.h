@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <inotify-cpp/FileSystemEvent.h>
+#include <inotify-cpp/file_system_event.h>
 #include <inotify-cpp/notify.h>
 
 /**

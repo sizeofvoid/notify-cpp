@@ -1,6 +1,6 @@
 #pragma once
 
-#include <inotify-cpp/Notification.h>
+#include <inotify-cpp/notification.h>
 #include <inotify-cpp/notify.h>
 
 #include <functional>

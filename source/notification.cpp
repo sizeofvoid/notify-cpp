@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-#include <inotify-cpp/Notification.h>
+#include <inotify-cpp/notification.h>
 
 namespace inotify {
 

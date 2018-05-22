@@ -21,7 +21,8 @@
  * SOFTWARE.
  */
 
-#include <inotify-cpp/FileSystemEvent.h>
+#include <inotify-cpp/file_system_event.h>
+
 
 namespace inotify {
 FileSystemEvent::FileSystemEvent(uint64_t mask, const std::string& path)

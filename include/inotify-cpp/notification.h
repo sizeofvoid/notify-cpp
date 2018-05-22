@@ -1,6 +1,6 @@
 #pragma once
 
-#include <inotify-cpp/Event.h>
+#include <inotify-cpp/event.h>
 
 namespace inotify {
 

@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-#include <inotify-cpp/Event.h>
+#include <inotify-cpp/event.h>
 
 #include <cstdint>
 #include <iostream>
