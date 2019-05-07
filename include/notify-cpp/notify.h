@@ -51,16 +51,16 @@ class Notify {
 
     void setEventMask(uint64_t);
     uint64_t getEventMask();
-    void ignoreFile(const std::string&);
+    void ignore(const std::filesystem::path&);
 
   protected:
-    bool isIgnored(const std::string&);
+    bool isIgnored(const std::filesystem::path&);
     void initFanotify();
     std::string getFilePath(int) const;
 
     uint64_t _EventMask = 0;
 
-    std::vector<std::string> _IgnoredDirectories;
+    std::vector<std::filesystem::path> _IgnoredDirectories;
 
     std::queue<TFileSystemEventPtr> _Queue;
 

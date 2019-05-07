@@ -34,6 +34,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -46,9 +47,9 @@ Notify::Notify()
 {
 }
 
-void Notify::ignoreFile(const std::string& file)
+void Notify::ignore(const std::filesystem::path& p)
 {
-    _IgnoredDirectories.push_back(file);
+    _IgnoredDirectories.push_back(p);
 }
 
 void Notify::setEventMask(uint64_t eventMask)
@@ -71,16 +72,10 @@ bool Notify::hasStopped()
     return _Stopped;
 }
 
-bool Notify::isIgnored(const std::string& file)
+bool Notify::isIgnored(const std::filesystem::path& p)
 {
-    for (unsigned i = 0; i < _IgnoredDirectories.size(); ++i) {
-        size_t pos = file.find(_IgnoredDirectories[i]);
-        if (pos != std::string::npos) {
-            return true;
-        }
-    }
-
-    return false;
+    return std::any_of(_IgnoredDirectories.begin(), _IgnoredDirectories.end(),
+                       [&p](const std::filesystem::path & ip) { return ip == p; });
 }
 
 std::string Notify::getFilePath(int fd) const

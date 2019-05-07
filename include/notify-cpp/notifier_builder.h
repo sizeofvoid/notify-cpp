@@ -7,6 +7,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <filesystem>
 
 namespace notifycpp {
 
@@ -21,7 +22,7 @@ class NotifierBuilder {
     auto watchMountPoint(std::string path) -> NotifierBuilder&;
     auto watchFile(std::string file) -> NotifierBuilder&;
     auto unwatch(std::string file) -> NotifierBuilder&;
-    auto ignoreFile(std::string file) -> NotifierBuilder&;
+    auto ignore(const std::filesystem::path&) -> NotifierBuilder&;
     auto onEvent(Event event, EventObserver) -> NotifierBuilder&;
     auto onEvents(std::vector<Event> event, EventObserver) -> NotifierBuilder&;
     auto onUnexpectedEvent(EventObserver) -> NotifierBuilder&;

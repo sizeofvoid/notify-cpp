@@ -60,9 +60,9 @@ auto NotifierBuilder::unwatch(std::string file) -> NotifierBuilder&
     return *this;
 }
 
-auto NotifierBuilder::ignoreFile(std::string file) -> NotifierBuilder&
+auto NotifierBuilder::ignore(const std::filesystem::path& p) -> NotifierBuilder&
 {
-    _Notify->ignoreFile(file);
+    _Notify->ignore(p);
     return *this;
 }
 
