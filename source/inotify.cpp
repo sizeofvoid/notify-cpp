@@ -52,7 +52,7 @@ void Inotify::init()
  * @param path that will be watched recursively
  *
  */
-void Inotify::watchMountPoint(const std::string& path)
+void Inotify::watchMountPoint(const std::filesystem::path& path)
 {
     watchFile(path);
     /* XXX
@@ -91,9 +91,9 @@ void Inotify::watchMountPoint(const std::string& path)
  * @param path that will be watched
  *
  */
-void Inotify::watchFile(const std::string& filePath)
+void Inotify::watchFile(const std::filesystem::path& filePath)
 {
-    if (isExists(filePath)) {
+    if (std::filesystem::exists(filePath)) {
         mError = 0;
         int wd = 0;
         if (!isIgnored(filePath)) {
@@ -115,11 +115,11 @@ void Inotify::watchFile(const std::string& filePath)
         }
         mDirectorieMap.emplace(wd, filePath);
     } else {
-        throw std::invalid_argument("Can´t watch Path! Path does not exist. Path: " + filePath);
+        throw std::invalid_argument("Can´t watch Path! Path does not exist. Path: " + filePath.string());
     }
 }
 
-void Inotify::unwatch(const std::string& path)
+void Inotify::unwatch(const std::filesystem::path& path)
 {
     auto const itFound = std::find_if(
         std::begin(mDirectorieMap),
@@ -199,7 +199,7 @@ TFileSystemEventPtr Inotify::getNextEvent()
             }
             auto path = wdToPath(event->wd) + std::string("/") + std::string(event->name);
 
-            if (isDirectory(path))
+            if (std::filesystem::is_directory(path))
                 event->mask |= IN_ISDIR;
 
             _Queue.push(std::make_shared<FileSystemEvent>(event->mask, path));

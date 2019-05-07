@@ -26,6 +26,8 @@
 #include <notify-cpp/file_system_event.h>
 #include <notify-cpp/notify.h>
 
+#include <filesystem>
+
 /**
  * @brief C++ wrapper for linux fanotify interface
  *
@@ -49,14 +51,14 @@ class Fanotify : public Notify {
     Fanotify();
     ~Fanotify();
 
-    virtual void watchMountPoint(const std::string&) override;
-    virtual void watchFile(const std::string&) override;
-    virtual void unwatch(const std::string&) override;
+    virtual void watchMountPoint(const std::filesystem::path&) override;
+    virtual void watchFile(const std::filesystem::path&) override;
+    virtual void unwatch(const std::filesystem::path&) override;
     virtual TFileSystemEventPtr getNextEvent() override;
 
   private:
     void initFanotify();
-    void watch(const std::string&, unsigned int);
+    void watch(const std::filesystem::path&, unsigned int);
 
     int _FanotifyFd = -1;
 };

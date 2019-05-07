@@ -83,23 +83,6 @@ bool Notify::isIgnored(const std::string& file)
     return false;
 }
 
-bool Notify::isDirectory(const std::string& path) const
-{
-    if (access(path.c_str(), F_OK) != -1) {
-        // file exists
-        DIR* dirptr;
-        if ((dirptr = opendir(path.c_str())) != NULL) {
-            closedir(dirptr);
-            return true;
-        }
-    }
-    return false;
-}
-bool Notify::isExists(const std::string& path) const
-{
-    return (access(path.c_str(), F_OK) != -1);
-}
-
 std::string Notify::getFilePath(int fd) const
 {
     ssize_t len;

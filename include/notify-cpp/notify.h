@@ -28,6 +28,7 @@
 #include <queue>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 /**
  * @brief Base class
@@ -39,9 +40,9 @@ class Notify {
   public:
     Notify();
 
-    virtual void watchMountPoint(const std::string&) = 0;
-    virtual void watchFile(const std::string&) = 0;
-    virtual void unwatch(const std::string&) = 0;
+    virtual void watchMountPoint(const std::filesystem::path&) = 0;
+    virtual void watchFile(const std::filesystem::path&) = 0;
+    virtual void unwatch(const std::filesystem::path&) = 0;
 
     virtual TFileSystemEventPtr getNextEvent() = 0;
 
@@ -55,8 +56,6 @@ class Notify {
   protected:
     bool isIgnored(const std::string&);
     void initFanotify();
-    bool isDirectory(const std::string&) const;
-    bool isExists(const std::string&) const;
     std::string getFilePath(int) const;
 
     uint64_t _EventMask = 0;

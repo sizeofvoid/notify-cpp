@@ -70,9 +70,9 @@ class Inotify : public Notify {
   public:
     Inotify();
     ~Inotify();
-    virtual void watchMountPoint(const std::string&) override;
-    virtual void watchFile(const std::string&) override;
-    virtual void unwatch(const std::string&) override;
+    virtual void watchMountPoint(const std::filesystem::path&) override;
+    virtual void watchFile(const std::filesystem::path&) override;
+    virtual void unwatch(const std::filesystem::path&) override;
     virtual TFileSystemEventPtr getNextEvent() override;
 
   private:

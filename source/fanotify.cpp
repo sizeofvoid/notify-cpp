@@ -84,7 +84,7 @@ void Fanotify::initFanotify()
  * @param path that will be watched recursively
  *
  */
-void Fanotify::watchMountPoint(const std::string& path)
+void Fanotify::watchMountPoint(const std::filesystem::path& path)
 {
     watch(path, FAN_MARK_ADD | FAN_MARK_MOUNT);
 }
@@ -99,14 +99,15 @@ void Fanotify::watchMountPoint(const std::string& path)
  * @param path that will be watched
  *
  */
-void Fanotify::watchFile(const std::string& filePath)
+void Fanotify::watchFile(const std::filesystem::path& filePath)
 {
+    //XXX Check file
     watch(filePath, FAN_MARK_ADD);
 }
 
-void Fanotify::watch(const std::string& path, unsigned int flags)
+void Fanotify::watch(const std::filesystem::path& path, unsigned int flags)
 {
-    if (isExists(path)) {
+    if (std::filesystem::exists(path)) {
         /* Add new fanotify mark */
         if (fanotify_mark(_FanotifyFd, flags, getEventMask(), AT_FDCWD, path.c_str()) < 0) {
             std::stringstream errorStream;
@@ -114,7 +115,7 @@ void Fanotify::watch(const std::string& path, unsigned int flags)
             throw std::runtime_error(errorStream.str());
         }
     } else {
-        throw std::invalid_argument("Can´t watch Path! Path does not exist. Path: " + path);
+        throw std::invalid_argument("Can´t watch Path! Path does not exist. Path: " + path.string());
     }
 }
 
@@ -125,7 +126,7 @@ void Fanotify::watch(const std::string& path, unsigned int flags)
  * @param wd watchdescriptor
  *
  */
-void Fanotify::unwatch(const std::string& path)
+void Fanotify::unwatch(const std::filesystem::path& path)
 {
     /* Add new fanotify mark */
     if (fanotify_mark(_FanotifyFd, FAN_MARK_REMOVE, getEventMask(), AT_FDCWD, path.c_str()) < 0) {
