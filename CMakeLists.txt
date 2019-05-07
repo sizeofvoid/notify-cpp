@@ -1,24 +1,26 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.8)
 
 project(notify-cpp)
 
-#enable_testing()
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_REQUIRED_FLAGS -std=c++17)
+include(CheckCXXSymbolExists)
 
-set(
-  CMAKE_CXX_FLAGS_DEBUG
-  "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -Wpedantic -g3 -O0"
-)
 
-if(${INOTIFY_CLANG_COVERAGE})
-    set(CMAKE_CXX_FLAGS "-fprofile-instr-generate -fcoverage-mapping")
-endif()
+# check c++17 filesystem feature
+CHECK_CXX_SYMBOL_EXISTS(std::filesystem::path::preferred_separator
+                        filesystem
+                        cxx_filesystem)
 
-if(${INOTIFY_GCC_COVERAGE})
-    set(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
+if (NOT cxx_filesystem)
+    message(FATAL_ERROR "Missing C++17 std::filesystem feature")
 endif()
 
 add_subdirectory(source)
+
 # TODO drop boost and enable tests add_subdirectory(test)
+#enable_testing()
 #add_subdirectory(test)
