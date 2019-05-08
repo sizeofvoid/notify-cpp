@@ -2,6 +2,18 @@ cmake_minimum_required(VERSION 3.8)
 
 project(notify-cpp)
 
+option(ENABLE_SHARED_LIBS "Enable build and install shared libraries" ON)
+option(ENABLE_STATIC_LIBS "Enable build and install static libraries" OFF)
+
+include(GNUInstallDirs)
+
+## Set the build type
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" 
+      CACHE STRING "Build configuration 'Release' or 'Debug'."
+      FORCE )
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -13,13 +25,60 @@ include(CheckCXXSymbolExists)
 # check c++17 filesystem feature
 CHECK_CXX_SYMBOL_EXISTS(std::filesystem::path::preferred_separator
                         filesystem
-                        cxx_filesystem)
+                        CXX_FILESYSTEM)
 
-if (NOT cxx_filesystem)
+if (NOT CXX_FILESYSTEM)
     message(FATAL_ERROR "Missing C++17 std::filesystem feature")
 endif()
 
-add_subdirectory(source)
+set(NOTIFYCPP_HEADER
+    include/notify-cpp/event.h
+    include/notify-cpp/fanotify.h
+    include/notify-cpp/file_system_event.h
+    include/notify-cpp/inotify.h
+    include/notify-cpp/notification.h
+    include/notify-cpp/notifier_builder.h
+    include/notify-cpp/notify.h)
+
+set(NOTIFYCPP_SOURCES
+    source/event.cpp
+    source/fanotify.cpp
+    source/file_system_event.cpp
+    source/inotify.cpp
+    source/notification.cpp
+    source/notifier_builder.cpp
+    source/notify.cpp)
+
+foreach (TYPE IN ITEMS STATIC SHARED)
+  if (ENABLE_${TYPE}_LIBS)
+    string (TOLOWER "${TYPE}" type)
+    add_library(notify-cpp-${type} ${TYPE} ${NOTIFYCPP_SOURCES} ${NOTIFYCPP_HEADER})
+    set_target_properties(notify-cpp-${type} PROPERTIES
+      VERSION 6.0.0
+      SOVERSION 6)
+
+    target_include_directories(notify-cpp-${type} PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/notify-cpp/>)
+  endif()
+endforeach()
+
+
+if(ENABLE_SHARED_LIBS)
+  install(TARGETS notify-cpp-shared
+      RENAME notify-cpp
+      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()
+
+if(ENABLE_STATIC_LIBS)
+    set_target_properties(notify-cpp-static PROPERTIES OUTPUT_NAME notify-cpp)
+    install(TARGETS notify-cpp-static
+        RENAME notify-cpp
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()
 
 # TODO drop boost and enable tests add_subdirectory(test)
 #enable_testing()
