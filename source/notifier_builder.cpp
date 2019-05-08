@@ -42,21 +42,21 @@ NotifierBuilder::NotifierBuilder(Notify* n)
 {
 }
 
-auto NotifierBuilder::watchMountPoint(std::string path) -> NotifierBuilder&
+auto NotifierBuilder::watchMountPoint(const std::filesystem::path& p) -> NotifierBuilder&
 {
-    _Notify->watchMountPoint(path);
+    _Notify->watchMountPoint(p);
     return *this;
 }
 
-auto NotifierBuilder::watchFile(std::string file) -> NotifierBuilder&
+auto NotifierBuilder::watchFile(const std::filesystem::path& f) -> NotifierBuilder&
 {
-    _Notify->watchFile(file);
+    _Notify->watchFile(f);
     return *this;
 }
 
-auto NotifierBuilder::unwatch(std::string file) -> NotifierBuilder&
+auto NotifierBuilder::unwatch(const std::filesystem::path& f) -> NotifierBuilder&
 {
-    _Notify->unwatch(file);
+    _Notify->unwatch(f);
     return *this;
 }
 
