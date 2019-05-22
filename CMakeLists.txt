@@ -2,10 +2,17 @@ cmake_minimum_required(VERSION 3.8)
 
 project(notify-cpp)
 
+include(GNUInstallDirs)
+
+# Version setup
+set(NOTIFYCPP_VERSION_MAJOR "1")
+set(NOTIFYCPP_VERSION_MINOR "0")
+set(NOTIFYCPP_VERSION_PATCH "0")
+set(NOTIFYCPP_VERSION "${NOTIFYCPP_VERSION_MAJOR}.${NOTIFYCPP_VERSION_MINOR}.${NOTIFYCPP_VERSION_PATCH}")
+
 option(ENABLE_SHARED_LIBS "Enable build and install shared libraries" ON)
 option(ENABLE_STATIC_LIBS "Enable build and install static libraries" OFF)
 
-include(GNUInstallDirs)
 
 ## Set the build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -49,17 +56,24 @@ set(NOTIFYCPP_SOURCES
     source/notifier_builder.cpp
     source/notify.cpp)
 
+# XXX readlink
+#set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pedantic " CACHE STRING "Set C++ Compiler Flags" FORCE)
+
 foreach (TYPE IN ITEMS STATIC SHARED)
   if (ENABLE_${TYPE}_LIBS)
     string (TOLOWER "${TYPE}" type)
     add_library(notify-cpp-${type} ${TYPE} ${NOTIFYCPP_SOURCES} ${NOTIFYCPP_HEADER})
     set_target_properties(notify-cpp-${type} PROPERTIES
-      VERSION 6.0.0
-      SOVERSION 6)
+        VERSION ${NOTIFYCPP_VERSION}
+        SOVERSION ${NOTIFYCPP_VERSION_MAJOR})
 
     target_include_directories(notify-cpp-${type} PUBLIC
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/notify-cpp/>)
+
+  #target_compile_options(notify-cpp-${type} PUBLIC
+  #    $<$<CONFIG:RELEASE>:${}>
+  #    $<$<CONFIG:DEBUG:${}>)
   endif()
 endforeach()
 
@@ -81,5 +95,5 @@ if(ENABLE_STATIC_LIBS)
 endif()
 
 # TODO drop boost and enable tests add_subdirectory(test)
-#enable_testing()
-#add_subdirectory(test)
+enable_testing()
+add_subdirectory(test)
