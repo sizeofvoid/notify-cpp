@@ -172,7 +172,7 @@ TFileSystemEventPtr Inotify::getNextEvent()
     while (_Queue.empty() && !_Stopped) {
         length = 0;
         memset(buffer, '\0', sizeof(buffer));
-        while (length <= 0 && !stopped) {
+        while (length <= 0 && !stopped && !_Stopped) {
             std::this_thread::sleep_for(std::chrono::milliseconds(mThreadSleep));
 
             length = read(mInotifyFd, buffer, EVENT_BUF_LEN);
