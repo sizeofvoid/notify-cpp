@@ -48,7 +48,8 @@ auto NotifierBuilder::watchMountPoint(const std::filesystem::path& p) -> Notifie
     return *this;
 }
 
-auto NotifierBuilder::watchFile(const std::filesystem::path& f) -> NotifierBuilder&
+NotifierBuilder&
+NotifierBuilder::watchFile(const std::filesystem::path& f)
 {
     _Notify->watchFile(f);
     return *this;
@@ -65,8 +66,7 @@ auto NotifierBuilder::ignore(const std::filesystem::path& p) -> NotifierBuilder&
     _Notify->ignore(p);
     return *this;
 }
-
-auto NotifierBuilder::onEvent(Event event, EventObserver eventObserver) -> NotifierBuilder&
+NotifierBuilder& NotifierBuilder::onEvent(Event event, EventObserver eventObserver)
 {
     _Notify->setEventMask(_Notify->getEventMask() | static_cast<std::uint64_t>(event));
     mEventObserver[event] = eventObserver;
@@ -84,7 +84,8 @@ auto NotifierBuilder::onEvents(std::vector<Event> events, EventObserver eventObs
     return *this;
 }
 
-auto NotifierBuilder::onUnexpectedEvent(EventObserver eventObserver) -> NotifierBuilder&
+NotifierBuilder&
+NotifierBuilder::onUnexpectedEvent(EventObserver eventObserver)
 {
     mUnexpectedEventObserver = eventObserver;
     return *this;
@@ -96,6 +97,7 @@ auto NotifierBuilder::runOnce() -> void
     if (!fileSystemEvent) {
         return;
     }
+
     Event event = static_cast<Event>(fileSystemEvent->getMask());
 
     const auto eventAndEventObserver = mEventObserver.find(event);

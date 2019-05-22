@@ -70,16 +70,8 @@ std::string toString(const Event& event)
         maskString.append("perm_open ");
     if (containsEvent(event, Event::perm_access))
         maskString.append("perm_access ");
-    if (containsEvent(event, Event::ondir))
-        maskString.append("ondir ");
     if (containsEvent(event, Event::close))
         maskString.append("close ");
-    if (containsEvent(event, Event::event_on_child))
-        maskString.append("event_on_child ");
-    if (containsEvent(event, Event::all_events))
-        maskString.append("all_events ");
-    if (containsEvent(event, Event::all_outgoing_events))
-        maskString.append("all_outgoing_events ");
 
     return maskString;
 }
@@ -104,16 +96,8 @@ std::ostream& operator<<(std::ostream& stream, const Event& event)
         maskString.append("perm_open ");
     if (containsEvent(event, Event::perm_access))
         maskString.append("perm_access ");
-    if (containsEvent(event, Event::ondir))
-        maskString.append("ondir ");
     if (containsEvent(event, Event::close))
         maskString.append("close ");
-    if (containsEvent(event, Event::event_on_child))
-        maskString.append("event_on_child ");
-    if (containsEvent(event, Event::all_events))
-        maskString.append("all_events ");
-    if (containsEvent(event, Event::all_outgoing_events))
-        maskString.append("all_outgoing_events ");
 
     stream << maskString;
     return stream;

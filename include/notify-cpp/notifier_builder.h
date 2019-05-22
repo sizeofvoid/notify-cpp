@@ -16,22 +16,35 @@ using EventObserver = std::function<void(Notification)>;
 class NotifierBuilder {
   public:
     NotifierBuilder(Notify*);
-    auto run() -> void;
-    auto runOnce() -> void;
-    auto stop() -> void;
-    auto watchMountPoint(std::string path) -> NotifierBuilder&;
-    auto watchFile(std::string file) -> NotifierBuilder&;
-    auto unwatch(std::string file) -> NotifierBuilder&;
-    auto ignore(const std::filesystem::path&) -> NotifierBuilder&;
-    auto onEvent(Event event, EventObserver) -> NotifierBuilder&;
-    auto onEvents(std::vector<Event> event, EventObserver) -> NotifierBuilder&;
-    auto onUnexpectedEvent(EventObserver) -> NotifierBuilder&;
+    NotifierBuilder() = default;
+
+    void run();
+
+    void runOnce();
+
+    void stop();
+
+    NotifierBuilder& watchMountPoint(const std::filesystem::path&);
+
+    NotifierBuilder& watchFile(const std::filesystem::path&);
+
+    NotifierBuilder& unwatch(const std::filesystem::path&);
+
+    NotifierBuilder& ignore(const std::filesystem::path&);
+
+    NotifierBuilder& onEvent(Event event, EventObserver);
+
+    NotifierBuilder& onEvents(std::vector<Event> event, EventObserver);
+
+    NotifierBuilder& onUnexpectedEvent(EventObserver);
 
   protected:
-    std::unique_ptr<Notify> _Notify;
+    Notify* _Notify;
+    //std::unique_ptr<Notify> _Notify;
 
   private:
     std::map<Event, EventObserver> mEventObserver;
+
     EventObserver mUnexpectedEventObserver;
 };
 
