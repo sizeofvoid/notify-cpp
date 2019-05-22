@@ -197,12 +197,11 @@ BOOST_FIXTURE_TEST_CASE(shouldWatchPathRecursively, NotifierBuilderTests)
 
 BOOST_FIXTURE_TEST_CASE(shouldUnwatchPath, NotifierBuilderTests)
 {
-    /* XXX
     std::promise<Notification> timeoutObserved;
     std::chrono::milliseconds timeout(100);
 
     InotifyNotifierBuilder notifier = InotifyNotifierBuilder();
-    notifier.watchFile(testFile_).unwatchFile(testFile_);
+    notifier.watchFile(testFile_).unwatch(testFile_);
 
     std::thread thread([&notifier]() { notifier.runOnce(); });
 
@@ -210,7 +209,6 @@ BOOST_FIXTURE_TEST_CASE(shouldUnwatchPath, NotifierBuilderTests)
     BOOST_CHECK(promisedOpen_.get_future().wait_for(timeout_) != std::future_status::ready);
     notifier.stop();
     thread.join();
-    */
 }
 
 BOOST_FIXTURE_TEST_CASE(shouldCallUserDefinedUnexpectedExceptionObserver, NotifierBuilderTests)
