@@ -163,7 +163,6 @@ BOOST_FIXTURE_TEST_CASE(shouldStopRun, FanotifyControllerTest)
     thread.join();
 }
 
-
 BOOST_FIXTURE_TEST_CASE(shouldIgnoreFile, FanotifyControllerTest)
 {
     NotifyController notifier = FanotifyController().ignore(testFileOne_).watchFile({testFileOne_, Event::close}).onEvent(Event::close, [&](Notification notification) {
