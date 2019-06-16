@@ -4,7 +4,7 @@ find_package(Threads REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system unit_test_framework)
 
 if (NOT DEFINED Boost_INCLUDE_DIRS OR NOT Boost_LIBRARIES)
-    message(FATAL_ERROR "Missing boos feature")
+    message(FATAL_ERROR "Missing boost feature")
 endif()
 
 add_executable(inotify_unit_test main.cpp inotify_controller_test.cpp)
