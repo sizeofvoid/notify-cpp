@@ -13,9 +13,8 @@ install:
   - sudo apt-get install -qq cmake
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
 
-script: 
-  - g++ main.cpp -std=c++17 -o travis_gcc_cpp17
+script:
   - mkdir build && cd build
   - cmake ..
-  - cmake --build .
-  - ./test/unit/inotify_unit_test
+  - cmake
+  - ctest
