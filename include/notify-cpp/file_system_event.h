@@ -3,22 +3,27 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <filesystem>
+
+#include <notify-cpp/event.h>
 
 namespace notifycpp {
 class FileSystemEvent {
   public:
-    FileSystemEvent(uint64_t, const std::string&);
+    FileSystemEvent(const std::filesystem::path&);
+    FileSystemEvent(const std::filesystem::path&,
+                    const Event);
     ~FileSystemEvent();
 
-    uint64_t getMask() const;
-    std::string getPath() const;
+    Event getEvent() const;
+    std::filesystem::path getPath() const;
 
   private:
     //!
-    uint64_t _Mask;
+    Event _Event;
 
     //! absoulte path + filename
-    std::string _Path;
+    std::filesystem::path _Path;
 };
 using TFileSystemEventPtr = std::shared_ptr<FileSystemEvent>;
 }

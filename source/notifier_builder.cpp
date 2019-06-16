@@ -31,6 +31,12 @@ FanotifyNotifierBuilder::FanotifyNotifierBuilder()
     : NotifierBuilder(new Fanotify)
 {
 }
+NotifierBuilder& FanotifyNotifierBuilder::watchMountPoint(const std::filesystem::path& p)
+{
+    static_cast<Fanotify*>(_Notify)->watchMountPoint(p);
+    return *this;
+}
+
 
 InotifyNotifierBuilder::InotifyNotifierBuilder()
     : NotifierBuilder(new Inotify)
@@ -42,45 +48,41 @@ NotifierBuilder::NotifierBuilder(Notify* n)
 {
 }
 
-auto NotifierBuilder::watchMountPoint(const std::filesystem::path& p) -> NotifierBuilder&
+NotifierBuilder&
+NotifierBuilder::watchFile(const FileSystemEvent& fse)
 {
-    _Notify->watchMountPoint(p);
+    _Notify->watchFile(fse);
     return *this;
 }
 
 NotifierBuilder&
-NotifierBuilder::watchFile(const std::filesystem::path& f)
+NotifierBuilder::watchPathRecursively(const FileSystemEvent& fse)
 {
-    _Notify->watchFile(f);
+    _Notify->watchPathRecursively(fse);
     return *this;
 }
 
-auto NotifierBuilder::unwatch(const std::filesystem::path& f) -> NotifierBuilder&
+NotifierBuilder& NotifierBuilder::unwatch(const std::filesystem::path& f)
 {
     _Notify->unwatch(f);
     return *this;
 }
 
-auto NotifierBuilder::ignore(const std::filesystem::path& p) -> NotifierBuilder&
+NotifierBuilder& NotifierBuilder::ignore(const std::filesystem::path& p)
 {
     _Notify->ignore(p);
     return *this;
 }
 NotifierBuilder& NotifierBuilder::onEvent(Event event, EventObserver eventObserver)
 {
-    _Notify->setEventMask(_Notify->getEventMask() | static_cast<std::uint64_t>(event));
     mEventObserver[event] = eventObserver;
     return *this;
 }
 
-auto NotifierBuilder::onEvents(std::vector<Event> events, EventObserver eventObserver)
-    -> NotifierBuilder&
+NotifierBuilder& NotifierBuilder::onEvents(std::set<Event> events, EventObserver eventObserver)
 {
-    for (auto event : events) {
-        _Notify->setEventMask(_Notify->getEventMask() | static_cast<std::uint64_t>(event));
+    for (auto event : events)
         mEventObserver[event] = eventObserver;
-    }
-
     return *this;
 }
 
@@ -91,36 +93,51 @@ NotifierBuilder::onUnexpectedEvent(EventObserver eventObserver)
     return *this;
 }
 
-auto NotifierBuilder::runOnce() -> void
+void NotifierBuilder::runOnce()
 {
     auto fileSystemEvent = _Notify->getNextEvent();
     if (!fileSystemEvent) {
         return;
     }
 
-    Event event = static_cast<Event>(fileSystemEvent->getMask());
+    const Event event = fileSystemEvent->getEvent();
+    const auto observers = findObserver(event);
 
-    const auto eventAndEventObserver = mEventObserver.find(event);
-
-    if (eventAndEventObserver == mEventObserver.end()) {
+    if (observers.empty())
+    {
         if (mUnexpectedEventObserver) {
             mUnexpectedEventObserver({ event, fileSystemEvent->getPath() });
         }
-    } else {
-        /* handle observed processes */
-        auto eventObserver = eventAndEventObserver->second;
-        eventObserver({ eventAndEventObserver->first, fileSystemEvent->getPath() });
+    }
+    else
+    {
+        for (const auto & observerEvent : observers)
+        {
+            /* handle observed processes */
+            auto eventObserver = observerEvent.second;
+            eventObserver({ observerEvent.first, fileSystemEvent->getPath() });
+        }
     }
 }
 
-auto NotifierBuilder::run() -> void
+void NotifierBuilder::run()
 {
     while (!_Notify->hasStopped())
         runOnce();
 }
 
-auto NotifierBuilder::stop() -> void
+void NotifierBuilder::stop()
 {
     _Notify->stop();
+}
+
+std::vector<std::pair<Event, EventObserver>>
+NotifierBuilder::findObserver(Event e) const
+{
+    std::vector<std::pair<Event, EventObserver>> observers;
+    for (auto const& event2Observer : mEventObserver)
+        if ((event2Observer.first & e) == e)
+            observers.emplace_back(event2Observer.first,event2Observer.second);
+    return observers;
 }
 }

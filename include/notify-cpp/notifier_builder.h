@@ -8,6 +8,7 @@
 #include <memory>
 #include <string>
 #include <filesystem>
+#include <set>
 
 namespace notifycpp {
 
@@ -24,9 +25,9 @@ class NotifierBuilder {
 
     void stop();
 
-    NotifierBuilder& watchMountPoint(const std::filesystem::path&);
+    NotifierBuilder& watchFile(const FileSystemEvent&);
 
-    NotifierBuilder& watchFile(const std::filesystem::path&);
+    NotifierBuilder& watchPathRecursively(const FileSystemEvent&);
 
     NotifierBuilder& unwatch(const std::filesystem::path&);
 
@@ -34,7 +35,7 @@ class NotifierBuilder {
 
     NotifierBuilder& onEvent(Event event, EventObserver);
 
-    NotifierBuilder& onEvents(std::vector<Event> event, EventObserver);
+    NotifierBuilder& onEvents(std::set<Event> event, EventObserver);
 
     NotifierBuilder& onUnexpectedEvent(EventObserver);
 
@@ -43,6 +44,9 @@ class NotifierBuilder {
     //std::unique_ptr<Notify> _Notify;
 
   private:
+
+    std::vector<std::pair<Event,EventObserver>> findObserver(Event e) const;
+
     std::map<Event, EventObserver> mEventObserver;
 
     EventObserver mUnexpectedEventObserver;
@@ -51,6 +55,9 @@ class NotifierBuilder {
 class FanotifyNotifierBuilder : public NotifierBuilder {
   public:
     FanotifyNotifierBuilder();
+
+    NotifierBuilder& watchMountPoint(const std::filesystem::path&);
+
 };
 
 class InotifyNotifierBuilder : public NotifierBuilder {

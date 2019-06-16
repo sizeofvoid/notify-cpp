@@ -24,21 +24,32 @@
 #include <notify-cpp/file_system_event.h>
 
 
-namespace notifycpp {
-FileSystemEvent::FileSystemEvent(uint64_t mask, const std::string& path)
-    : _Mask(mask)
-    , _Path(path)
+namespace notifycpp
+{
+FileSystemEvent::FileSystemEvent(const std::filesystem::path& p)
+    : _Event(Event::open)
+    , _Path(p)
+{
+}
+
+FileSystemEvent::FileSystemEvent(const std::filesystem::path& p,
+                                 const Event event)
+    : _Event(event)
+    , _Path(p)
 {
 }
 
 FileSystemEvent::~FileSystemEvent()
 {
 }
-uint64_t FileSystemEvent::getMask() const
+
+Event FileSystemEvent::getEvent() const
 {
-    return _Mask;
+    return _Event;
 }
-std::string FileSystemEvent::getPath() const
+
+std::filesystem::path
+FileSystemEvent::getPath() const
 {
     return _Path;
 }

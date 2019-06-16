@@ -12,15 +12,13 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-namespace notifycpp {
-
+namespace notifycpp
+{
 Inotify::Inotify()
     : mError(0)
-    , mEventMask(IN_CLOSE_WRITE)
     , mThreadSleep(250)
     , mInotifyFd(0)
 {
-
     // Initialize inotify
     init();
 }
@@ -52,9 +50,6 @@ void Inotify::init()
  * @param path that will be watched recursively
  *
  */
-void Inotify::watchMountPoint(const std::filesystem::path& path)
-{
-    watchFile(path);
     /* XXX
     if (isExists(path))
         if (isDirectory(path)) {
@@ -79,7 +74,7 @@ void Inotify::watchMountPoint(const std::filesystem::path& path)
             "Can´t watch Path! Path does not exist. Path: " + path.string());
     }
     */
-}
+
 
 /**
  * @brief Adds a single file/directorie to the list of
@@ -91,40 +86,38 @@ void Inotify::watchMountPoint(const std::filesystem::path& path)
  * @param path that will be watched
  *
  */
-void Inotify::watchFile(const std::filesystem::path& filePath)
+void Inotify::watchFile(const FileSystemEvent& fse)
 {
-    if (std::filesystem::exists(filePath)) {
-        mError = 0;
-        int wd = 0;
-        if (!isIgnored(filePath)) {
-            wd = inotify_add_watch(mInotifyFd, filePath.c_str(), mEventMask);
-        }
+    if (!checkWatchFile(fse))
+        return;
 
-        if (wd == -1) {
-            mError = errno;
-            std::stringstream errorStream;
-            if (mError == 28) {
-                errorStream << "Failed to watch! " << strerror(mError)
-                            << ". Please increase number of watches in "
-                               "\"/proc/sys/fs/inotify/max_user_watches\".";
-                throw std::runtime_error(errorStream.str());
-            }
+    mError = 0;
+    int wd = 0;
+    wd = inotify_add_watch(mInotifyFd, fse.getPath().c_str(), getEventMask(fse.getEvent()));
 
-            errorStream << "Failed to watch! " << strerror(mError) << ". Path: " << filePath;
+    if (wd == -1) {
+        mError = errno;
+        std::stringstream errorStream;
+        if (mError == 28) {
+            errorStream << "Failed to watch! " << strerror(mError)
+                        << ". Please increase number of watches in "
+                            "\"/proc/sys/fs/inotify/max_user_watches\".";
             throw std::runtime_error(errorStream.str());
         }
-        mDirectorieMap.emplace(wd, filePath);
-    } else {
-        throw std::invalid_argument("Can´t watch Path! Path does not exist. Path: " + filePath.string());
+
+        errorStream << "Failed to watch! " << strerror(mError) << ". Path: " << fse.getPath();
+        throw std::runtime_error(errorStream.str());
     }
+
+    mDirectorieMap.emplace(wd, fse.getPath());
 }
 
-void Inotify::unwatch(const std::filesystem::path& path)
+void Inotify::unwatch(const FileSystemEvent& fse)
 {
     auto const itFound = std::find_if(
         std::begin(mDirectorieMap),
         std::end(mDirectorieMap),
-        [&](std::pair<int, std::string> const& KeyString) { return KeyString.second == path; });
+        [&](std::pair<int, std::string> const& KeyString) { return KeyString.second == fse.getPath(); });
 
     if (itFound != std::end(mDirectorieMap))
         removeWatch(itFound->first);
@@ -147,8 +140,8 @@ void Inotify::removeWatch(int wd)
         throw std::runtime_error(errorStream.str());
     }
 }
-
-std::string Inotify::wdToPath(int wd)
+std::filesystem::path
+Inotify::wdToPath(int wd)
 {
     return mDirectorieMap.at(wd);
 }
@@ -161,7 +154,6 @@ std::string Inotify::wdToPath(int wd)
  *        loop.
  *
  * @return A new TFileSystemEventPtr
- *
  */
 TFileSystemEventPtr Inotify::getNextEvent()
 {
@@ -197,21 +189,27 @@ TFileSystemEventPtr Inotify::getNextEvent()
                 mDirectorieMap.erase(event->wd);
                 continue;
             }
-            auto path = wdToPath(event->wd) + std::string("/") + std::string(event->name);
+            auto path = wdToPath(event->wd);
 
             if (std::filesystem::is_directory(path))
                 event->mask |= IN_ISDIR;
 
-            _Queue.push(std::make_shared<FileSystemEvent>(event->mask, path));
+            _Queue.push(std::make_shared<FileSystemEvent>(path,
+                                                         _EventHandler.getInotify(static_cast<uint32_t>(event->mask))));
 
             i += EVENT_SIZE + event->len;
         }
-        // XXX Filter events
     }
 
     // Return next event
     auto event = _Queue.front();
     _Queue.pop();
     return event;
+}
+
+std::uint32_t
+Inotify::getEventMask(const Event event) const
+{
+    return _EventHandler.convertToInotifyEvents(event);
 }
 }

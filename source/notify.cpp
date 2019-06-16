@@ -52,16 +52,6 @@ void Notify::ignore(const std::filesystem::path& p)
     _IgnoredDirectories.push_back(p);
 }
 
-void Notify::setEventMask(uint64_t eventMask)
-{
-    _EventMask = eventMask;
-}
-
-uint64_t Notify::getEventMask()
-{
-    return _EventMask;
-}
-
 void Notify::stop()
 {
     _Stopped = true;
@@ -72,10 +62,10 @@ bool Notify::hasStopped()
     return _Stopped;
 }
 
-bool Notify::isIgnored(const std::filesystem::path& p)
+bool Notify::isIgnored(const std::filesystem::path& p) const
 {
     return std::any_of(_IgnoredDirectories.begin(), _IgnoredDirectories.end(),
-                       [&p](const std::filesystem::path & ip) { return ip == p; });
+                       [&p](const std::filesystem::path& ip) { return p == ip; });
 }
 
 std::string Notify::getFilePath(int fd) const
@@ -93,4 +83,34 @@ std::string Notify::getFilePath(int fd) const
     buffer[len] = '\0';
     return std::string(buffer);
 }
+
+bool Notify::checkWatchFile(const FileSystemEvent& fse) const
+{
+    if (!std::filesystem::exists(fse.getPath()))
+        throw std::invalid_argument("Can´t watch file! File does not exist. Fullpath: " + fse.getPath().string());
+
+    if (!std::filesystem::is_regular_file(fse.getPath())) {
+        throw std::invalid_argument("Can´t watch file! Path does not refers to a regular file: " + fse.getPath().string());
+    }
+    return !isIgnored(fse.getPath());
+}
+
+bool Notify::checkWatchDirectory(const FileSystemEvent& fse) const
+{
+    if (!std::filesystem::exists(fse.getPath()))
+        throw std::invalid_argument("Can´t watch Path! Path does not exist. Path: " + fse.getPath().string());
+
+    if (!std::filesystem::is_directory(fse.getPath())) {
+        throw std::invalid_argument("Can´t watch path! Path does not refers to a directory: " + fse.getPath().string());
+    }
+    return !isIgnored(fse.getPath());
+}
+
+void Notify::watchPathRecursively(const FileSystemEvent& fse)
+{
+    // TODO
+    if (checkWatchDirectory(fse))
+        return;
+}
+
 }

@@ -51,14 +51,15 @@ class Fanotify : public Notify {
     Fanotify();
     ~Fanotify();
 
-    virtual void watchMountPoint(const std::filesystem::path&) override;
-    virtual void watchFile(const std::filesystem::path&) override;
-    virtual void unwatch(const std::filesystem::path&) override;
+    virtual void watchMountPoint(const FileSystemEvent&);
+    virtual void watchFile(const FileSystemEvent&) override;
+    virtual void unwatch(const FileSystemEvent&) override;
     virtual TFileSystemEventPtr getNextEvent() override;
+    virtual std::uint32_t getEventMask(const Event) const override;
 
   private:
     void initFanotify();
-    void watch(const std::filesystem::path&, unsigned int);
+    void watch(const std::filesystem::path&, unsigned int, const Event = Event::open);
 
     int _FanotifyFd = -1;
 };

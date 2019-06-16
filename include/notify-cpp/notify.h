@@ -24,6 +24,8 @@
 
 #include <notify-cpp/file_system_event.h>
 
+#include <notify-cpp/event.h>
+
 #include <atomic>
 #include <queue>
 #include <string>
@@ -40,30 +42,32 @@ class Notify {
   public:
     Notify();
 
-    virtual void watchMountPoint(const std::filesystem::path&) = 0;
-    virtual void watchFile(const std::filesystem::path&) = 0;
-    virtual void unwatch(const std::filesystem::path&) = 0;
+    virtual void watchFile(const FileSystemEvent&) = 0;
+    virtual void unwatch(const FileSystemEvent&) = 0;
 
     virtual TFileSystemEventPtr getNextEvent() = 0;
 
     void stop();
     bool hasStopped();
 
-    void setEventMask(uint64_t);
-    uint64_t getEventMask();
+    virtual std::uint32_t getEventMask(const Event) const = 0;
     void ignore(const std::filesystem::path&);
 
+    void watchPathRecursively(const FileSystemEvent&);
+
   protected:
-    bool isIgnored(const std::filesystem::path&);
+    bool checkWatchFile(const FileSystemEvent&) const;
+    bool checkWatchDirectory(const FileSystemEvent&) const;
+    bool isIgnored(const std::filesystem::path&) const;
     void initFanotify();
     std::string getFilePath(int) const;
-
-    uint64_t _EventMask = 0;
 
     std::vector<std::filesystem::path> _IgnoredDirectories;
 
     std::queue<TFileSystemEventPtr> _Queue;
 
     std::atomic<bool> _Stopped;
+
+    EventHandler _EventHandler;
 };
 }

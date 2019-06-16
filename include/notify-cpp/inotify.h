@@ -70,23 +70,22 @@ class Inotify : public Notify {
   public:
     Inotify();
     ~Inotify();
-    virtual void watchMountPoint(const std::filesystem::path&) override;
-    virtual void watchFile(const std::filesystem::path&) override;
-    virtual void unwatch(const std::filesystem::path&) override;
+    virtual void watchFile(const FileSystemEvent&) override;
+    virtual void unwatch(const FileSystemEvent&) override;
     virtual TFileSystemEventPtr getNextEvent() override;
+    virtual std::uint32_t getEventMask(const Event) const override;
 
   private:
-    std::string wdToPath(int wd);
+    std::filesystem::path wdToPath(int wd);
     void removeWatch(int wd);
     void init();
 
     // Member
     int mError;
-    uint32_t mEventMask;
     uint32_t mThreadSleep;
     std::vector<std::string> mIgnoredDirectories;
     std::vector<std::string> mOnceIgnoredDirectories;
-    std::map<int, std::string> mDirectorieMap;
+    std::map<int, std::filesystem::path> mDirectorieMap;
     int mInotifyFd;
     std::atomic<bool> stopped;
     std::function<void(FileSystemEvent)> mOnEventTimeout;
