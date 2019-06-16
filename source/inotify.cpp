@@ -12,8 +12,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-namespace notifycpp
-{
+namespace notifycpp {
 Inotify::Inotify()
     : mError(0)
     , mThreadSleep(250)
@@ -50,7 +49,7 @@ void Inotify::init()
  * @param path that will be watched recursively
  *
  */
-    /* XXX
+/* XXX
     if (isExists(path))
         if (isDirectory(path)) {
             fs::recursive_directory_iterator it(path, fs::symlink_option::recurse);
@@ -74,7 +73,6 @@ void Inotify::init()
             "Can´t watch Path! Path does not exist. Path: " + path.string());
     }
     */
-
 
 /**
  * @brief Adds a single file/directorie to the list of
@@ -101,7 +99,7 @@ void Inotify::watchFile(const FileSystemEvent& fse)
         if (mError == 28) {
             errorStream << "Failed to watch! " << strerror(mError)
                         << ". Please increase number of watches in "
-                            "\"/proc/sys/fs/inotify/max_user_watches\".";
+                           "\"/proc/sys/fs/inotify/max_user_watches\".";
             throw std::runtime_error(errorStream.str());
         }
 
@@ -195,7 +193,7 @@ TFileSystemEventPtr Inotify::getNextEvent()
                 event->mask |= IN_ISDIR;
 
             _Queue.push(std::make_shared<FileSystemEvent>(path,
-                                                         _EventHandler.getInotify(static_cast<uint32_t>(event->mask))));
+                _EventHandler.getInotify(static_cast<uint32_t>(event->mask))));
 
             i += EVENT_SIZE + event->len;
         }

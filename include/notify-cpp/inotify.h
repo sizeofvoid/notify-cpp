@@ -67,7 +67,7 @@
 namespace notifycpp {
 
 class Inotify : public Notify {
-  public:
+public:
     Inotify();
     ~Inotify();
     virtual void watchFile(const FileSystemEvent&) override;
@@ -75,7 +75,7 @@ class Inotify : public Notify {
     virtual TFileSystemEventPtr getNextEvent() override;
     virtual std::uint32_t getEventMask(const Event) const override;
 
-  private:
+private:
     std::filesystem::path wdToPath(int wd);
     void removeWatch(int wd);
     void init();

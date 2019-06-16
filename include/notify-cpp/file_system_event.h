@@ -1,24 +1,24 @@
 #pragma once
 
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
-#include <filesystem>
 
 #include <notify-cpp/event.h>
 
 namespace notifycpp {
 class FileSystemEvent {
-  public:
+public:
     FileSystemEvent(const std::filesystem::path&);
     FileSystemEvent(const std::filesystem::path&,
-                    const Event);
+        const Event);
     ~FileSystemEvent();
 
     Event getEvent() const;
     std::filesystem::path getPath() const;
 
-  private:
+private:
     //!
     Event _Event;
 

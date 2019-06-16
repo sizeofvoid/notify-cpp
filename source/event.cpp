@@ -30,8 +30,8 @@
 #include <cassert>
 
 namespace notifycpp {
-EventHandler::EventHandler(const Event e) :
-    _Events(e)
+EventHandler::EventHandler(const Event e)
+    : _Events(e)
 {
 }
 
@@ -39,10 +39,8 @@ std::uint32_t
 EventHandler::convertToInotifyEvents(const Event event) const
 {
     std::uint32_t events = 0;
-    for (const auto& e : AllEvents)
-    {
-        if ((event & e) == e)
-        {
+    for (const auto& e : AllEvents) {
+        if ((event & e) == e) {
             events = events | convert(e);
         }
     }
@@ -52,38 +50,37 @@ EventHandler::convertToInotifyEvents(const Event event) const
 std::uint32_t
 EventHandler::convert(const Event e) const
 {
-    switch(e)
-    {
-        case Event::access:
-            return IN_ACCESS;
-        case Event::modify:
-            return IN_MODIFY;
-        case Event::attrib:
-            return IN_ATTRIB;
-        case Event::close_write:
-            return IN_CLOSE_WRITE;
-        case Event::close_nowrite:
-            return IN_CLOSE_NOWRITE;
-        case Event::open:
-            return IN_OPEN;
-        case Event::moved_from:
-            return IN_MOVED_FROM;
-        case Event::moved_to:
-            return IN_MOVED_TO;
-        case Event::create:
-            return IN_CREATE;
-        case Event::delete_sub:
-            return IN_DELETE;
-        case Event::delete_self:
-            return IN_DELETE_SELF;
-        case Event::move_self:
-            return IN_MOVE_SELF;
-        case Event::close:
-            return IN_CLOSE;
-        case Event::move:
-            return IN_MOVE;
-        case Event::all:
-            return IN_ALL_EVENTS;
+    switch (e) {
+    case Event::access:
+        return IN_ACCESS;
+    case Event::modify:
+        return IN_MODIFY;
+    case Event::attrib:
+        return IN_ATTRIB;
+    case Event::close_write:
+        return IN_CLOSE_WRITE;
+    case Event::close_nowrite:
+        return IN_CLOSE_NOWRITE;
+    case Event::open:
+        return IN_OPEN;
+    case Event::moved_from:
+        return IN_MOVED_FROM;
+    case Event::moved_to:
+        return IN_MOVED_TO;
+    case Event::create:
+        return IN_CREATE;
+    case Event::delete_sub:
+        return IN_DELETE;
+    case Event::delete_self:
+        return IN_DELETE_SELF;
+    case Event::move_self:
+        return IN_MOVE_SELF;
+    case Event::close:
+        return IN_CLOSE;
+    case Event::move:
+        return IN_MOVE;
+    case Event::all:
+        return IN_ALL_EVENTS;
     }
     return 0;
 }
@@ -91,56 +88,50 @@ EventHandler::convert(const Event e) const
 std::string
 toString(const Event event)
 {
-    const auto getString = [](Event myEvent) -> std::string
-    {
-        switch(myEvent)
-        {
-            case Event::access:
-                return std::string("access");
-            case Event::modify:
-                return std::string("modify");
-            case Event::attrib:
-                return std::string("attrib");
-            case Event::close_write:
-                return std::string("close_write");
-            case Event::close_nowrite:
-                return std::string("close_nowrite");
-            case Event::open:
-                return std::string("open");
-            case Event::moved_from:
-                return std::string("moved_from");
-            case Event::moved_to:
-                return std::string("moved_to");
-            case Event::create:
-                return std::string("create");
-            case Event::delete_sub:
-                return std::string("delete");
-            case Event::delete_self:
-                return std::string("delete_self");
-            case Event::move_self:
-                return std::string("move_self");
-            case Event::close:
-                return std::string("close");
-            case Event::move:
-                return std::string("move");
-            case Event::all:
-                return std::string("all");
+    const auto getString = [](Event myEvent) -> std::string {
+        switch (myEvent) {
+        case Event::access:
+            return std::string("access");
+        case Event::modify:
+            return std::string("modify");
+        case Event::attrib:
+            return std::string("attrib");
+        case Event::close_write:
+            return std::string("close_write");
+        case Event::close_nowrite:
+            return std::string("close_nowrite");
+        case Event::open:
+            return std::string("open");
+        case Event::moved_from:
+            return std::string("moved_from");
+        case Event::moved_to:
+            return std::string("moved_to");
+        case Event::create:
+            return std::string("create");
+        case Event::delete_sub:
+            return std::string("delete");
+        case Event::delete_self:
+            return std::string("delete_self");
+        case Event::move_self:
+            return std::string("move_self");
+        case Event::close:
+            return std::string("close");
+        case Event::move:
+            return std::string("move");
+        case Event::all:
+            return std::string("all");
         }
         assert(!"None existing event");
         return std::string("NONE");
     };
 
     std::string events;
-    for (const auto& e : AllEvents)
-    {
-        if ((event & e) == e)
-        {
-            if (events.empty())
-            {
+    for (const auto& e : AllEvents) {
+        if ((event & e) == e) {
+            if (events.empty()) {
                 events = getString(e);
             }
-            else
-            {
+            else {
                 events = events + "," + getString(e);
             }
         }
@@ -156,38 +147,37 @@ std::ostream& operator<<(std::ostream& stream, const Event& event)
 
 Event EventHandler::getInotify(std::uint32_t e) const
 {
-    switch(e)
-    {
-        case IN_ACCESS:
-            return Event::access;
-        case IN_MODIFY:
-            return Event::modify;
-        case IN_ATTRIB:
-            return Event::attrib;
-        case IN_CLOSE_WRITE:
-            return Event::close_write;
-        case IN_CLOSE_NOWRITE:
-            return Event::close_nowrite;
-        case IN_OPEN:
-            return Event::open;
-        case IN_MOVED_FROM:
-            return Event::moved_from;
-        case IN_MOVED_TO:
-            return Event::moved_to;
-        case IN_CREATE:
-            return Event::create;
-        case IN_DELETE:
-            return Event::delete_sub;
-        case IN_DELETE_SELF:
-            return Event::delete_self;
-        case IN_MOVE_SELF:
-            return Event::move_self;
-        case IN_CLOSE:
-            return Event::close;
-        case IN_MOVE:
-            return Event::move;
-        case IN_ALL_EVENTS:
-            return Event::all;
+    switch (e) {
+    case IN_ACCESS:
+        return Event::access;
+    case IN_MODIFY:
+        return Event::modify;
+    case IN_ATTRIB:
+        return Event::attrib;
+    case IN_CLOSE_WRITE:
+        return Event::close_write;
+    case IN_CLOSE_NOWRITE:
+        return Event::close_nowrite;
+    case IN_OPEN:
+        return Event::open;
+    case IN_MOVED_FROM:
+        return Event::moved_from;
+    case IN_MOVED_TO:
+        return Event::moved_to;
+    case IN_CREATE:
+        return Event::create;
+    case IN_DELETE:
+        return Event::delete_sub;
+    case IN_DELETE_SELF:
+        return Event::delete_self;
+    case IN_MOVE_SELF:
+        return Event::move_self;
+    case IN_CLOSE:
+        return Event::close;
+    case IN_MOVE:
+        return Event::move;
+    case IN_ALL_EVENTS:
+        return Event::all;
     }
     assert(!"None existing event");
     return Event::all;

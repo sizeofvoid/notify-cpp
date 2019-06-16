@@ -65,7 +65,7 @@ bool Notify::hasStopped()
 bool Notify::isIgnored(const std::filesystem::path& p) const
 {
     return std::any_of(_IgnoredDirectories.begin(), _IgnoredDirectories.end(),
-                       [&p](const std::filesystem::path& ip) { return p == ip; });
+        [&p](const std::filesystem::path& ip) { return p == ip; });
 }
 
 std::string Notify::getFilePath(int fd) const

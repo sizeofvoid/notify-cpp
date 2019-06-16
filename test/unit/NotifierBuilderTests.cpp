@@ -20,19 +20,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <notify-cpp/notifier_builder.h>
 #include <notify-cpp/fanotify.h>
 #include <notify-cpp/inotify.h>
+#include <notify-cpp/notifier_builder.h>
 
 #include <boost/test/unit_test.hpp>
 
 #include <chrono>
+#include <filesystem>
 #include <fstream>
 #include <future>
 #include <iostream>
-#include <filesystem>
-#include <fstream>
-
 
 /*
  * The test cases based on the original work from Erik Zenker for inotify-cpp.
@@ -98,12 +96,9 @@ BOOST_FIXTURE_TEST_CASE(shouldNotAcceptNotExistingPaths, NotifierBuilderTests)
 
 BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, NotifierBuilderTests)
 {
-    NotifierBuilder notifier = InotifyNotifierBuilder().watchFile({testFileOne_, Event::close})
-                                                       .onEvent(Event::close,
-                                                                [&](Notification notification)
-                                                                {
-                                                                    promisedOpen_.set_value(notification);
-                                                                });
+    NotifierBuilder notifier = InotifyNotifierBuilder().watchFile({testFileOne_, Event::close}).onEvent(Event::close, [&](Notification notification) {
+        promisedOpen_.set_value(notification);
+    });
 
     std::thread thread([&notifier]() { notifier.runOnce(); });
 
@@ -126,19 +121,18 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, NotifierBuilderTests)
     BOOST_CHECK((watchOn & Event::open) == Event::open);
     BOOST_CHECK((watchOn & Event::moved_from) != Event::moved_from);
 
-    notifier.watchFile({testFileOne_, watchOn}).onEvents(
-        { Event::open, Event::close_write }, [&](Notification notification) {
-            switch (notification.getEvent()) {
-            case Event::open:
-                promisedOpen_.set_value(notification);
-                break;
-            case Event::close_write:
-                promisedCloseNoWrite_.set_value(notification);
-                break;
-            default:
-                break;
-            }
-        });
+    notifier.watchFile({testFileOne_, watchOn}).onEvents({Event::open, Event::close_write}, [&](Notification notification) {
+        switch (notification.getEvent()) {
+        case Event::open:
+            promisedOpen_.set_value(notification);
+            break;
+        case Event::close_write:
+            promisedCloseNoWrite_.set_value(notification);
+            break;
+        default:
+            break;
+        }
+    });
 
     std::thread thread([&notifier]() {
         notifier.runOnce();
@@ -200,13 +194,9 @@ BOOST_FIXTURE_TEST_CASE(shouldIgnoreFileOnce, NotifierBuilderTests)
 
 BOOST_FIXTURE_TEST_CASE(shouldIgnoreFile, NotifierBuilderTests)
 {
-    NotifierBuilder notifier = InotifyNotifierBuilder().ignore(testFileOne_)
-                                                       .watchFile({testFileOne_, Event::close})
-                                                       .onEvent(Event::close,
-                                                                [&](Notification notification)
-                                                                {
-                                                                    promisedOpen_.set_value(notification);
-                                                                });
+    NotifierBuilder notifier = InotifyNotifierBuilder().ignore(testFileOne_).watchFile({testFileOne_, Event::close}).onEvent(Event::close, [&](Notification notification) {
+        promisedOpen_.set_value(notification);
+    });
 
     std::thread thread([&notifier]() { notifier.runOnce(); });
 
@@ -264,12 +254,10 @@ BOOST_FIXTURE_TEST_CASE(shouldCallUserDefinedUnexpectedExceptionObserver, Notifi
 {
     std::promise<void> observerCalled;
 
-    NotifierBuilder notifier2 = InotifyNotifierBuilder().watchFile(testFileOne_).onUnexpectedEvent(
-        [&](Notification) { observerCalled.set_value(); });
+    NotifierBuilder notifier2 = InotifyNotifierBuilder().watchFile(testFileOne_).onUnexpectedEvent([&](Notification) { observerCalled.set_value(); });
 
     NotifierBuilder notifier = InotifyNotifierBuilder();
-    notifier.watchFile(testFileOne_).onUnexpectedEvent(
-        [&](Notification) { observerCalled.set_value(); });
+    notifier.watchFile(testFileOne_).onUnexpectedEvent([&](Notification) { observerCalled.set_value(); });
 
     std::thread thread([&notifier]() { notifier.runOnce(); });
 

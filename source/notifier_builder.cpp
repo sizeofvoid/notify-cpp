@@ -21,9 +21,9 @@
  * SOFTWARE.
  */
 
-#include <notify-cpp/notifier_builder.h>
 #include <notify-cpp/fanotify.h>
 #include <notify-cpp/inotify.h>
+#include <notify-cpp/notifier_builder.h>
 
 namespace notifycpp {
 
@@ -36,7 +36,6 @@ NotifierBuilder& FanotifyNotifierBuilder::watchMountPoint(const std::filesystem:
     static_cast<Fanotify*>(_Notify)->watchMountPoint(p);
     return *this;
 }
-
 
 InotifyNotifierBuilder::InotifyNotifierBuilder()
     : NotifierBuilder(new Inotify)
@@ -103,19 +102,16 @@ void NotifierBuilder::runOnce()
     const Event event = fileSystemEvent->getEvent();
     const auto observers = findObserver(event);
 
-    if (observers.empty())
-    {
+    if (observers.empty()) {
         if (mUnexpectedEventObserver) {
-            mUnexpectedEventObserver({ event, fileSystemEvent->getPath() });
+            mUnexpectedEventObserver({event, fileSystemEvent->getPath()});
         }
     }
-    else
-    {
-        for (const auto & observerEvent : observers)
-        {
+    else {
+        for (const auto& observerEvent : observers) {
             /* handle observed processes */
             auto eventObserver = observerEvent.second;
-            eventObserver({ observerEvent.first, fileSystemEvent->getPath() });
+            eventObserver({observerEvent.first, fileSystemEvent->getPath()});
         }
     }
 }
@@ -137,7 +133,7 @@ NotifierBuilder::findObserver(Event e) const
     std::vector<std::pair<Event, EventObserver>> observers;
     for (auto const& event2Observer : mEventObserver)
         if ((event2Observer.first & e) == e)
-            observers.emplace_back(event2Observer.first,event2Observer.second);
+            observers.emplace_back(event2Observer.first, event2Observer.second);
     return observers;
 }
 }

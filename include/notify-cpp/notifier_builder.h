@@ -3,19 +3,19 @@
 #include <notify-cpp/notification.h>
 #include <notify-cpp/notify.h>
 
+#include <filesystem>
 #include <functional>
 #include <map>
 #include <memory>
-#include <string>
-#include <filesystem>
 #include <set>
+#include <string>
 
 namespace notifycpp {
 
 using EventObserver = std::function<void(Notification)>;
 
 class NotifierBuilder {
-  public:
+public:
     NotifierBuilder(Notify*);
     NotifierBuilder() = default;
 
@@ -39,13 +39,12 @@ class NotifierBuilder {
 
     NotifierBuilder& onUnexpectedEvent(EventObserver);
 
-  protected:
+protected:
     Notify* _Notify;
     //std::unique_ptr<Notify> _Notify;
 
-  private:
-
-    std::vector<std::pair<Event,EventObserver>> findObserver(Event e) const;
+private:
+    std::vector<std::pair<Event, EventObserver>> findObserver(Event e) const;
 
     std::map<Event, EventObserver> mEventObserver;
 
@@ -53,15 +52,14 @@ class NotifierBuilder {
 };
 
 class FanotifyNotifierBuilder : public NotifierBuilder {
-  public:
+public:
     FanotifyNotifierBuilder();
 
     NotifierBuilder& watchMountPoint(const std::filesystem::path&);
-
 };
 
 class InotifyNotifierBuilder : public NotifierBuilder {
-  public:
+public:
     InotifyNotifierBuilder();
 };
 }

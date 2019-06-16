@@ -1,8 +1,8 @@
 #include <inotify-cpp/NotifierBuilder.h>
 
+#include <chrono>
 #include <iostream>
 #include <thread>
-#include <chrono>
 
 using namespace inotify;
 
@@ -30,12 +30,12 @@ int main(int argc, char** argv)
     };
 
     // Set the events to be notified for
-    auto events = { Event::open | Event::is_dir, // some events occur in combinations
-                    Event::access,
-                    Event::create,
-                    Event::modify,
-                    Event::remove,
-                    Event::move };
+    auto events = {Event::open | Event::is_dir, // some events occur in combinations
+        Event::access,
+        Event::create,
+        Event::modify,
+        Event::remove,
+        Event::move};
 
     // The notifier is configured to watch the parsed path for the defined events. Particular files
     // or pathes can be ignored(once).
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
                         .onUnexpectedEvent(handleUnexpectedNotification);
 
     // The event loop is started in a separate thread context.
-    std::thread thread([&](){ notifier.run(); });
+    std::thread thread([&]() { notifier.run(); });
 
     // Terminate the event loop after 60 seconds
     std::this_thread::sleep_for(std::chrono::seconds(60));

@@ -5,13 +5,13 @@
 namespace notifycpp {
 
 class Notification {
-  public:
+public:
     Notification(Event, const std::string&);
 
     std::string getPath() const;
     Event getEvent() const;
 
-  private:
+private:
     Event _Event;
     std::string _Path;
 };

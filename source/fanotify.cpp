@@ -113,7 +113,8 @@ void Fanotify::watch(const std::filesystem::path& path, unsigned int flags, cons
             errorStream << "Couldn't add monitor '" << path << "': " << strerror(errno);
             throw std::runtime_error(errorStream.str());
         }
-    } else {
+    }
+    else {
         throw std::invalid_argument("Can´t watch Path! Path does not exist. Path: " + path.string());
     }
 }

@@ -45,9 +45,10 @@
 namespace notifycpp {
 
 class Fanotify : public Notify {
-    enum { FD_POLL_FANOTIFY = 0, FD_POLL_MAX };
+    enum { FD_POLL_FANOTIFY = 0,
+        FD_POLL_MAX };
 
-  public:
+public:
     Fanotify();
     ~Fanotify();
 
@@ -57,7 +58,7 @@ class Fanotify : public Notify {
     virtual TFileSystemEventPtr getNextEvent() override;
     virtual std::uint32_t getEventMask(const Event) const override;
 
-  private:
+private:
     void initFanotify();
     void watch(const std::filesystem::path&, unsigned int, const Event = Event::open);
 

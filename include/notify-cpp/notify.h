@@ -27,10 +27,10 @@
 #include <notify-cpp/event.h>
 
 #include <atomic>
+#include <filesystem>
 #include <queue>
 #include <string>
 #include <vector>
-#include <filesystem>
 
 /**
  * @brief Base class
@@ -39,7 +39,7 @@ namespace notifycpp {
 
 class Notify {
 
-  public:
+public:
     Notify();
 
     virtual void watchFile(const FileSystemEvent&) = 0;
@@ -55,7 +55,7 @@ class Notify {
 
     void watchPathRecursively(const FileSystemEvent&);
 
-  protected:
+protected:
     bool checkWatchFile(const FileSystemEvent&) const;
     bool checkWatchDirectory(const FileSystemEvent&) const;
     bool isIgnored(const std::filesystem::path&) const;
