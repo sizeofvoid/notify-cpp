@@ -138,6 +138,7 @@ void Inotify::removeWatch(int wd)
         throw std::runtime_error(errorStream.str());
     }
 }
+
 std::filesystem::path
 Inotify::wdToPath(int wd)
 {

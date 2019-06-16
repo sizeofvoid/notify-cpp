@@ -24,6 +24,7 @@
 #include <notify-cpp/file_system_event.h>
 
 namespace notifycpp {
+
 FileSystemEvent::FileSystemEvent(const std::filesystem::path& p)
     : _Event(Event::open)
     , _Path(p)

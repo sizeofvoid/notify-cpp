@@ -30,12 +30,12 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/signalfd.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #include <linux/version.h>
 #include <sys/fanotify.h>
+#include <sys/signalfd.h>
+#include <sys/stat.h>
 
 #include <iostream>
 #include <sstream>

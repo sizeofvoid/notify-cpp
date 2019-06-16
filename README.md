@@ -1,7 +1,8 @@
-# notify-cpp - A C++ interface for linux monitoring filesystem events
+# notify-cpp - A C++17 interface for linux monitoring filesystem events
 
-__Inotify-cpp__ is a C++ wrapper for linux fanotify and inotify. It lets you watch for
-filesystem events on your filesystem tree. It's based on the work of __erikzenker/inotify-cpp__.
+__Inotify-cpp__ is a C++17 wrapper for linux fanotify and inotify. It lets you
+watch for filesystem events on your filesystem tree. It's based on the work of
+__erikzenker/inotify-cpp__.
 
 ## Build Example ##
 Build and install the library before you run the following commands:
@@ -23,7 +24,7 @@ make install
 ```
 
 ## Dependencies ##
- + C++ 11 Compiler
+ + C++ 17 Compiler
  + linux 2.6.13
 
 ## Licence

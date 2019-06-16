@@ -27,10 +27,11 @@
 
 namespace notifycpp {
 
- FanotifyController:: FanotifyController()
+FanotifyController:: FanotifyController()
     : NotifyController(new Fanotify)
 {
 }
+
 NotifyController&  FanotifyController::watchMountPoint(const std::filesystem::path& p)
 {
     static_cast<Fanotify*>(_Notify)->watchMountPoint(p);
@@ -72,6 +73,7 @@ NotifyController& NotifyController::ignore(const std::filesystem::path& p)
     _Notify->ignore(p);
     return *this;
 }
+
 NotifyController& NotifyController::onEvent(Event event, EventObserver eventObserver)
 {
     mEventObserver[event] = eventObserver;
