@@ -22,7 +22,7 @@
  */
 #include <notify-cpp/fanotify.h>
 #include <notify-cpp/inotify.h>
-#include <notify-cpp/notifier_builder.h>
+#include <notify-cpp/notify_controller.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -87,16 +87,16 @@ BOOST_AUTO_TEST_CASE(EventOperatorTest)
 
 BOOST_FIXTURE_TEST_CASE(shouldNotAcceptNotExistingPaths, NotifierBuilderTests)
 {
-    BOOST_CHECK_THROW(InotifyNotifierBuilder().watchPathRecursively(std::filesystem::path("/not/existing/path/")), std::invalid_argument);
-    BOOST_CHECK_THROW(FanotifyNotifierBuilder().watchPathRecursively(std::filesystem::path("/not/existing/path/")), std::invalid_argument);
+    BOOST_CHECK_THROW(InotifyController().watchPathRecursively(std::filesystem::path("/not/existing/path/")), std::invalid_argument);
+    BOOST_CHECK_THROW( FanotifyController().watchPathRecursively(std::filesystem::path("/not/existing/path/")), std::invalid_argument);
 
-    BOOST_CHECK_THROW(InotifyNotifierBuilder().watchFile(std::filesystem::path("/not/existing/file")), std::invalid_argument);
-    BOOST_CHECK_THROW(FanotifyNotifierBuilder().watchFile(std::filesystem::path("/not/existing/file")), std::invalid_argument);
+    BOOST_CHECK_THROW(InotifyController().watchFile(std::filesystem::path("/not/existing/file")), std::invalid_argument);
+    BOOST_CHECK_THROW( FanotifyController().watchFile(std::filesystem::path("/not/existing/file")), std::invalid_argument);
 }
 
 BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, NotifierBuilderTests)
 {
-    NotifierBuilder notifier = InotifyNotifierBuilder().watchFile({testFileOne_, Event::close}).onEvent(Event::close, [&](Notification notification) {
+    NotifyController notifier = InotifyController().watchFile({testFileOne_, Event::close}).onEvent(Event::close, [&](Notification notification) {
         promisedOpen_.set_value(notification);
     });
 
@@ -114,7 +114,7 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, NotifierBuilderTests)
 
 BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, NotifierBuilderTests)
 {
-    InotifyNotifierBuilder notifier = InotifyNotifierBuilder();
+    InotifyController notifier = InotifyController();
 
     Event watchOn = Event::open | Event::close_write;
     BOOST_CHECK((watchOn & Event::close_write) == Event::close_write);
@@ -152,7 +152,7 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, NotifierBuilderTests)
 
 BOOST_FIXTURE_TEST_CASE(shouldStopRunOnce, NotifierBuilderTests)
 {
-    NotifierBuilder notifier = InotifyNotifierBuilder().watchFile(testFileOne_);
+    NotifyController notifier = InotifyController().watchFile(testFileOne_);
 
     std::thread thread([&notifier]() { notifier.runOnce(); });
 
@@ -163,7 +163,7 @@ BOOST_FIXTURE_TEST_CASE(shouldStopRunOnce, NotifierBuilderTests)
 
 BOOST_FIXTURE_TEST_CASE(shouldStopRun, NotifierBuilderTests)
 {
-    InotifyNotifierBuilder notifier = InotifyNotifierBuilder();
+    InotifyController notifier = InotifyController();
     notifier.watchFile(testFileOne_);
 
     std::thread thread([&notifier]() { notifier.run(); });
@@ -176,7 +176,7 @@ BOOST_FIXTURE_TEST_CASE(shouldStopRun, NotifierBuilderTests)
 BOOST_FIXTURE_TEST_CASE(shouldIgnoreFileOnce, NotifierBuilderTests)
 {
     /* XX
-    InotifyNotifierBuilder notifier = InotifyNotifierBuilder();
+    InotifyController notifier = InotifyController();
     notifier.watchFile(testFileOne_).ignoreFileOnce(testFileOne_).onEvent(
         Event::open, [&](Notification notification) { promisedOpen_.set_value(notification); });
 
@@ -194,7 +194,7 @@ BOOST_FIXTURE_TEST_CASE(shouldIgnoreFileOnce, NotifierBuilderTests)
 
 BOOST_FIXTURE_TEST_CASE(shouldIgnoreFile, NotifierBuilderTests)
 {
-    NotifierBuilder notifier = InotifyNotifierBuilder().ignore(testFileOne_).watchFile({testFileOne_, Event::close}).onEvent(Event::close, [&](Notification notification) {
+    NotifyController notifier = InotifyController().ignore(testFileOne_).watchFile({testFileOne_, Event::close}).onEvent(Event::close, [&](Notification notification) {
         promisedOpen_.set_value(notification);
     });
 
@@ -211,7 +211,7 @@ BOOST_FIXTURE_TEST_CASE(shouldIgnoreFile, NotifierBuilderTests)
 BOOST_FIXTURE_TEST_CASE(shouldWatchPathRecursively, NotifierBuilderTests)
 {
     /* XXX
-    InotifyNotifierBuilder notifier = InotifyNotifierBuilder();
+    InotifyController notifier = InotifyController();
     notifier.watchPathRecursively(testDirectory_)
                         .onEvent(Event::open, [&](Notification notification) {
                             switch (notification.getEvent()) {
@@ -239,7 +239,7 @@ BOOST_FIXTURE_TEST_CASE(shouldUnwatchPath, NotifierBuilderTests)
     std::promise<Notification> timeoutObserved;
     std::chrono::milliseconds timeout(100);
 
-    InotifyNotifierBuilder notifier = InotifyNotifierBuilder();
+    InotifyController notifier = InotifyController();
     notifier.watchFile(testFileOne_).unwatch(testFileOne_);
 
     std::thread thread([&notifier]() { notifier.runOnce(); });
@@ -254,9 +254,9 @@ BOOST_FIXTURE_TEST_CASE(shouldCallUserDefinedUnexpectedExceptionObserver, Notifi
 {
     std::promise<void> observerCalled;
 
-    NotifierBuilder notifier2 = InotifyNotifierBuilder().watchFile(testFileOne_).onUnexpectedEvent([&](Notification) { observerCalled.set_value(); });
+    NotifyController notifier2 = InotifyController().watchFile(testFileOne_).onUnexpectedEvent([&](Notification) { observerCalled.set_value(); });
 
-    NotifierBuilder notifier = InotifyNotifierBuilder();
+    NotifyController notifier = InotifyController();
     notifier.watchFile(testFileOne_).onUnexpectedEvent([&](Notification) { observerCalled.set_value(); });
 
     std::thread thread([&notifier]() { notifier.runOnce(); });
@@ -273,7 +273,7 @@ BOOST_FIXTURE_TEST_CASE(shouldSetEventTimeout, NotifierBuilderTests)
     std::promise<Notification> timeoutObserved;
     std::chrono::milliseconds timeout(100);
 
-    InotifyNotifierBuilder notifier = InotifyNotifierBuilder();
+    InotifyController notifier = InotifyController();
     notifier.watchFile(testFileOne_)
               .onEvent(
                   Event::open,

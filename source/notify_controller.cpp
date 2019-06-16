@@ -23,76 +23,76 @@
 
 #include <notify-cpp/fanotify.h>
 #include <notify-cpp/inotify.h>
-#include <notify-cpp/notifier_builder.h>
+#include <notify-cpp/notify_controller.h>
 
 namespace notifycpp {
 
-FanotifyNotifierBuilder::FanotifyNotifierBuilder()
-    : NotifierBuilder(new Fanotify)
+ FanotifyController:: FanotifyController()
+    : NotifyController(new Fanotify)
 {
 }
-NotifierBuilder& FanotifyNotifierBuilder::watchMountPoint(const std::filesystem::path& p)
+NotifyController&  FanotifyController::watchMountPoint(const std::filesystem::path& p)
 {
     static_cast<Fanotify*>(_Notify)->watchMountPoint(p);
     return *this;
 }
 
-InotifyNotifierBuilder::InotifyNotifierBuilder()
-    : NotifierBuilder(new Inotify)
+InotifyController::InotifyController()
+    : NotifyController(new Inotify)
 {
 }
 
-NotifierBuilder::NotifierBuilder(Notify* n)
+NotifyController::NotifyController(Notify* n)
     : _Notify(n)
 {
 }
 
-NotifierBuilder&
-NotifierBuilder::watchFile(const FileSystemEvent& fse)
+NotifyController&
+NotifyController::watchFile(const FileSystemEvent& fse)
 {
     _Notify->watchFile(fse);
     return *this;
 }
 
-NotifierBuilder&
-NotifierBuilder::watchPathRecursively(const FileSystemEvent& fse)
+NotifyController&
+NotifyController::watchPathRecursively(const FileSystemEvent& fse)
 {
     _Notify->watchPathRecursively(fse);
     return *this;
 }
 
-NotifierBuilder& NotifierBuilder::unwatch(const std::filesystem::path& f)
+NotifyController& NotifyController::unwatch(const std::filesystem::path& f)
 {
     _Notify->unwatch(f);
     return *this;
 }
 
-NotifierBuilder& NotifierBuilder::ignore(const std::filesystem::path& p)
+NotifyController& NotifyController::ignore(const std::filesystem::path& p)
 {
     _Notify->ignore(p);
     return *this;
 }
-NotifierBuilder& NotifierBuilder::onEvent(Event event, EventObserver eventObserver)
+NotifyController& NotifyController::onEvent(Event event, EventObserver eventObserver)
 {
     mEventObserver[event] = eventObserver;
     return *this;
 }
 
-NotifierBuilder& NotifierBuilder::onEvents(std::set<Event> events, EventObserver eventObserver)
+NotifyController& NotifyController::onEvents(std::set<Event> events, EventObserver eventObserver)
 {
     for (auto event : events)
         mEventObserver[event] = eventObserver;
     return *this;
 }
 
-NotifierBuilder&
-NotifierBuilder::onUnexpectedEvent(EventObserver eventObserver)
+NotifyController&
+NotifyController::onUnexpectedEvent(EventObserver eventObserver)
 {
     mUnexpectedEventObserver = eventObserver;
     return *this;
 }
 
-void NotifierBuilder::runOnce()
+void NotifyController::runOnce()
 {
     auto fileSystemEvent = _Notify->getNextEvent();
     if (!fileSystemEvent) {
@@ -116,19 +116,19 @@ void NotifierBuilder::runOnce()
     }
 }
 
-void NotifierBuilder::run()
+void NotifyController::run()
 {
     while (!_Notify->hasStopped())
         runOnce();
 }
 
-void NotifierBuilder::stop()
+void NotifyController::stop()
 {
     _Notify->stop();
 }
 
 std::vector<std::pair<Event, EventObserver>>
-NotifierBuilder::findObserver(Event e) const
+NotifyController::findObserver(Event e) const
 {
     std::vector<std::pair<Event, EventObserver>> observers;
     for (auto const& event2Observer : mEventObserver)

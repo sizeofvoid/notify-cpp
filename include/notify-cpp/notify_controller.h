@@ -14,10 +14,10 @@ namespace notifycpp {
 
 using EventObserver = std::function<void(Notification)>;
 
-class NotifierBuilder {
+class NotifyController {
 public:
-    NotifierBuilder(Notify*);
-    NotifierBuilder() = default;
+    NotifyController(Notify*);
+    NotifyController() = default;
 
     void run();
 
@@ -25,19 +25,19 @@ public:
 
     void stop();
 
-    NotifierBuilder& watchFile(const FileSystemEvent&);
+    NotifyController& watchFile(const FileSystemEvent&);
 
-    NotifierBuilder& watchPathRecursively(const FileSystemEvent&);
+    NotifyController& watchPathRecursively(const FileSystemEvent&);
 
-    NotifierBuilder& unwatch(const std::filesystem::path&);
+    NotifyController& unwatch(const std::filesystem::path&);
 
-    NotifierBuilder& ignore(const std::filesystem::path&);
+    NotifyController& ignore(const std::filesystem::path&);
 
-    NotifierBuilder& onEvent(Event event, EventObserver);
+    NotifyController& onEvent(Event event, EventObserver);
 
-    NotifierBuilder& onEvents(std::set<Event> event, EventObserver);
+    NotifyController& onEvents(std::set<Event> event, EventObserver);
 
-    NotifierBuilder& onUnexpectedEvent(EventObserver);
+    NotifyController& onUnexpectedEvent(EventObserver);
 
 protected:
     Notify* _Notify;
@@ -51,15 +51,15 @@ private:
     EventObserver mUnexpectedEventObserver;
 };
 
-class FanotifyNotifierBuilder : public NotifierBuilder {
+class  FanotifyController : public NotifyController {
 public:
-    FanotifyNotifierBuilder();
+     FanotifyController();
 
-    NotifierBuilder& watchMountPoint(const std::filesystem::path&);
+    NotifyController& watchMountPoint(const std::filesystem::path&);
 };
 
-class InotifyNotifierBuilder : public NotifierBuilder {
+class InotifyController : public NotifyController {
 public:
-    InotifyNotifierBuilder();
+    InotifyController();
 };
 }

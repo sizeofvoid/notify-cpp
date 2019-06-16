@@ -44,7 +44,7 @@ set(NOTIFYCPP_HEADER
     include/notify-cpp/file_system_event.h
     include/notify-cpp/inotify.h
     include/notify-cpp/notification.h
-    include/notify-cpp/notifier_builder.h
+    include/notify-cpp/notify_controller.h
     include/notify-cpp/notify.h)
 
 set(NOTIFYCPP_SOURCES
@@ -53,7 +53,7 @@ set(NOTIFYCPP_SOURCES
     source/file_system_event.cpp
     source/inotify.cpp
     source/notification.cpp
-    source/notifier_builder.cpp
+    source/notify_controller.cpp
     source/notify.cpp)
 
 # XXX readlink
