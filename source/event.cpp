@@ -23,6 +23,7 @@
 
 #include <notify-cpp/event.h>
 
+#include <sys/fanotify.h>
 #include <sys/inotify.h>
 
 #include <iostream>
@@ -38,17 +39,17 @@ EventHandler::EventHandler(const Event e)
 std::uint32_t
 EventHandler::convertToInotifyEvents(const Event event) const
 {
-    std::uint32_t events = 0;
-    for (const auto& e : AllEvents) {
-        if ((event & e) == e) {
-            events = events | convert(e);
-        }
-    }
-    return events;
+    return convert(event, std::bind(&EventHandler::getInotifyEvent, this, std::placeholders::_1));
 }
 
 std::uint32_t
-EventHandler::convert(const Event e) const
+EventHandler::convertToFanotifyEvents(const Event event) const
+{
+    return convert(event, std::bind(&EventHandler::getFanotifyEvent, this, std::placeholders::_1));
+}
+
+std::uint32_t
+EventHandler::getInotifyEvent(const Event e) const
 {
     switch (e) {
     case Event::access:
@@ -81,6 +82,44 @@ EventHandler::convert(const Event e) const
         return IN_MOVE;
     case Event::all:
         return IN_ALL_EVENTS;
+    }
+    return 0;
+}
+
+std::uint32_t
+EventHandler::getFanotifyEvent(const Event e) const
+{
+    switch (e) {
+    case Event::access:
+        return FAN_ACCESS;
+    case Event::modify:
+        return FAN_MODIFY;
+    case Event::attrib:
+        assert(!"None existing event");
+        return 0;
+    case Event::close_write:
+        return FAN_CLOSE_WRITE;
+    case Event::close_nowrite:
+        return FAN_CLOSE_NOWRITE;
+    case Event::open:
+        return FAN_OPEN;
+
+    case Event::moved_from:
+    case Event::moved_to:
+    case Event::create:
+    case Event::delete_sub:
+    case Event::delete_self:
+    case Event::move_self:
+        assert(!"None existing event");
+        return 0;
+
+    case Event::close:
+        return FAN_CLOSE;
+
+    case Event::move:
+    case Event::all:
+        assert(!"None existing event");
+        return 0;
     }
     return 0;
 }
@@ -181,5 +220,17 @@ Event EventHandler::getInotify(std::uint32_t e) const
     }
     assert(!"None existing event");
     return Event::all;
+}
+
+std::uint32_t
+EventHandler::convert(const Event event, std::function<std::uint32_t(Event)> translator) const
+{
+    std::uint32_t events = 0;
+    for (const auto& e : AllEvents) {
+        if ((event & e) == e) {
+            events = events | translator(e);
+        }
+    }
+    return events;
 }
 }

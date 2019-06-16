@@ -27,12 +27,12 @@
 
 namespace notifycpp {
 
-FanotifyController:: FanotifyController()
+FanotifyController::FanotifyController()
     : NotifyController(new Fanotify)
 {
 }
 
-NotifyController&  FanotifyController::watchMountPoint(const std::filesystem::path& p)
+NotifyController& FanotifyController::watchMountPoint(const std::filesystem::path& p)
 {
     static_cast<Fanotify*>(_Notify)->watchMountPoint(p);
     return *this;

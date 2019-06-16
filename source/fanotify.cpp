@@ -106,16 +106,11 @@ void Fanotify::watchFile(const FileSystemEvent& fse)
 
 void Fanotify::watch(const std::filesystem::path& path, unsigned int flags, const Event event)
 {
-    if (std::filesystem::exists(path)) {
-        /* Add new fanotify mark */
-        if (fanotify_mark(_FanotifyFd, flags, getEventMask(event), AT_FDCWD, path.c_str()) < 0) {
-            std::stringstream errorStream;
-            errorStream << "Couldn't add monitor '" << path << "': " << strerror(errno);
-            throw std::runtime_error(errorStream.str());
-        }
-    }
-    else {
-        throw std::invalid_argument("Can´t watch Path! Path does not exist. Path: " + path.string());
+    /* Add new fanotify mark */
+    if (fanotify_mark(_FanotifyFd, flags, getEventMask(event), AT_FDCWD, path.c_str()) < 0) {
+        std::stringstream errorStream;
+        errorStream << "Couldn't add monitor '" << path << "': " << strerror(errno);
+        throw std::runtime_error(errorStream.str());
     }
 }
 
@@ -198,8 +193,8 @@ TFileSystemEventPtr Fanotify::getNextEvent()
     return event;
 }
 std::uint32_t
-Fanotify::getEventMask(const Event e) const
+Fanotify::getEventMask(const Event event) const
 {
-    return 0;
+    return _EventHandler.convertToFanotifyEvents(event);
 }
 }

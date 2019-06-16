@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstdint>
+#include <functional>
 #include <iostream>
 #include <type_traits>
 
@@ -65,11 +66,14 @@ public:
     EventHandler() = default;
 
     std::uint32_t convertToInotifyEvents(const Event) const;
-    std::uint32_t convert(const Event) const;
+    std::uint32_t convertToFanotifyEvents(const Event) const;
+    std::uint32_t getInotifyEvent(const Event) const;
+    std::uint32_t getFanotifyEvent(const Event) const;
 
     Event getInotify(std::uint32_t) const;
 
 private:
+    std::uint32_t convert(const Event, std::function<std::uint32_t(Event)>) const;
     const Event _Events = Event::all;
 };
 

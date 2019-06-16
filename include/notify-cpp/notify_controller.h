@@ -51,9 +51,9 @@ private:
     EventObserver mUnexpectedEventObserver;
 };
 
-class  FanotifyController : public NotifyController {
+class FanotifyController : public NotifyController {
 public:
-     FanotifyController();
+    FanotifyController();
 
     NotifyController& watchMountPoint(const std::filesystem::path&);
 };
