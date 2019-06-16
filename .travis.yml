@@ -5,6 +5,7 @@ dist: xenial
 before_install:
   # C++17
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ xenial main'
   - sudo apt-get update -qq
 
 install:
