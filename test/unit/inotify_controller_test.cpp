@@ -49,8 +49,8 @@ void openFile(std::filesystem::path file)
     stream.close();
 }
 
-struct NotifierBuilderTests {
-    NotifierBuilderTests()
+struct InotifyControllerTest {
+    InotifyControllerTest()
         : testDirectory_("testDirectory")
         , recursiveTestDirectory_(testDirectory_ / "recursiveTestDirectory")
         , testFileOne_(testDirectory_ / "test.txt")
@@ -62,7 +62,7 @@ struct NotifierBuilderTests {
         std::ofstream streamTwo(testFileTwo_);
     }
 
-    ~NotifierBuilderTests() = default;
+    ~InotifyControllerTest() = default;
 
     std::filesystem::path testDirectory_;
     std::filesystem::path recursiveTestDirectory_;
@@ -85,16 +85,13 @@ BOOST_AUTO_TEST_CASE(EventOperatorTest)
     BOOST_CHECK(toString(Event::access) == std::string("access"));
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldNotAcceptNotExistingPaths, NotifierBuilderTests)
+BOOST_FIXTURE_TEST_CASE(shouldNotAcceptNotExistingPaths, InotifyControllerTest)
 {
     BOOST_CHECK_THROW(InotifyController().watchPathRecursively(std::filesystem::path("/not/existing/path/")), std::invalid_argument);
-    BOOST_CHECK_THROW( FanotifyController().watchPathRecursively(std::filesystem::path("/not/existing/path/")), std::invalid_argument);
-
     BOOST_CHECK_THROW(InotifyController().watchFile(std::filesystem::path("/not/existing/file")), std::invalid_argument);
-    BOOST_CHECK_THROW( FanotifyController().watchFile(std::filesystem::path("/not/existing/file")), std::invalid_argument);
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, NotifierBuilderTests)
+BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, InotifyControllerTest)
 {
     NotifyController notifier = InotifyController().watchFile({testFileOne_, Event::close}).onEvent(Event::close, [&](Notification notification) {
         promisedOpen_.set_value(notification);
@@ -112,7 +109,7 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, NotifierBuilderTests)
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, NotifierBuilderTests)
+BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, InotifyControllerTest)
 {
     InotifyController notifier = InotifyController();
 
@@ -150,7 +147,7 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, NotifierBuilderTests)
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldStopRunOnce, NotifierBuilderTests)
+BOOST_FIXTURE_TEST_CASE(shouldStopRunOnce, InotifyControllerTest)
 {
     NotifyController notifier = InotifyController().watchFile(testFileOne_);
 
@@ -161,7 +158,7 @@ BOOST_FIXTURE_TEST_CASE(shouldStopRunOnce, NotifierBuilderTests)
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldStopRun, NotifierBuilderTests)
+BOOST_FIXTURE_TEST_CASE(shouldStopRun, InotifyControllerTest)
 {
     InotifyController notifier = InotifyController();
     notifier.watchFile(testFileOne_);
@@ -173,7 +170,7 @@ BOOST_FIXTURE_TEST_CASE(shouldStopRun, NotifierBuilderTests)
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldIgnoreFileOnce, NotifierBuilderTests)
+BOOST_FIXTURE_TEST_CASE(shouldIgnoreFileOnce, InotifyControllerTest)
 {
     /* XX
     InotifyController notifier = InotifyController();
@@ -192,7 +189,7 @@ BOOST_FIXTURE_TEST_CASE(shouldIgnoreFileOnce, NotifierBuilderTests)
     */
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldIgnoreFile, NotifierBuilderTests)
+BOOST_FIXTURE_TEST_CASE(shouldIgnoreFile, InotifyControllerTest)
 {
     NotifyController notifier = InotifyController().ignore(testFileOne_).watchFile({testFileOne_, Event::close}).onEvent(Event::close, [&](Notification notification) {
         promisedOpen_.set_value(notification);
@@ -208,7 +205,7 @@ BOOST_FIXTURE_TEST_CASE(shouldIgnoreFile, NotifierBuilderTests)
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldWatchPathRecursively, NotifierBuilderTests)
+BOOST_FIXTURE_TEST_CASE(shouldWatchPathRecursively, InotifyControllerTest)
 {
     /* XXX
     InotifyController notifier = InotifyController();
@@ -234,7 +231,7 @@ BOOST_FIXTURE_TEST_CASE(shouldWatchPathRecursively, NotifierBuilderTests)
     */
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldUnwatchPath, NotifierBuilderTests)
+BOOST_FIXTURE_TEST_CASE(shouldUnwatchPath, InotifyControllerTest)
 {
     std::promise<Notification> timeoutObserved;
     std::chrono::milliseconds timeout(100);
@@ -250,7 +247,7 @@ BOOST_FIXTURE_TEST_CASE(shouldUnwatchPath, NotifierBuilderTests)
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldCallUserDefinedUnexpectedExceptionObserver, NotifierBuilderTests)
+BOOST_FIXTURE_TEST_CASE(shouldCallUserDefinedUnexpectedExceptionObserver, InotifyControllerTest)
 {
     std::promise<void> observerCalled;
 
@@ -267,7 +264,7 @@ BOOST_FIXTURE_TEST_CASE(shouldCallUserDefinedUnexpectedExceptionObserver, Notifi
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldSetEventTimeout, NotifierBuilderTests)
+BOOST_FIXTURE_TEST_CASE(shouldSetEventTimeout, InotifyControllerTest)
 {
     /*
     std::promise<Notification> timeoutObserved;

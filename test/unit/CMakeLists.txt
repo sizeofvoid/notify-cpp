@@ -7,7 +7,7 @@ if (NOT DEFINED Boost_INCLUDE_DIRS OR NOT Boost_LIBRARIES)
     message(FATAL_ERROR "Missing boos feature")
 endif()
 
-add_executable(inotify_unit_test main.cpp NotifierBuilderTests.cpp)
+add_executable(inotify_unit_test main.cpp inotify_controller_test.cpp)
 target_link_libraries(
   inotify_unit_test
   PUBLIC notify-cpp-shared stdc++fs Threads::Threads ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT}
