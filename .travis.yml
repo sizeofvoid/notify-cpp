@@ -18,6 +18,6 @@ install:
 
 script:
   - mkdir build && cd build
-  - cmake ..
-  - cmake
-  - ctest
+  - cmake -DCMAKE_BUILD_TYPE=Debug ..
+  - make
+  - ctest -VV
