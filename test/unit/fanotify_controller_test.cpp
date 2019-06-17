@@ -97,8 +97,8 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, FanotifyControllerTest)
     auto futureOpenEvent = promisedOpen_.get_future();
     BOOST_CHECK(futureOpenEvent.wait_for(timeout_) == std::future_status::ready);
     const auto notify = futureOpenEvent.get();
-    BOOST_CHECK(notify.getEvent() == Event::close);
-    BOOST_CHECK(notify.getPath() == testFileOne_);
+    BOOST_CHECK_EQUAL(notify.getEvent(), Event::close);
+    BOOST_CHECK_EQUAL(notify.getPath(), testFileOne_);
     thread.join();
 }
 
