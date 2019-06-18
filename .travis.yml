@@ -1,4 +1,5 @@
 language: cpp
+sudo: required
 compiler: gcc
 dist: xenial
 
@@ -20,4 +21,4 @@ script:
   - mkdir build && cd build
   - cmake -DCMAKE_BUILD_TYPE=Debug ..
   - make
-  - ctest -VV
+  - sudo ctest -VV
