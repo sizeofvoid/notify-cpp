@@ -98,7 +98,9 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, FanotifyControllerTest)
     BOOST_CHECK(futureOpenEvent.wait_for(timeout_) == std::future_status::ready);
     const auto notify = futureOpenEvent.get();
     BOOST_CHECK_EQUAL(notify.getEvent(), Event::close);
-    BOOST_CHECK_EQUAL(notify.getPath(), testFileOne_);
+    auto fullpath = std::filesystem::current_path();
+    fullpath /= testFileOne_;
+    BOOST_CHECK_EQUAL(notify.getPath(), fullpath);
     thread.join();
 }
 
@@ -107,9 +109,6 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, FanotifyControllerTest)
     FanotifyController notifier = FanotifyController();
 
     Event watchOn = Event::open | Event::close_write;
-    BOOST_CHECK((watchOn & Event::close_write) == Event::close_write);
-    BOOST_CHECK((watchOn & Event::open) == Event::open);
-    BOOST_CHECK((watchOn & Event::moved_from) != Event::moved_from);
 
     notifier.watchFile({testFileOne_, watchOn}).onEvents({Event::open, Event::close_write}, [&](Notification notification) {
         switch (notification.getEvent()) {

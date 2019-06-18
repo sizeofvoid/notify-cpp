@@ -44,6 +44,7 @@ namespace notifycpp {
 
 Notify::Notify()
     : _Stopped(false)
+    , mThreadSleep(250)
 {
 }
 

@@ -151,7 +151,7 @@ TFileSystemEventPtr Fanotify::getNextEvent()
     /* Now loop */
     while (_Queue.empty() && !_Stopped) {
         /* Block until there is something to be read */
-        if (poll(fds, FD_POLL_MAX, -1) < 0) {
+        if (poll(fds, FD_POLL_MAX, mThreadSleep) < 0) {
             std::stringstream errorStream;
             errorStream << "Couldn't poll(): " << strerror(errno) << ".";
             throw std::runtime_error(errorStream.str());
@@ -178,8 +178,8 @@ TFileSystemEventPtr Fanotify::getNextEvent()
 
                     const std::string filename = getFilePath(metadata->fd);
                     if (!filename.empty()) {
-                        // TODO Filter events
-                        //_Queue.push(std::make_shared<FileSystemEvent>(metadata->mask, filename));
+                        _Queue.push(std::make_shared<FileSystemEvent>(std::filesystem::path(filename),
+                            _EventHandler.getFanotify(static_cast<uint32_t>(metadata->mask))));
                         close(metadata->fd);
                     }
                     metadata = FAN_EVENT_NEXT(metadata, length);

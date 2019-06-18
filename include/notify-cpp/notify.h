@@ -68,6 +68,8 @@ protected:
 
     std::atomic<bool> _Stopped;
 
+    const uint32_t mThreadSleep;
+
     EventHandler _EventHandler;
 };
 }

@@ -82,7 +82,6 @@ private:
 
     // Member
     int mError;
-    uint32_t mThreadSleep;
     std::vector<std::string> mIgnoredDirectories;
     std::vector<std::string> mOnceIgnoredDirectories;
     std::map<int, std::filesystem::path> mDirectorieMap;

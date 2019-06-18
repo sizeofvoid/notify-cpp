@@ -71,6 +71,7 @@ public:
     std::uint32_t getFanotifyEvent(const Event) const;
 
     Event getInotify(std::uint32_t) const;
+    Event getFanotify(std::uint32_t) const;
 
 private:
     std::uint32_t convert(const Event, std::function<std::uint32_t(Event)>) const;

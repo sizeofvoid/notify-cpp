@@ -15,7 +15,6 @@
 namespace notifycpp {
 Inotify::Inotify()
     : mError(0)
-    , mThreadSleep(250)
     , mInotifyFd(0)
 {
     // Initialize inotify

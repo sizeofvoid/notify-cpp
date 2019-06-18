@@ -222,6 +222,26 @@ Event EventHandler::getInotify(std::uint32_t e) const
     return Event::all;
 }
 
+
+Event EventHandler::getFanotify(std::uint32_t e) const
+{
+    switch (e) {
+        case FAN_ACCESS:
+         return Event::access;
+        case FAN_MODIFY:
+         return Event::modify;
+        case FAN_CLOSE_WRITE:
+         return Event::close_write;
+        case FAN_CLOSE_NOWRITE:
+         return Event::close_nowrite;
+        case FAN_OPEN:
+         return Event::open;
+        case FAN_CLOSE:
+         return Event::close;
+    }
+    return Event::all;
+}
+
 std::uint32_t
 EventHandler::convert(const Event event, std::function<std::uint32_t(Event)> translator) const
 {
