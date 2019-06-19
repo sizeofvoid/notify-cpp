@@ -174,8 +174,7 @@ TFileSystemEventPtr Fanotify::getNextEvent()
 
                 metadata = (struct fanotify_event_metadata*)buffer;
 
-                while (FAN_EVENT_OK(metadata, length)) {
-
+                while (FAN_EVENT_OK(metadata, length) && !_Stopped) {
                     const std::string filename = getFilePath(metadata->fd);
                     if (!filename.empty()) {
                         _Queue.push(std::make_shared<FileSystemEvent>(std::filesystem::path(filename),
