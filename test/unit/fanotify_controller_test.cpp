@@ -103,7 +103,7 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, FanotifyControllerTest)
     BOOST_CHECK_EQUAL(notify.getPath(), fullpath);
     thread.join();
 }
-
+/*
 BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, FanotifyControllerTest)
 {
     FanotifyController notifier = FanotifyController();
@@ -210,3 +210,4 @@ BOOST_FIXTURE_TEST_CASE(shouldCallUserDefinedUnexpectedExceptionObserver, Fanoti
     BOOST_CHECK(observerCalled.get_future().wait_for(timeout_) == std::future_status::ready);
     thread.join();
 }
+*/
