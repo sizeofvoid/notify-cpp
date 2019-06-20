@@ -2,24 +2,15 @@
 [![Build Status](https://travis-ci.org/sizeofvoid/notify-cpp.svg?branch=master)](https://travis-ci.org/sizeofvoid/notify-cpp)
 ===========
 
-__Inotify-cpp__ is a C++17 wrapper for linux fanotify and inotify. It lets you
+__notify-cpp__ is a C++17 wrapper for linux fanotify and inotify. It lets you
 watch for filesystem events on your filesystem tree. It's based on the work of
 __erikzenker/inotify-cpp__.
-
-## Build Example ##
-Build and install the library before you run the following commands:
-```bash
-mkdir build; cd build
-cmake ../example
-cmake --build example
-./inotify_example
-```
 
 ## Build Library ##
 ```bash
 mkdir build; cd bulid
-cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
-cmake --build .
+cmake -DCMAKE_INSTALL_PREFIX=/opt/ ..
+make
 
 # install the library
 make install
