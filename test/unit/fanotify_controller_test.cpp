@@ -149,7 +149,6 @@ BOOST_FIXTURE_TEST_CASE(shouldStopRunOnce, FanotifyControllerTest)
     thread.join();
 }
 
-/*
 BOOST_FIXTURE_TEST_CASE(shouldStopRun, FanotifyControllerTest)
 {
     FanotifyController notifier = FanotifyController();
@@ -210,4 +209,3 @@ BOOST_FIXTURE_TEST_CASE(shouldCallUserDefinedUnexpectedExceptionObserver, Fanoti
     BOOST_CHECK(observerCalled.get_future().wait_for(timeout_) == std::future_status::ready);
     thread.join();
 }
-*/
