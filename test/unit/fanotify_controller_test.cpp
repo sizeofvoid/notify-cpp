@@ -138,7 +138,6 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, FanotifyControllerTest)
     thread.join();
 }
 
-/*
 BOOST_FIXTURE_TEST_CASE(shouldStopRunOnce, FanotifyControllerTest)
 {
     NotifyController notifier = FanotifyController().watchFile(testFileOne_);
@@ -150,6 +149,7 @@ BOOST_FIXTURE_TEST_CASE(shouldStopRunOnce, FanotifyControllerTest)
     thread.join();
 }
 
+/*
 BOOST_FIXTURE_TEST_CASE(shouldStopRun, FanotifyControllerTest)
 {
     FanotifyController notifier = FanotifyController();
