@@ -249,8 +249,6 @@ std::string EventHandler::getFanotifyStr(std::uint32_t e) const
                 return std::string("close");
             case FAN_ALL_CLASS_BITS:
                 return std::string("all_class_bits");
-            case FAN_ENABLE_AUDIT:
-                return std::string("enable_audit");
         }
         return "NONE";
     };
@@ -302,7 +300,6 @@ Event EventHandler::getFanotify(std::uint32_t e) const
         case FAN_ONDIR:
         case FAN_EVENT_ON_CHILD:
         case FAN_ALL_CLASS_BITS:
-        case FAN_ENABLE_AUDIT:
         */
     }
     return Event::all;

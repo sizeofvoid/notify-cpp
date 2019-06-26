@@ -57,7 +57,7 @@ enum class Event {
 // TODO Check with assert
 const std::array<Event, 15> AllEvents = {Event::access, Event::modify, Event::attrib, Event::close_write, Event::close_nowrite, Event::open, Event::moved_from, Event::moved_to, Event::create, Event::delete_sub, Event::delete_self, Event::move_self, Event::close, Event::move, Event::all};
 
-const std::array<std::uint32_t, 12> AllFanFlags = {{FAN_ACCESS, FAN_MODIFY, FAN_CLOSE_WRITE, FAN_CLOSE_NOWRITE, FAN_OPEN, FAN_Q_OVERFLOW, FAN_OPEN_PERM, FAN_ONDIR, FAN_EVENT_ON_CHILD, FAN_CLOSE, FAN_ALL_CLASS_BITS, FAN_ENABLE_AUDIT}};
+const std::array<std::uint32_t, 12> AllFanFlags = {{FAN_ACCESS, FAN_MODIFY, FAN_CLOSE_WRITE, FAN_CLOSE_NOWRITE, FAN_OPEN, FAN_Q_OVERFLOW, FAN_OPEN_PERM, FAN_ONDIR, FAN_EVENT_ON_CHILD, FAN_CLOSE, FAN_ALL_CLASS_BITS}};
 
 template <>
 struct EnableBitMaskOperators<Event> {
