@@ -48,7 +48,7 @@ struct FanotifyControllerTest {
         , recursiveTestDirectory_(testDirectory_ / "recursiveTestDirectory")
         , testFileOne_(testDirectory_ / "test.txt")
         , testFileTwo_(testDirectory_ / "test2.txt")
-        , timeout_(1)
+        , timeout_(2)
     {
         std::filesystem::create_directories(testDirectory_);
         std::ofstream streamOne(testFileOne_);

@@ -121,6 +121,7 @@ EventHandler::getFanotifyEvent(const Event e) const
         assert(!"None existing event");
         return 0;
     }
+    assert(!"None existing event");
     return 0;
 }
 
@@ -222,6 +223,63 @@ Event EventHandler::getInotify(std::uint32_t e) const
     return Event::all;
 }
 
+std::string EventHandler::getFanotifyStr(std::uint32_t e) const
+{
+    const auto getString = [&](std::uint32_t myEvent) -> std::string {
+        switch (myEvent) {
+            case FAN_ACCESS:
+                return std::string("access");
+            case FAN_MODIFY:
+                return std::string("modify");
+            case FAN_CLOSE_WRITE:
+                return std::string("close_write");
+            case FAN_CLOSE_NOWRITE:
+                return std::string("close_nowrite");
+            case FAN_OPEN:
+                return std::string("open");
+            case FAN_Q_OVERFLOW:
+                return std::string("overflow");
+            case FAN_OPEN_PERM:
+                return std::string("open_perm");
+            case FAN_ONDIR:
+                return std::string("ondir");
+            case FAN_EVENT_ON_CHILD:
+                return std::string("on_child");
+            case FAN_CLOSE:
+                return std::string("close");
+            case FAN_ALL_CLASS_BITS:
+                return std::string("all_class_bits");
+            case FAN_ENABLE_AUDIT:
+                return std::string("enable_audit");
+        }
+        return "NONE";
+    };
+
+    std::string events;
+    for (auto const i: AllFanFlags) {
+        if ((e & i) == i) {
+            if (events.empty()) {
+                events = getString(i);
+            }
+            else {
+                events = events + ", " + getString(i);
+            }
+         }
+    }
+    return events;
+}
+
+std::vector<Event> EventHandler::getFanotifyEvents(std::uint32_t e) const
+{
+    std::vector<Event> events;
+    for (auto const event : AllFanFlags) {
+        std::uint32_t ie = static_cast<std::uint32_t>(event);
+        if ((e & ie) == ie) {
+            events.push_back(getFanotify(ie));
+        }
+    }
+    return events;
+}
 
 Event EventHandler::getFanotify(std::uint32_t e) const
 {
@@ -238,6 +296,14 @@ Event EventHandler::getFanotify(std::uint32_t e) const
          return Event::open;
         case FAN_CLOSE:
          return Event::close;
+        /* TODO
+        case FAN_Q_OVERFLOW:
+        case FAN_OPEN_PERM:
+        case FAN_ONDIR:
+        case FAN_EVENT_ON_CHILD:
+        case FAN_ALL_CLASS_BITS:
+        case FAN_ENABLE_AUDIT:
+        */
     }
     return Event::all;
 }
