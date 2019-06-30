@@ -199,6 +199,10 @@ TFileSystemEventPtr Inotify::getNextEvent()
         }
     }
 
+    if (_Stopped || _Queue.empty()) {
+        return nullptr;
+    }
+
     // Return next event
     auto event = _Queue.front();
     _Queue.pop();

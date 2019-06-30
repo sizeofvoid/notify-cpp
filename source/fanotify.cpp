@@ -62,10 +62,9 @@ void Fanotify::initFanotify()
  * https://github.com/torvalds/linux/commit/1e2ee49f7f1b79f0b14884fe6a602f0411b39552
  */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0)
-    _FanotifyFd = fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_NONBLOCK, O_RDONLY | 0100000);
+    _FanotifyFd = fanotify_init(FAN_CLASS_NOTIF | FAN_NONBLOCK, O_RDONLY | 0100000);
 #else
-    _FanotifyFd
-        = fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_NONBLOCK, O_RDONLY | O_LARGEFILE);
+    _FanotifyFd = fanotify_init(FAN_CLASS_NOTIF | FAN_NONBLOCK, O_RDONLY | O_LARGEFILE);
 #endif
 
     if (_FanotifyFd == -1) {
@@ -168,17 +167,17 @@ TFileSystemEventPtr Fanotify::getNextEvent()
 
             /* Read from the FD. It will read all events available up to
              * the given buffer size. */
-            if ((length = read(fds[FD_POLL_FANOTIFY].fd, buffer, /*FANOTIFY_BUFFER_SIZE*/ 8192))
-                > 0) {
-                struct fanotify_event_metadata* metadata;
+            if ((length = read(fds[FD_POLL_FANOTIFY].fd, buffer, /*FANOTIFY_BUFFER_SIZE*/ 8192)) > 0) {
 
+                struct fanotify_event_metadata* metadata;
                 metadata = (struct fanotify_event_metadata*)buffer;
 
                 while (FAN_EVENT_OK(metadata, length) && !_Stopped) {
+
                     const std::string filename = getFilePath(metadata->fd);
                     if (!filename.empty()) {
-                        _Queue.push(std::make_shared<FileSystemEvent>(std::filesystem::path(filename),
-                            _EventHandler.getFanotify(static_cast<uint32_t>(metadata->mask))));
+                        for (const Event event : _EventHandler.getFanotifyEvents(static_cast<uint32_t>(metadata->mask)))
+                            _Queue.push(std::make_shared<FileSystemEvent>(std::filesystem::path(filename), event));
                         close(metadata->fd);
                     }
                     metadata = FAN_EVENT_NEXT(metadata, length);
@@ -194,6 +193,8 @@ TFileSystemEventPtr Fanotify::getNextEvent()
     _Queue.pop();
     return event;
 }
+
+
 std::uint32_t
 Fanotify::getEventMask(const Event event) const
 {

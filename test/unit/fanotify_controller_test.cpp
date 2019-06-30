@@ -103,7 +103,6 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, FanotifyControllerTest)
     BOOST_CHECK_EQUAL(notify.getPath(), fullpath);
     thread.join();
 }
-
 BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, FanotifyControllerTest)
 {
     FanotifyController notifier = FanotifyController();
