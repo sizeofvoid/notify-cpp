@@ -69,40 +69,6 @@ struct FanotifyControllerTest {
     std::promise<Notification> promisedCloseNoWrite_;
 };
 
-BOOST_AUTO_TEST_CASE(EventOperatorTest)
-{
-    BOOST_CHECK((Event::all & Event::close_write) == Event::close_write);
-    BOOST_CHECK((Event::all & Event::moved_from) == Event::moved_from);
-    BOOST_CHECK((Event::move & Event::moved_from) == Event::moved_from);
-    BOOST_CHECK(!((Event::move & Event::open) == Event::open));
-    BOOST_CHECK(toString(Event::access) == std::string("access"));
-}
-
-BOOST_FIXTURE_TEST_CASE(shouldNotAcceptNotExistingPaths, FanotifyControllerTest)
-{
-    BOOST_CHECK_THROW(FanotifyController().watchPathRecursively(std::filesystem::path("/not/existing/path/")), std::invalid_argument);
-    BOOST_CHECK_THROW(FanotifyController().watchFile(std::filesystem::path("/not/existing/file")), std::invalid_argument);
-}
-
-BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, FanotifyControllerTest)
-{
-    NotifyController notifier = FanotifyController().watchFile({testFileOne_, Event::close}).onEvent(Event::close, [&](Notification notification) {
-        promisedOpen_.set_value(notification);
-    });
-
-    std::thread thread([&notifier]() { notifier.runOnce(); });
-
-    openFile(testFileOne_);
-
-    auto futureOpenEvent = promisedOpen_.get_future();
-    BOOST_CHECK(futureOpenEvent.wait_for(timeout_) == std::future_status::ready);
-    const auto notify = futureOpenEvent.get();
-    BOOST_CHECK_EQUAL(notify.getEvent(), Event::close);
-    auto fullpath = std::filesystem::current_path();
-    fullpath /= testFileOne_;
-    BOOST_CHECK_EQUAL(notify.getPath(), fullpath);
-    thread.join();
-}
 BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, FanotifyControllerTest)
 {
     FanotifyController notifier = FanotifyController();
@@ -135,6 +101,41 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, FanotifyControllerTest)
     BOOST_CHECK(futureOpen.get().getEvent() == Event::open);
     BOOST_CHECK(futureCloseNoWrite.wait_for(timeout_) == std::future_status::ready);
     BOOST_CHECK(futureCloseNoWrite.get().getEvent() == Event::close_write);
+    thread.join();
+}
+
+BOOST_AUTO_TEST_CASE(EventOperatorTest)
+{
+    BOOST_CHECK((Event::all & Event::close_write) == Event::close_write);
+    BOOST_CHECK((Event::all & Event::moved_from) == Event::moved_from);
+    BOOST_CHECK((Event::move & Event::moved_from) == Event::moved_from);
+    BOOST_CHECK(!((Event::move & Event::open) == Event::open));
+    BOOST_CHECK(toString(Event::access) == std::string("access"));
+}
+
+BOOST_FIXTURE_TEST_CASE(shouldNotAcceptNotExistingPaths, FanotifyControllerTest)
+{
+    BOOST_CHECK_THROW(FanotifyController().watchPathRecursively(std::filesystem::path("/not/existing/path/")), std::invalid_argument);
+    BOOST_CHECK_THROW(FanotifyController().watchFile(std::filesystem::path("/not/existing/file")), std::invalid_argument);
+}
+
+BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, FanotifyControllerTest)
+{
+    NotifyController notifier = FanotifyController().watchFile({testFileOne_, Event::close}).onEvent(Event::close, [&](Notification notification) {
+        promisedOpen_.set_value(notification);
+    });
+
+    std::thread thread([&notifier]() { notifier.runOnce(); });
+
+    openFile(testFileOne_);
+
+    auto futureOpenEvent = promisedOpen_.get_future();
+    BOOST_CHECK(futureOpenEvent.wait_for(timeout_) == std::future_status::ready);
+    const auto notify = futureOpenEvent.get();
+    BOOST_CHECK_EQUAL(notify.getEvent(), Event::close);
+    auto fullpath = std::filesystem::current_path();
+    fullpath /= testFileOne_;
+    BOOST_CHECK_EQUAL(notify.getPath(), fullpath);
     thread.join();
 }
 
