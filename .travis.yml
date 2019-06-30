@@ -18,6 +18,7 @@ install:
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
 
 script:
+  -  uname -a
   - mkdir build && cd build
   - cmake -DCMAKE_BUILD_TYPE=Debug ..
   - make
