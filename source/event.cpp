@@ -82,6 +82,8 @@ EventHandler::getInotifyEvent(const Event e) const
         return IN_MOVE;
     case Event::all:
         return IN_ALL_EVENTS;
+    case Event::none:
+        return 0;
     }
     return 0;
 }
@@ -118,6 +120,7 @@ EventHandler::getFanotifyEvent(const Event e) const
 
     case Event::move:
     case Event::all:
+    case Event::none:
         assert(!"None existing event");
         return 0;
     }
@@ -160,9 +163,11 @@ toString(const Event event)
             return std::string("move");
         case Event::all:
             return std::string("all");
+        case Event::none:
+            return std::string("none");
         }
         assert(!"None existing event");
-        return std::string("NONE");
+        return std::string("ERROR");
     };
 
     std::string events;
@@ -219,8 +224,7 @@ Event EventHandler::getInotify(std::uint32_t e) const
     case IN_ALL_EVENTS:
         return Event::all;
     }
-    assert(!"None existing event");
-    return Event::all;
+    return Event::none;
 }
 
 std::string EventHandler::getFanotifyStr(std::uint32_t e) const
@@ -302,7 +306,7 @@ Event EventHandler::getFanotify(std::uint32_t e) const
         case FAN_ALL_CLASS_BITS:
         */
     }
-    return Event::all;
+    return Event::none;
 }
 
 std::uint32_t

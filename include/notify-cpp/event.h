@@ -53,7 +53,10 @@ enum class Event {
 
     all = Event::access | Event::modify | Event::attrib | Event::close_write
         | Event::close_nowrite | Event::open | Event::moved_from | Event::moved_to
-        | Event::create | Event::delete_sub | Event::delete_self | Event::move_self
+        | Event::create | Event::delete_sub | Event::delete_self | Event::move_self,
+
+    // NOT (yet) supported
+    none
 };
 // TODO Check with assert
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
