@@ -94,6 +94,9 @@ if(ENABLE_STATIC_LIBS)
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
-# TODO drop boost and enable tests add_subdirectory(test)
+# install incldues
+install(DIRECTORY include/notify-cpp
+    DESTINATION include)
+
 enable_testing()
 add_subdirectory(test)

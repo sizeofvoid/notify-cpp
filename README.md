@@ -6,23 +6,41 @@ __notify-cpp__ is a C++17 wrapper for linux fanotify and inotify. It lets you
 watch for filesystem events on your filesystem tree. It's based on the work of
 __erikzenker/inotify-cpp__.
 
-## Build Library ##
+## Build Library
+
+CMake build option:
+
+- Enable build and install shared libraries. Default: On
+  - `-DENABLE_SHARED_LIBS=OFF`
+- Enable build and install static libraries. Default: Off
+  - `-DENABLE_STATIC_LIBS=ON`
+
 ```bash
-mkdir build; cd bulid
-cmake -DCMAKE_INSTALL_PREFIX=/opt/ ..
+
+# Configure
+mkdir build && cd bulid
+cmake -DCMAKE_INSTALL_PREFIX=/usr/local/ \
+      -DDENABLE_STATIC_LIBS=ON \
+      ..
+
+# Build
 make
 
-# install the library
+# Run tests
+make test
+
+# Install the library
 make install
 ```
 
-## Dependencies ##
+## Dependencies
  + C++ 17 Compiler
+ + CMake 3.8
  + linux 2.6.13
 
 ## Licence
 MIT
 
-## Author ##
+## Author
 Initially written by Erik Zenker <erikzenker@hotmail.com>
 Rewritten by Rafael Sadowski <rafael@sizeofvoid.org>
