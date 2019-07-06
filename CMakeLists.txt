@@ -12,6 +12,7 @@ set(NOTIFYCPP_VERSION "${NOTIFYCPP_VERSION_MAJOR}.${NOTIFYCPP_VERSION_MINOR}.${N
 
 option(ENABLE_SHARED_LIBS "Enable build and install shared libraries" ON)
 option(ENABLE_STATIC_LIBS "Enable build and install static libraries" OFF)
+option(ENABLE_TEST "Enable build the tests" ON)
 
 
 ## Set the build type
@@ -98,5 +99,7 @@ endif()
 install(DIRECTORY include/notify-cpp
     DESTINATION include)
 
-enable_testing()
-add_subdirectory(test)
+if (ENABLE_TEST)
+    enable_testing()
+    add_subdirectory(test)
+endif()
