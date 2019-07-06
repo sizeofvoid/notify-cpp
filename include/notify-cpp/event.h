@@ -4,10 +4,10 @@
 #include <cstdint>
 #include <functional>
 #include <iostream>
+#include <linux/version.h>
 #include <sys/fanotify.h>
 #include <type_traits>
 #include <vector>
-#include <linux/version.h>
 
 namespace notifycpp {
 template <typename Enum>
@@ -46,6 +46,9 @@ enum class Event {
     delete_self = (1 << 10),
     move_self = (1 << 11),
 
+    // NOT (yet) supported
+    none = (1 << 12),
+
     // helper
     close = Event::close_write | Event::close_nowrite,
 
@@ -53,19 +56,53 @@ enum class Event {
 
     all = Event::access | Event::modify | Event::attrib | Event::close_write
         | Event::close_nowrite | Event::open | Event::moved_from | Event::moved_to
-        | Event::create | Event::delete_sub | Event::delete_self | Event::move_self,
+        | Event::create | Event::delete_sub | Event::delete_self | Event::move_self
 
-    // NOT (yet) supported
-    none
 };
 // TODO Check with assert
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
-    // No Aduit support https://github.com/torvalds/linux/commit/de8cd83e91bc3ee212b3e6ec6e4283af9e4ab269
-    const std::array<std::uint32_t, 12> AllFanFlags = {{FAN_ACCESS, FAN_MODIFY, FAN_CLOSE_WRITE, FAN_CLOSE_NOWRITE, FAN_OPEN, FAN_Q_OVERFLOW, FAN_OPEN_PERM, FAN_ONDIR, FAN_EVENT_ON_CHILD, FAN_CLOSE, FAN_ALL_CLASS_BITS}};
+// No Aduit support https://github.com/torvalds/linux/commit/de8cd83e91bc3ee212b3e6ec6e4283af9e4ab269
+const std::array<std::uint32_t, 12> AllFanFlags = {{FAN_ACCESS,
+    FAN_MODIFY,
+    FAN_CLOSE_WRITE,
+    FAN_CLOSE_NOWRITE,
+    FAN_OPEN,
+    FAN_Q_OVERFLOW,
+    FAN_OPEN_PERM,
+    FAN_ONDIR,
+    FAN_EVENT_ON_CHILD,
+    FAN_CLOSE,
+    FAN_ALL_CLASS_BITS}};
 #else
-    const std::array<std::uint32_t, 12> AllFanFlags = {{FAN_ACCESS, FAN_MODIFY, FAN_CLOSE_WRITE, FAN_CLOSE_NOWRITE, FAN_OPEN, FAN_Q_OVERFLOW, FAN_OPEN_PERM, FAN_ONDIR, FAN_EVENT_ON_CHILD, FAN_CLOSE, FAN_ALL_CLASS_BITS, FAN_ENABLE_AUDIT }};
+const std::array<std::uint32_t, 12> AllFanFlags = {{FAN_ACCESS,
+    FAN_MODIFY,
+    FAN_CLOSE_WRITE,
+    FAN_CLOSE_NOWRITE,
+    FAN_OPEN,
+    FAN_Q_OVERFLOW,
+    FAN_OPEN_PERM,
+    FAN_ONDIR,
+    FAN_EVENT_ON_CHILD,
+    FAN_CLOSE,
+    FAN_ALL_CLASS_BITS,
+
+    FAN_ENABLE_AUDIT}};
 #endif
-const std::array<Event, 15> AllEvents = {Event::access, Event::modify, Event::attrib, Event::close_write, Event::close_nowrite, Event::open, Event::moved_from, Event::moved_to, Event::create, Event::delete_sub, Event::delete_self, Event::move_self, Event::close, Event::move, Event::all};
+const std::array<Event, 15> AllEvents = {Event::access,
+    Event::modify,
+    Event::attrib,
+    Event::close_write,
+    Event::close_nowrite,
+    Event::open,
+    Event::moved_from,
+    Event::moved_to,
+    Event::create,
+    Event::delete_sub,
+    Event::delete_self,
+    Event::move_self,
+    Event::close,
+    Event::move,
+    Event::all};
 
 template <>
 struct EnableBitMaskOperators<Event> {
