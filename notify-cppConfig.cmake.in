@@ -1,0 +1,17 @@
+# - Config file for the notify-cpp package
+
+# It defines the following variables
+#  NOTIFYCPP_INCLUDE_DIRS - include directories for notify-cpp
+#  NOTIFYCPP_LIBRARIES    - libraries to link against
+
+# Compute paths
+get_filename_component(NOTIFYCPP_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(NOTIFYCPP_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+if(NOT TARGET foo AND NOT notify-cpp_BINARY_DIR)
+  include("${NOTIFYCPP_CMAKE_DIR}/notify-cppTargets.cmake")
+endif()
+
+# These are IMPORTED targets created by notify-cppTargets.cmake
+set(NOTIFYCPP_LIBRARIES notify-cpp)
