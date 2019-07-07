@@ -207,7 +207,6 @@ BOOST_FIXTURE_TEST_CASE(shouldIgnoreFile, InotifyControllerTest)
 
 BOOST_FIXTURE_TEST_CASE(shouldWatchPathRecursively, InotifyControllerTest)
 {
-    /* XXX
     InotifyController notifier = InotifyController();
     notifier.watchPathRecursively(testDirectory_)
                         .onEvent(Event::open, [&](Notification notification) {
@@ -228,7 +227,6 @@ BOOST_FIXTURE_TEST_CASE(shouldWatchPathRecursively, InotifyControllerTest)
 
     notifier.stop();
     thread.join();
-    */
 }
 
 BOOST_FIXTURE_TEST_CASE(shouldUnwatchPath, InotifyControllerTest)

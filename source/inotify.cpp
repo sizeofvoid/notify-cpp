@@ -41,39 +41,6 @@ void Inotify::init()
 }
 
 /**
- * @brief Adds the given path and all files and subdirectories
- *        to the set of watched files/directories.
- *        Symlinks will be followed!
- *
- * @param path that will be watched recursively
- *
- */
-/* XXX
-    if (isExists(path))
-        if (isDirectory(path)) {
-            fs::recursive_directory_iterator it(path, fs::symlink_option::recurse);
-            fs::recursive_directory_iterator end;
-
-            while (it != end) {
-                fs::path currentPath = *it;
-
-                if (isDirectory(currentPath)) {
-                    watchFile(currentPath);
-                }
-                if (fs::is_symlink(currentPath)) {
-                    watchFile(currentPath);
-                }
-                ++it;
-            }
-        }
-        watchFile(path);
-    } else {
-        throw std::invalid_argument(
-            "Can´t watch Path! Path does not exist. Path: " + path.string());
-    }
-    */
-
-/**
  * @brief Adds a single file/directorie to the list of
  *        watches. Path and corresponding watchdescriptor
  *        will be stored in the directorieMap. This is done

@@ -109,9 +109,14 @@ bool Notify::checkWatchDirectory(const FileSystemEvent& fse) const
 
 void Notify::watchPathRecursively(const FileSystemEvent& fse)
 {
-    // TODO
-    if (checkWatchDirectory(fse))
+    if (!checkWatchDirectory(fse))
         return;
-}
 
+    for(auto& p: std::filesystem::recursive_directory_iterator(fse.getPath())) {
+        const FileSystemEvent tmp_fse(p);
+        if (checkWatchFile(tmp_fse)) {
+            watchFile(tmp_fse);
+        }
+    }
+}
 }

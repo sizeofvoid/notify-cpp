@@ -210,3 +210,27 @@ BOOST_FIXTURE_TEST_CASE(shouldCallUserDefinedUnexpectedExceptionObserver, Fanoti
     BOOST_CHECK(observerCalled.get_future().wait_for(timeout_) == std::future_status::ready);
     thread.join();
 }
+
+BOOST_FIXTURE_TEST_CASE(shouldWatchPathRecursively, FanotifyControllerTest)
+{
+    FanotifyController notifier = FanotifyController();
+    notifier.watchPathRecursively(testDirectory_)
+            .onEvent(Event::open, [&](Notification notification) {
+                switch (notification.getEvent()) {
+                    case Event::open:
+                        promisedOpen_.set_value(notification);
+                        break;
+                }
+
+            });
+
+    std::thread thread([&notifier]() { notifier.runOnce(); });
+
+    openFile(testFileOne_);
+
+    auto futureOpen = promisedOpen_.get_future();
+    BOOST_CHECK(futureOpen.wait_for(timeout_) == std::future_status::ready);
+
+    notifier.stop();
+    thread.join();
+}
