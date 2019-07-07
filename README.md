@@ -9,7 +9,7 @@ __erikzenker/inotify-cpp__.
 
 ## How to use notif-cpp
 
-### Simple file monitor with a [inotify(7)](http://man7.org/linux/man-pages/man7/inotify.7.html) or [fanotify(7)](http://man7.org/linux/man-pages/man7/fanotify.7.html) backend.
+### A simple file monitor with a [inotify(7)](http://man7.org/linux/man-pages/man7/inotify.7.html) or [fanotify(7)](http://man7.org/linux/man-pages/man7/fanotify.7.html) backend.
 ```cpp
 #include <notify-cpp/notify_controller.h>
 
@@ -29,7 +29,7 @@ int main(int argc, char** argv)
         if (backend != std::string("fanotify") || backend != std::string("inotify")) {
             usage();
         }
-        if (backend == std::string("fanotify"))
+        if (backend == std::string("inotify"))
             return notifycpp::InotifyController();
         return notifycpp::FanotifyController();
     };
