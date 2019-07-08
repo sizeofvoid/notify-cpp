@@ -33,6 +33,8 @@ public:
 
     NotifyController& ignore(const std::filesystem::path&);
 
+    NotifyController& ignoreOnce(const std::filesystem::path&);
+
     NotifyController& onEvent(Event event, EventObserver);
 
     NotifyController& onEvents(std::set<Event> event, EventObserver);

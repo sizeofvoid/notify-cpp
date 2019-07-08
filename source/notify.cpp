@@ -50,7 +50,12 @@ Notify::Notify()
 
 void Notify::ignore(const std::filesystem::path& p)
 {
-    _IgnoredDirectories.push_back(p);
+    _Ignored.push_back(p);
+}
+
+void Notify::ignoreOnce(const std::filesystem::path& p)
+{
+    _IgnoredOnce.push_back(p);
 }
 
 void Notify::stop()
@@ -63,9 +68,19 @@ bool Notify::hasStopped()
     return _Stopped;
 }
 
+bool Notify::isIgnoredOnce(const std::filesystem::path& p) const
+{
+    auto found = std::find(std::begin(_IgnoredOnce), std::end(_IgnoredOnce), p);
+    if (found != std::end(_IgnoredOnce)) {
+        _IgnoredOnce.erase(found);
+        return true;
+    }
+    return false;
+}
+
 bool Notify::isIgnored(const std::filesystem::path& p) const
 {
-    return std::any_of(_IgnoredDirectories.begin(), _IgnoredDirectories.end(),
+    return std::any_of(std::begin(_Ignored), std::end(_Ignored),
         [&p](const std::filesystem::path& ip) { return p == ip; });
 }
 

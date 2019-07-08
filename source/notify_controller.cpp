@@ -73,6 +73,11 @@ NotifyController& NotifyController::ignore(const std::filesystem::path& p)
     _Notify->ignore(p);
     return *this;
 }
+NotifyController& NotifyController::ignoreOnce(const std::filesystem::path& p)
+{
+    _Notify->ignoreOnce(p);
+    return *this;
+}
 
 NotifyController& NotifyController::onEvent(Event event, EventObserver eventObserver)
 {

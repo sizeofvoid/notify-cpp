@@ -52,6 +52,7 @@ public:
 
     virtual std::uint32_t getEventMask(const Event) const = 0;
     void ignore(const std::filesystem::path&);
+    void ignoreOnce(const std::filesystem::path&);
 
     void watchPathRecursively(const FileSystemEvent&);
 
@@ -59,10 +60,12 @@ protected:
     bool checkWatchFile(const FileSystemEvent&) const;
     bool checkWatchDirectory(const FileSystemEvent&) const;
     bool isIgnored(const std::filesystem::path&) const;
+    bool isIgnoredOnce(const std::filesystem::path&) const;
     void initFanotify();
     std::string getFilePath(int) const;
 
-    std::vector<std::filesystem::path> _IgnoredDirectories;
+    std::vector<std::filesystem::path> _Ignored;
+    mutable std::vector<std::filesystem::path> _IgnoredOnce;
 
     std::queue<TFileSystemEventPtr> _Queue;
 

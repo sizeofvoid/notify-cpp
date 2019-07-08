@@ -175,10 +175,11 @@ TFileSystemEventPtr Fanotify::getNextEvent()
                 while (FAN_EVENT_OK(metadata, length) && !_Stopped) {
 
                     const std::string filename = getFilePath(metadata->fd);
-                    if (!filename.empty()) {
+                    const std::filesystem::path path(filename);
+                    if (!filename.empty() && !isIgnoredOnce(path)) {
                         for (const Event event : _EventHandler.getFanotifyEvents(static_cast<uint32_t>(metadata->mask)))
                             if (event != Event::none)
-                                _Queue.push(std::make_shared<FileSystemEvent>(std::filesystem::path(filename), event));
+                                _Queue.push(std::make_shared<FileSystemEvent>(path , event));
                         close(metadata->fd);
                     }
                     metadata = FAN_EVENT_NEXT(metadata, length);

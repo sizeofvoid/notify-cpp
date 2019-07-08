@@ -72,6 +72,7 @@ struct InotifyControllerTest {
     std::chrono::seconds timeout_;
 
     // Events
+    std::promise<size_t> _promisedCounter;
     std::promise<Notification> promisedOpen_;
     std::promise<Notification> promisedCloseNoWrite_;
 };
@@ -172,21 +173,26 @@ BOOST_FIXTURE_TEST_CASE(shouldStopRun, InotifyControllerTest)
 
 BOOST_FIXTURE_TEST_CASE(shouldIgnoreFileOnce, InotifyControllerTest)
 {
-    /* XX
+    size_t counter = 0;
     InotifyController notifier = InotifyController();
-    notifier.watchFile(testFileOne_).ignoreFileOnce(testFileOne_).onEvent(
-        Event::open, [&](Notification notification) { promisedOpen_.set_value(notification); });
+    notifier.watchFile(testFileOne_).ignoreOnce(testFileOne_).onEvent(
+            Event::open, [&](Notification notification) {
+                ++counter;
+                if (counter == 1)
+                    _promisedCounter.set_value(counter);
+            });
 
-    std::thread thread([&notifier]() { notifier.runOnce(); });
+    std::thread thread([&notifier]() { notifier.run(); });
 
+    // Known bug if the events to fast on the same file inotify(7) create only one event so we have to wait
+    openFile(testFileOne_);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     openFile(testFileOne_);
 
-    auto futureOpen = promisedOpen_.get_future();
-    BOOST_CHECK(futureOpen.wait_for(timeout_) != std::future_status::ready);
-
+    auto futureOpen = _promisedCounter.get_future();
+    BOOST_CHECK(futureOpen.wait_for(std::chrono::seconds(1)) == std::future_status::ready);
     notifier.stop();
     thread.join();
-    */
 }
 
 BOOST_FIXTURE_TEST_CASE(shouldIgnoreFile, InotifyControllerTest)
@@ -287,4 +293,29 @@ BOOST_FIXTURE_TEST_CASE(shouldSetEventTimeout, InotifyControllerTest)
     BOOST_CHECK(timeoutObserved.get_future().wait_for(timeout_) == std::future_status::ready);
     thread.join();
     */
+}
+
+BOOST_FIXTURE_TEST_CASE(countEvents, InotifyControllerTest)
+{
+    size_t counter = 0;
+    InotifyController notifier = InotifyController();
+    notifier.watchFile(testFileOne_).onEvent(
+            Event::open, [&](Notification notification) {
+                ++counter;
+                if (counter == 2)
+                    _promisedCounter.set_value(counter);
+            });
+
+    std::thread thread([&notifier]() { notifier.run(); });
+
+    // Known bug if the events to fast on the same file inotify(7) create only one event so we have to wait
+    openFile(testFileOne_);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    openFile(testFileOne_);
+
+    auto futureOpen = _promisedCounter.get_future();
+    BOOST_CHECK(futureOpen.wait_for(std::chrono::seconds(1)) == std::future_status::ready);
+    BOOST_CHECK(futureOpen.get() == 2);
+    notifier.stop();
+    thread.join();
 }
