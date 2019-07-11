@@ -45,9 +45,6 @@
 namespace notifycpp {
 
 class Fanotify : public Notify {
-    enum { FD_POLL_FANOTIFY = 0,
-        FD_POLL_MAX };
-
 public:
     Fanotify();
     ~Fanotify();
@@ -63,5 +60,10 @@ private:
     void watch(const std::filesystem::path&, unsigned int, const Event = Event::open);
 
     int _FanotifyFd = -1;
+
+    enum { FD_POLL_FANOTIFY = 0,
+        FD_POLL_MAX };
+
+    const size_t  _fanotify_buffer_size = 8192;
 };
 }
