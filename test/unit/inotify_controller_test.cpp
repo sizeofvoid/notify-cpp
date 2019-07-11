@@ -268,33 +268,6 @@ BOOST_FIXTURE_TEST_CASE(shouldCallUserDefinedUnexpectedExceptionObserver, Inotif
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldSetEventTimeout, InotifyControllerTest)
-{
-    /*
-    std::promise<Notification> timeoutObserved;
-    std::chrono::milliseconds timeout(100);
-
-    InotifyController notifier = InotifyController();
-    notifier.watchFile(testFileOne_)
-              .onEvent(
-                  Event::open,
-                  [&](Notification notification) { promisedOpen_.set_value(notification); })
-              .setEventTimeout(timeout, [&](Notification notification) {
-                  timeoutObserved.set_value(notification);
-              });
-
-    std::thread thread([&notifier]() {
-        notifier.runOnce(); // open
-    });
-
-    openFile(testFileOne_);
-
-    BOOST_CHECK(promisedOpen_.get_future().wait_for(timeout_) == std::future_status::ready);
-    BOOST_CHECK(timeoutObserved.get_future().wait_for(timeout_) == std::future_status::ready);
-    thread.join();
-    */
-}
-
 BOOST_FIXTURE_TEST_CASE(countEvents, InotifyControllerTest)
 {
     size_t counter = 0;
