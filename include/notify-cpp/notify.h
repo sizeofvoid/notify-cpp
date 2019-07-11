@@ -61,7 +61,6 @@ protected:
     bool checkWatchDirectory(const FileSystemEvent&) const;
     bool isIgnored(const std::filesystem::path&) const;
     bool isIgnoredOnce(const std::filesystem::path&) const;
-    void initFanotify();
     std::string getFilePath(int) const;
 
     std::vector<std::filesystem::path> _Ignored;
