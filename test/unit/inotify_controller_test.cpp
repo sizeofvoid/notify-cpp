@@ -20,11 +20,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <notify-cpp/fanotify.h>
 #include <notify-cpp/inotify.h>
 #include <notify-cpp/notify_controller.h>
 
 #include <boost/test/unit_test.hpp>
+
+#include "filesystem_event_helper.hpp"
 
 #include <chrono>
 #include <filesystem>
@@ -36,63 +37,16 @@
  * The test cases based on the original work from Erik Zenker for inotify-cpp.
  * In to guarantee a compatibility with inotify-cpp the tests were mostly
  * unchanged.
- * TODO Not all tests enabled yet
  */
 using namespace notifycpp;
 
-void openFile(std::filesystem::path file)
-{
-    std::ofstream stream;
-    stream.open(file.string(), std::ifstream::out);
-    BOOST_CHECK(stream.is_open());
-    stream << "Writing this to a file.\n";
-    stream.close();
-}
-
-struct InotifyControllerTest {
-    InotifyControllerTest()
-        : testDirectory_("testDirectory")
-        , recursiveTestDirectory_(testDirectory_ / "recursiveTestDirectory")
-        , testFileOne_(testDirectory_ / "test.txt")
-        , testFileTwo_(testDirectory_ / "test2.txt")
-        , timeout_(1)
-    {
-        std::filesystem::create_directories(testDirectory_);
-        std::ofstream streamOne(testFileOne_);
-        std::ofstream streamTwo(testFileTwo_);
-    }
-
-    ~InotifyControllerTest() = default;
-
-    std::filesystem::path testDirectory_;
-    std::filesystem::path recursiveTestDirectory_;
-    std::filesystem::path testFileOne_;
-    std::filesystem::path testFileTwo_;
-
-    std::chrono::seconds timeout_;
-
-    // Events
-    std::promise<size_t> _promisedCounter;
-    std::promise<Notification> promisedOpen_;
-    std::promise<Notification> promisedCloseNoWrite_;
-};
-
-BOOST_AUTO_TEST_CASE(EventOperatorTest)
-{
-    BOOST_CHECK((Event::all & Event::close_write) == Event::close_write);
-    BOOST_CHECK((Event::all & Event::moved_from) == Event::moved_from);
-    BOOST_CHECK((Event::move & Event::moved_from) == Event::moved_from);
-    BOOST_CHECK(!((Event::move & Event::open) == Event::open));
-    BOOST_CHECK(toString(Event::access) == std::string("access"));
-}
-
-BOOST_FIXTURE_TEST_CASE(shouldNotAcceptNotExistingPaths, InotifyControllerTest)
+BOOST_FIXTURE_TEST_CASE(shouldNotAcceptNotExistingPaths, FilesystemEventHelper)
 {
     BOOST_CHECK_THROW(InotifyController().watchPathRecursively(std::filesystem::path("/not/existing/path/")), std::invalid_argument);
     BOOST_CHECK_THROW(InotifyController().watchFile(std::filesystem::path("/not/existing/file")), std::invalid_argument);
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, InotifyControllerTest)
+BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, FilesystemEventHelper)
 {
     NotifyController notifier = InotifyController().watchFile({testFileOne_, Event::close}).onEvent(Event::close, [&](Notification notification) {
         promisedOpen_.set_value(notification);
@@ -110,7 +64,7 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, InotifyControllerTest)
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, InotifyControllerTest)
+BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, FilesystemEventHelper)
 {
     InotifyController notifier = InotifyController();
 
@@ -148,7 +102,7 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, InotifyControllerTest)
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldStopRunOnce, InotifyControllerTest)
+BOOST_FIXTURE_TEST_CASE(shouldStopRunOnce, FilesystemEventHelper)
 {
     NotifyController notifier = InotifyController().watchFile(testFileOne_);
 
@@ -159,7 +113,7 @@ BOOST_FIXTURE_TEST_CASE(shouldStopRunOnce, InotifyControllerTest)
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldStopRun, InotifyControllerTest)
+BOOST_FIXTURE_TEST_CASE(shouldStopRun, FilesystemEventHelper)
 {
     InotifyController notifier = InotifyController();
     notifier.watchFile(testFileOne_);
@@ -171,7 +125,7 @@ BOOST_FIXTURE_TEST_CASE(shouldStopRun, InotifyControllerTest)
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldIgnoreFileOnce, InotifyControllerTest)
+BOOST_FIXTURE_TEST_CASE(shouldIgnoreFileOnce, FilesystemEventHelper)
 {
     size_t counter = 0;
     InotifyController notifier = InotifyController();
@@ -195,7 +149,7 @@ BOOST_FIXTURE_TEST_CASE(shouldIgnoreFileOnce, InotifyControllerTest)
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldIgnoreFile, InotifyControllerTest)
+BOOST_FIXTURE_TEST_CASE(shouldIgnoreFile, FilesystemEventHelper)
 {
     NotifyController notifier = InotifyController().ignore(testFileOne_).watchFile({testFileOne_, Event::close}).onEvent(Event::close, [&](Notification notification) {
         promisedOpen_.set_value(notification);
@@ -211,7 +165,7 @@ BOOST_FIXTURE_TEST_CASE(shouldIgnoreFile, InotifyControllerTest)
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldWatchPathRecursively, InotifyControllerTest)
+BOOST_FIXTURE_TEST_CASE(shouldWatchPathRecursively, FilesystemEventHelper)
 {
     InotifyController notifier = InotifyController();
     notifier.watchPathRecursively(testDirectory_)
@@ -235,7 +189,7 @@ BOOST_FIXTURE_TEST_CASE(shouldWatchPathRecursively, InotifyControllerTest)
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldUnwatchPath, InotifyControllerTest)
+BOOST_FIXTURE_TEST_CASE(shouldUnwatchPath, FilesystemEventHelper)
 {
     std::promise<Notification> timeoutObserved;
     std::chrono::milliseconds timeout(100);
@@ -251,7 +205,7 @@ BOOST_FIXTURE_TEST_CASE(shouldUnwatchPath, InotifyControllerTest)
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldCallUserDefinedUnexpectedExceptionObserver, InotifyControllerTest)
+BOOST_FIXTURE_TEST_CASE(shouldCallUserDefinedUnexpectedExceptionObserver, FilesystemEventHelper)
 {
     std::promise<void> observerCalled;
 
@@ -268,7 +222,7 @@ BOOST_FIXTURE_TEST_CASE(shouldCallUserDefinedUnexpectedExceptionObserver, Inotif
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(countEvents, InotifyControllerTest)
+BOOST_FIXTURE_TEST_CASE(countEvents, FilesystemEventHelper)
 {
     size_t counter = 0;
     InotifyController notifier = InotifyController();
