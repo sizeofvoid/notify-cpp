@@ -148,7 +148,7 @@ TFileSystemEventPtr Fanotify::getNextEvent()
     fds[FD_POLL_FANOTIFY].events = POLLIN;
 
     /* Now loop */
-    while (_Queue.empty() && !_Stopped) {
+    while (_Queue.empty() && isRunning()) {
         /* Block until there is something to be read */
         if (poll(fds, FD_POLL_MAX, mThreadSleep) < 0) {
             std::stringstream errorStream;
@@ -156,7 +156,7 @@ TFileSystemEventPtr Fanotify::getNextEvent()
             throw std::runtime_error(errorStream.str());
         }
 
-        if (_Stopped) {
+        if (isStopped()) {
             return nullptr;
         }
 
@@ -171,7 +171,7 @@ TFileSystemEventPtr Fanotify::getNextEvent()
 
                 auto metadata = reinterpret_cast<fanotify_event_metadata*>(buffer);
 
-                while (FAN_EVENT_OK(metadata, length) && !_Stopped) {
+                while (FAN_EVENT_OK(metadata, length) && isRunning()) {
 
                     const std::string filename = getFilePath(metadata->fd);
                     const std::filesystem::path path(filename);
@@ -186,9 +186,11 @@ TFileSystemEventPtr Fanotify::getNextEvent()
             }
         }
     }
-    if (_Stopped || _Queue.empty()) {
+
+    if (isStopped() || _Queue.empty()) {
         return nullptr;
     }
+
     // Return next event
     auto event = _Queue.front();
     _Queue.pop();

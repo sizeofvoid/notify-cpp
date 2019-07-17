@@ -62,6 +62,8 @@ protected:
     bool isIgnored(const std::filesystem::path&) const;
     bool isIgnoredOnce(const std::filesystem::path&) const;
     std::string getFilePath(int) const;
+    bool isStopped() const;
+    bool isRunning() const;
 
     std::vector<std::filesystem::path> _Ignored;
     mutable std::vector<std::filesystem::path> _IgnoredOnce;

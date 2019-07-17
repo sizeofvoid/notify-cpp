@@ -126,10 +126,10 @@ TFileSystemEventPtr Inotify::getNextEvent()
     char buffer[EVENT_BUF_LEN];
 
     // Read Events from fd into buffer
-    while (_Queue.empty() && !_Stopped) {
+    while (_Queue.empty() && isRunning()) {
         length = 0;
         memset(buffer, '\0', sizeof(buffer));
-        while (length <= 0 && !stopped && !_Stopped) {
+        while (length <= 0 && !stopped && isRunning()) {
             std::this_thread::sleep_for(std::chrono::milliseconds(mThreadSleep));
 
             length = read(mInotifyFd, buffer, EVENT_BUF_LEN);
@@ -141,12 +141,12 @@ TFileSystemEventPtr Inotify::getNextEvent()
             }
         }
 
-        if (stopped) {
+        if (isStopped()) {
             return nullptr;
         }
 
         int i = 0;
-        while (i < length) {
+        while (i < length && isRunning()) {
             inotify_event* event = ((struct inotify_event*)&buffer[i]);
 
             /*if (event->mask & IN_IGNORED) {
@@ -169,7 +169,7 @@ TFileSystemEventPtr Inotify::getNextEvent()
         }
     }
 
-    if (_Stopped || _Queue.empty()) {
+    if (isStopped() || _Queue.empty()) {
         return nullptr;
     }
 

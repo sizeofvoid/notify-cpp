@@ -134,4 +134,21 @@ void Notify::watchPathRecursively(const FileSystemEvent& fse)
         }
     }
 }
+
+/**
+ * @return true if Notify has stopped, otherwise false
+ */
+bool Notify::isStopped() const
+{
+    return _Stopped;
+}
+
+/**
+ * @return true if Notify running and should continue, otherwise false
+ */
+bool Notify::isRunning() const
+{
+    return !_Stopped;
+}
+
 }
