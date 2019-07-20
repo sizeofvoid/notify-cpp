@@ -146,29 +146,18 @@ TFileSystemEventPtr Inotify::getNextEvent()
         }
 
         int i = 0;
-
         while (i < length && isRunning()) {
 
-            auto event = reinterpret_cast<inotify_event*>(&buffer[i]);
+            const auto* event = reinterpret_cast<inotify_event*>(&buffer[i]);
             if (!event)
                 return nullptr;
 
-            /*if (event->mask & IN_IGNORED) {
-                i += EVENT_SIZE + event->len;
-                mDirectorieMap.erase(event->wd);
-                continue;
-            }*/
-            auto path = wdToPath(event->wd);
-
-            if (std::filesystem::is_directory(path))
-                event->mask |= IN_ISDIR;
-
+            const auto path = wdToPath(event->wd);
             if (!isIgnoredOnce(path)) {
                 _Queue.push(std::make_shared<FileSystemEvent>(path,
                                                               _EventHandler.getInotify(
                                                                       static_cast<uint32_t>(event->mask))));
             }
-
             i += EVENT_SIZE + event->len;
         }
     }
