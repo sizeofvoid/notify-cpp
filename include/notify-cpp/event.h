@@ -62,7 +62,7 @@ enum class Event {
 // TODO Check with assert
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
 // No Aduit support https://github.com/torvalds/linux/commit/de8cd83e91bc3ee212b3e6ec6e4283af9e4ab269
-const std::array<std::uint32_t, 12> AllFanFlags = {{FAN_ACCESS,
+static const std::array<std::uint32_t, 12> AllFanFlags = {{FAN_ACCESS,
     FAN_MODIFY,
     FAN_CLOSE_WRITE,
     FAN_CLOSE_NOWRITE,
@@ -74,7 +74,7 @@ const std::array<std::uint32_t, 12> AllFanFlags = {{FAN_ACCESS,
     FAN_CLOSE,
     FAN_ALL_CLASS_BITS}};
 #else
-const std::array<std::uint32_t, 12> AllFanFlags = {{FAN_ACCESS,
+static const std::array<std::uint32_t, 12> AllFanFlags = {{FAN_ACCESS,
     FAN_MODIFY,
     FAN_CLOSE_WRITE,
     FAN_CLOSE_NOWRITE,
@@ -85,10 +85,9 @@ const std::array<std::uint32_t, 12> AllFanFlags = {{FAN_ACCESS,
     FAN_EVENT_ON_CHILD,
     FAN_CLOSE,
     FAN_ALL_CLASS_BITS,
-
     FAN_ENABLE_AUDIT}};
 #endif
-const std::array<Event, 15> AllEvents = {Event::access,
+static const std::array<Event, 15> AllEvents = {Event::access,
     Event::modify,
     Event::attrib,
     Event::close_write,
