@@ -146,8 +146,12 @@ TFileSystemEventPtr Inotify::getNextEvent()
         }
 
         int i = 0;
+
         while (i < length && isRunning()) {
-            inotify_event* event = ((struct inotify_event*)&buffer[i]);
+
+            auto event = reinterpret_cast<inotify_event*>(&buffer[i]);
+            if (!event)
+                return nullptr;
 
             /*if (event->mask & IN_IGNORED) {
                 i += EVENT_SIZE + event->len;
