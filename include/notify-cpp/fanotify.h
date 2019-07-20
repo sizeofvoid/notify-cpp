@@ -64,6 +64,6 @@ private:
     enum { FD_POLL_FANOTIFY = 0,
         FD_POLL_MAX };
 
-    const size_t  _fanotify_buffer_size = 8192;
+    const size_t _fanotify_buffer_size = 8192;
 };
 }

@@ -46,7 +46,7 @@ enum class Event {
     delete_self = (1 << 10),
     move_self = (1 << 11),
 
-    // NOT (yet) supported
+    // undefined behaver
     none = (1 << 12),
 
     // helper
@@ -136,4 +136,5 @@ private:
 
 std::string toString(const Event);
 std::ostream& operator<<(std::ostream&, const Event&);
+
 }
