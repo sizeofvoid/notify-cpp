@@ -76,6 +76,32 @@ void Inotify::watchFile(const FileSystemEvent& fse)
     mDirectorieMap.emplace(wd, fse.getPath());
 }
 
+void Inotify::watchDirectory(const FileSystemEvent& fse)
+{
+    if (!checkWatchDirectory(fse))
+        return;
+
+    mError = 0;
+    int wd = 0;
+    wd = inotify_add_watch(mInotifyFd, fse.getPath().c_str(), getEventMask(fse.getEvent()));
+
+    if (wd == -1) {
+        mError = errno;
+        std::stringstream errorStream;
+        if (mError == 28) {
+            errorStream << "Failed to watch! " << strerror(mError)
+                        << ". Please increase number of watches in "
+                           "\"/proc/sys/fs/inotify/max_user_watches\".";
+            throw std::runtime_error(errorStream.str());
+        }
+
+        errorStream << "Failed to watch! " << strerror(mError) << ". Path: " << fse.getPath();
+        throw std::runtime_error(errorStream.str());
+    }
+
+    mDirectorieMap.emplace(wd, fse.getPath());
+}
+
 void Inotify::unwatch(const FileSystemEvent& fse)
 {
     auto const itFound = std::find_if(

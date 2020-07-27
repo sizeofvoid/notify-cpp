@@ -56,6 +56,13 @@ NotifyController::watchFile(const FileSystemEvent& fse)
 }
 
 NotifyController&
+NotifyController::watchDirectory(const FileSystemEvent& fse)
+{
+    static_cast<Inotify*>(_Notify)->watchDirectory(fse);
+    return *this;
+}
+
+NotifyController&
 NotifyController::watchPathRecursively(const FileSystemEvent& fse)
 {
     _Notify->watchPathRecursively(fse);

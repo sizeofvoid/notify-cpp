@@ -71,6 +71,7 @@ public:
     Inotify();
     ~Inotify();
     virtual void watchFile(const FileSystemEvent&) override;
+    virtual void watchDirectory(const FileSystemEvent&);
     virtual void unwatch(const FileSystemEvent&) override;
     virtual TFileSystemEventPtr getNextEvent() override;
     virtual std::uint32_t getEventMask(const Event) const override;
