@@ -56,8 +56,7 @@ void Inotify::watchFile(const FileSystemEvent& fse)
         return;
 
     mError = 0;
-    int wd = 0;
-    wd = inotify_add_watch(mInotifyFd, fse.getPath().c_str(), getEventMask(fse.getEvent()));
+    const int wd = inotify_add_watch(mInotifyFd, fse.getPath().c_str(), getEventMask(fse.getEvent()));
 
     if (wd == -1) {
         mError = errno;
@@ -82,8 +81,7 @@ void Inotify::watchDirectory(const FileSystemEvent& fse)
         return;
 
     mError = 0;
-    int wd = 0;
-    wd = inotify_add_watch(mInotifyFd, fse.getPath().c_str(), getEventMask(fse.getEvent()));
+    const int wd = inotify_add_watch(mInotifyFd, fse.getPath().c_str(), getEventMask(fse.getEvent()));
 
     if (wd == -1) {
         mError = errno;
