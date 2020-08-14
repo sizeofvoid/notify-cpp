@@ -27,6 +27,8 @@ public:
 
     NotifyController& watchFile(const FileSystemEvent&);
 
+    NotifyController& watchDirectory(const FileSystemEvent&);
+
     NotifyController& watchPathRecursively(const FileSystemEvent&);
 
     NotifyController& unwatch(const std::filesystem::path&);
