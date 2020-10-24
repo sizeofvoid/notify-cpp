@@ -1,19 +1,23 @@
 cmake_minimum_required(VERSION 3.8)
 
-project(notify-cpp)
-
-include(GNUInstallDirs)
-
 # Version setup
 set(NOTIFYCPP_VERSION_MAJOR "0")
 set(NOTIFYCPP_VERSION_MINOR "1")
 set(NOTIFYCPP_VERSION_PATCH "1")
 set(NOTIFYCPP_VERSION "${NOTIFYCPP_VERSION_MAJOR}.${NOTIFYCPP_VERSION_MINOR}.${NOTIFYCPP_VERSION_PATCH}")
 
+project(notify-cpp
+        VERSION ${NOTIFYCPP_VERSION}
+        DESCRIPTION "notify-cpp - A C++17 interface for linux/unix monitoring filesystem events"
+        HOMEPAGE_URL "https://github.com/sizeofvoid/notify-cpp"
+        LANGUAGES CXX)
+
+include(GNUInstallDirs)
+include(CheckCXXSymbolExists)
+
 option(ENABLE_SHARED_LIBS "Enable build and install shared libraries" ON)
 option(ENABLE_STATIC_LIBS "Enable build and install static libraries" OFF)
 option(ENABLE_TEST "Enable build the tests" ON)
-
 
 ## Set the build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -26,8 +30,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_REQUIRED_FLAGS -std=c++17)
-include(CheckCXXSymbolExists)
 
 # check c++17 filesystem feature
 CHECK_CXX_SYMBOL_EXISTS(std::filesystem::path::preferred_separator
@@ -55,10 +57,6 @@ set(NOTIFYCPP_SOURCES
     source/notification.cpp
     source/notify_controller.cpp
     source/notify.cpp)
-
-# XXX readlink
-#set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pedantic " CACHE STRING "Set C++ Compiler Flags" FORCE)
-
 
 # Offer the user the choice of overriding the installation directories
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
@@ -97,6 +95,13 @@ foreach (TYPE IN ITEMS STATIC SHARED)
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/notify-cpp/>)
 
+    # XXX readlink
+    #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pedantic " CACHE STRING "Set C++ Compiler Flags" FORCE)
+    target_compile_features(notify-cpp-${type} PRIVATE cxx_std_17)
+    target_compile_options(notify-cpp-${type} PRIVATE "-Wall")
+    target_compile_options(notify-cpp-${type} PRIVATE "-pipe")
+    target_compile_options(notify-cpp-${type} PRIVATE "-fexceptions")
+
   #target_compile_options(notify-cpp-${type} PUBLIC
   #    $<$<CONFIG:RELEASE>:${}>
   #    $<$<CONFIG:DEBUG:${}>)
@@ -124,8 +129,6 @@ configure_file(notify-cppConfig.cmake.in
 # ... for both
 configure_file(notify-cppConfigVersion.cmake.in
   "${PROJECT_BINARY_DIR}/notify-cppConfigVersion.cmake" @ONLY)
-
-
 
 if(ENABLE_SHARED_LIBS)
   install(TARGETS notify-cpp-shared
