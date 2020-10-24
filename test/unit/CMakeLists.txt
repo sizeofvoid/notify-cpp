@@ -2,6 +2,10 @@ project(InotifyUnitTest)
 
 find_package(Threads REQUIRED)
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR ${CMAKE_SYSTEM_NAME} MATCHES "BSD")
+
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
 add_executable(event_handler_unit_test main.cpp event_handler_test.cpp)
 target_link_libraries(
         event_handler_unit_test
@@ -37,3 +41,5 @@ add_custom_command(TARGET fanotify_unit_test POST_BUILD
     COMMENT "fanotify  needs cap_sys_admin to run"
 )
 add_test(NAME fanotify_unit_test COMMAND fanotify_unit_test)
+else()
+endif()

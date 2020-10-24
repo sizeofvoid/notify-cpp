@@ -1,6 +1,7 @@
 #pragma once
 
 #include <notify-cpp/event.h>
+#include <string>
 
 namespace notifycpp {
 
