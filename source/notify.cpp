@@ -30,7 +30,6 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/signalfd.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -42,9 +41,10 @@
 
 namespace notifycpp {
 
-Notify::Notify()
+Notify::Notify(const std::shared_ptr<EventHandler>& eh)
     : _Stopped(false)
     , mThreadSleep(250)
+    , _EventHandler(eh)
 {
 }
 

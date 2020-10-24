@@ -40,7 +40,9 @@ namespace notifycpp {
 class Notify {
 
 public:
-    Notify();
+    Notify() = delete;
+    Notify(const std::shared_ptr<EventHandler>&);
+    ~Notify() = default;
 
     virtual void watchFile(const FileSystemEvent&) = 0;
     virtual void unwatch(const FileSystemEvent&) = 0;
@@ -57,6 +59,7 @@ public:
     void watchPathRecursively(const FileSystemEvent&);
 
 protected:
+
     bool checkWatchFile(const FileSystemEvent&) const;
     bool checkWatchDirectory(const FileSystemEvent&) const;
     bool isIgnored(const std::filesystem::path&) const;
@@ -74,6 +77,6 @@ protected:
 
     const uint32_t mThreadSleep;
 
-    EventHandler _EventHandler;
+    std::shared_ptr<EventHandler> _EventHandler;
 };
 }

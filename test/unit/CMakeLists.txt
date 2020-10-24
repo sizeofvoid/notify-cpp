@@ -7,6 +7,10 @@ if (NOT DEFINED Boost_INCLUDE_DIRS OR NOT Boost_LIBRARIES)
     message(FATAL_ERROR "Missing boost feature")
 endif()
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR ${CMAKE_SYSTEM_NAME} MATCHES "BSD")
+
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
 add_executable(event_handler_unit_test main.cpp event_handler_test.cpp)
 target_link_libraries(
         event_handler_unit_test
@@ -37,3 +41,5 @@ target_include_directories(fanotify_unit_test PUBLIC
 add_test(NAME event_handler_unit_test  COMMAND event_handler_unit_test)
 add_test(NAME inotify_unit_test COMMAND inotify_unit_test)
 add_test(NAME fanotify_unit_test COMMAND fanotify_unit_test)
+else()
+endif()
