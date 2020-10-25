@@ -21,8 +21,8 @@
  * SOFTWARE.
  */
 
-#include <notify-cpp/inotify_controller.h>
 #include <notify-cpp/inotify.h>
+#include <notify-cpp/inotify_controller.h>
 
 namespace notifycpp {
 

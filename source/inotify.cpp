@@ -181,8 +181,8 @@ TFileSystemEventPtr Inotify::getNextEvent()
             const auto path = wdToPath(event->wd);
             if (!isIgnoredOnce(path)) {
                 _Queue.push(std::make_shared<FileSystemEvent>(path,
-                                                              _EventHandler->get(
-                                                                      static_cast<uint32_t>(event->mask))));
+                    _EventHandler->get(
+                        static_cast<uint32_t>(event->mask))));
             }
             i += EVENT_SIZE + event->len;
         }

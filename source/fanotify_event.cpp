@@ -41,7 +41,6 @@ FanotifyEventHandler::convertToEvents(const Event event) const
     return convert(event, std::bind(&FanotifyEventHandler::getEvent, this, std::placeholders::_1));
 }
 
-
 std::uint32_t
 FanotifyEventHandler::getEvent(const Event e) const
 {
@@ -82,40 +81,38 @@ FanotifyEventHandler::getEvent(const Event e) const
     return 0;
 }
 
-
-
 std::string FanotifyEventHandler::toString(std::uint32_t e) const
 {
     const auto getString = [&](std::uint32_t myEvent) -> std::string {
         switch (myEvent) {
-            case FAN_ACCESS:
-                return std::string("access");
-            case FAN_MODIFY:
-                return std::string("modify");
-            case FAN_CLOSE_WRITE:
-                return std::string("close_write");
-            case FAN_CLOSE_NOWRITE:
-                return std::string("close_nowrite");
-            case FAN_OPEN:
-                return std::string("open");
-            case FAN_Q_OVERFLOW:
-                return std::string("overflow");
-            case FAN_OPEN_PERM:
-                return std::string("open_perm");
-            case FAN_ONDIR:
-                return std::string("ondir");
-            case FAN_EVENT_ON_CHILD:
-                return std::string("on_child");
-            case FAN_CLOSE:
-                return std::string("close");
-            case FAN_ALL_CLASS_BITS:
-                return std::string("all_class_bits");
+        case FAN_ACCESS:
+            return std::string("access");
+        case FAN_MODIFY:
+            return std::string("modify");
+        case FAN_CLOSE_WRITE:
+            return std::string("close_write");
+        case FAN_CLOSE_NOWRITE:
+            return std::string("close_nowrite");
+        case FAN_OPEN:
+            return std::string("open");
+        case FAN_Q_OVERFLOW:
+            return std::string("overflow");
+        case FAN_OPEN_PERM:
+            return std::string("open_perm");
+        case FAN_ONDIR:
+            return std::string("ondir");
+        case FAN_EVENT_ON_CHILD:
+            return std::string("on_child");
+        case FAN_CLOSE:
+            return std::string("close");
+        case FAN_ALL_CLASS_BITS:
+            return std::string("all_class_bits");
         }
         return "NONE";
     };
 
     std::string events;
-    for (auto const i: AllFanFlags) {
+    for (auto const i : AllFanFlags) {
         if ((e & i) == i) {
             if (events.empty()) {
                 events = getString(i);
@@ -123,7 +120,7 @@ std::string FanotifyEventHandler::toString(std::uint32_t e) const
             else {
                 events = events + ", " + getString(i);
             }
-         }
+        }
     }
     return events;
 }
@@ -143,18 +140,18 @@ std::vector<Event> FanotifyEventHandler::getEvents(std::uint32_t e) const
 Event FanotifyEventHandler::get(std::uint32_t e) const
 {
     switch (e) {
-        case FAN_ACCESS:
-         return Event::access;
-        case FAN_MODIFY:
-         return Event::modify;
-        case FAN_CLOSE_WRITE:
-         return Event::close_write;
-        case FAN_CLOSE_NOWRITE:
-         return Event::close_nowrite;
-        case FAN_OPEN:
-         return Event::open;
-        case FAN_CLOSE:
-         return Event::close;
+    case FAN_ACCESS:
+        return Event::access;
+    case FAN_MODIFY:
+        return Event::modify;
+    case FAN_CLOSE_WRITE:
+        return Event::close_write;
+    case FAN_CLOSE_NOWRITE:
+        return Event::close_nowrite;
+    case FAN_OPEN:
+        return Event::open;
+    case FAN_CLOSE:
+        return Event::close;
         /* TODO
         case FAN_Q_OVERFLOW:
         case FAN_OPEN_PERM:

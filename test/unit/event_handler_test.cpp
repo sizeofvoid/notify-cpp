@@ -42,5 +42,5 @@ BOOST_AUTO_TEST_CASE(EventToStringTest)
 
     BOOST_CHECK_EQUAL(toString(Event::access), std::string("access"));
     BOOST_CHECK_EQUAL(toString(Event::access | Event::close_nowrite), std::string("access,close_nowrite"));
-    BOOST_CHECK_EQUAL(toString(Event::close_nowrite| Event::access), std::string("access,close_nowrite"));
+    BOOST_CHECK_EQUAL(toString(Event::close_nowrite | Event::access), std::string("access,close_nowrite"));
 }

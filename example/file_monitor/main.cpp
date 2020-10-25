@@ -6,7 +6,7 @@
 
 int main(int argc, char** argv)
 {
-    const auto usage = [](){
+    const auto usage = []() {
         std::cout << "Usage: ./file_monitor fanotify|inotify /path/to/file" << std::endl;
         exit(0);
     };
@@ -28,8 +28,7 @@ int main(int argc, char** argv)
     const std::filesystem::path towatch(argv[2]);
 
     const notifycpp::Event watchOn = notifycpp::Event::open
-                                     | notifycpp::Event::close_write;
-
+        | notifycpp::Event::close_write;
 
     // Set the ::getEvent() handler which will be used to process particular events
     auto handleNotification = [&](const notifycpp::Notification& notify) {
@@ -38,9 +37,7 @@ int main(int argc, char** argv)
 
     notifycpp::NotifyController notifier = createBackend(argv[1]);
 
-    notifier.watchFile({towatch, watchOn}).onEvents({notifycpp::Event::open,
-                                                     notifycpp::Event::close_write},
-                                                     handleNotification);
+    notifier.watchFile({towatch, watchOn}).onEvents({notifycpp::Event::open, notifycpp::Event::close_write}, handleNotification);
 
     // The getEvent() loop is started in a separate thread context.
     std::thread thread([&]() { notifier.run(); });

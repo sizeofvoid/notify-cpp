@@ -15,9 +15,8 @@
  */
 
 #include <notify-cpp/kqueue.h>
-#include <notify-cpp/notify.h>
 #include <notify-cpp/kqueue_event.h>
-
+#include <notify-cpp/notify.h>
 
 #include <sstream>
 #include <string>
@@ -83,7 +82,6 @@ TFileSystemEventPtr Kqueue::getNextEvent()
     _Queue.pop();
     return event;
 }
-
 
 std::uint32_t
 Kqueue::getEventMask(const Event event) const

@@ -130,12 +130,11 @@ BOOST_FIXTURE_TEST_CASE(shouldIgnoreFileOnce, FilesystemEventHelper)
 {
     size_t counter = 0;
     InotifyController notifier = InotifyController();
-    notifier.watchFile(testFileOne_).ignoreOnce(testFileOne_).onEvent(
-            Event::open, [&](Notification notification) {
-                ++counter;
-                if (counter == 1)
-                    _promisedCounter.set_value(counter);
-            });
+    notifier.watchFile(testFileOne_).ignoreOnce(testFileOne_).onEvent(Event::open, [&](Notification notification) {
+        ++counter;
+        if (counter == 1)
+            _promisedCounter.set_value(counter);
+    });
 
     std::thread thread([&notifier]() { notifier.run(); });
 
@@ -170,14 +169,13 @@ BOOST_FIXTURE_TEST_CASE(shouldWatchPathRecursively, FilesystemEventHelper)
 {
     InotifyController notifier = InotifyController();
     notifier.watchPathRecursively(testDirectory_)
-                        .onEvent(Event::open, [&](Notification notification) {
-                            switch (notification.getEvent()) {
-                            case Event::open:
-                                promisedOpen_.set_value(notification);
-                                break;
-                            }
-
-                        });
+        .onEvent(Event::open, [&](Notification notification) {
+            switch (notification.getEvent()) {
+            case Event::open:
+                promisedOpen_.set_value(notification);
+                break;
+            }
+        });
 
     std::thread thread([&notifier]() { notifier.runOnce(); });
 
@@ -227,12 +225,11 @@ BOOST_FIXTURE_TEST_CASE(countEvents, FilesystemEventHelper)
 {
     size_t counter = 0;
     InotifyController notifier = InotifyController();
-    notifier.watchFile(testFileOne_).onEvent(
-            Event::open, [&](Notification notification) {
-                ++counter;
-                if (counter == 2)
-                    _promisedCounter.set_value(counter);
-            });
+    notifier.watchFile(testFileOne_).onEvent(Event::open, [&](Notification notification) {
+        ++counter;
+        if (counter == 2)
+            _promisedCounter.set_value(counter);
+    });
 
     std::thread thread([&notifier]() { notifier.run(); });
 

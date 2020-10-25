@@ -179,7 +179,7 @@ TFileSystemEventPtr Fanotify::getNextEvent()
                     if (!filename.empty() && !isIgnoredOnce(path)) {
                         for (const Event event : std::static_pointer_cast<FanotifyEventHandler>(_EventHandler)->getEvents(static_cast<uint32_t>(metadata->mask)))
                             if (event != Event::none)
-                                _Queue.push(std::make_shared<FileSystemEvent>(path , event));
+                                _Queue.push(std::make_shared<FileSystemEvent>(path, event));
                         close(metadata->fd);
                     }
                     metadata = FAN_EVENT_NEXT(metadata, length);
@@ -197,7 +197,6 @@ TFileSystemEventPtr Fanotify::getNextEvent()
     _Queue.pop();
     return event;
 }
-
 
 std::uint32_t
 Fanotify::getEventMask(const Event event) const

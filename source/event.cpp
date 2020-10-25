@@ -23,8 +23,8 @@
 
 #include <notify-cpp/event.h>
 
-#include <string>
 #include <cassert>
+#include <string>
 
 namespace notifycpp {
 EventHandler::EventHandler(const Event e)
