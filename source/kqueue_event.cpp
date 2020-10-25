@@ -47,9 +47,4 @@ Event KqueueEventHandler::get(std::uint32_t e) const
 {
     return {};
 }
-std::vector<Event>
-    KqueueEventHandler::getEvents(std::uint32_t) const
-{
-    return {};
-}
 }
