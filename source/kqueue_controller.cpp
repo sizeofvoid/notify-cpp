@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2017 Erik Zenker <erikzenker@hotmail.com>
- * Copyright (c) 2018 Rafael Sadowski <rafael@sizeofvoid.org>
+ * Copyright (c) 2020 Rafael Sadowski <rafael@sizeofvoid.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
