@@ -44,23 +44,24 @@ set(NOTIFYCPP_HEADER
     include/notify-cpp/event.h
     include/notify-cpp/file_system_event.h
     include/notify-cpp/notification.h
-    include/notify-cpp/notify_controller.h
-    include/notify-cpp/notify.h)
+    include/notify-cpp/notify.h
+    include/notify-cpp/notify_controller.h)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR ${CMAKE_SYSTEM_NAME} MATCHES "BSD")
-set(NOTIFYCPP_HEADER
-    ${NOTIFYCPP_HEADER}
-    include/notify-cpp/kqueue_controller.h
-    include/notify-cpp/kqueue.h)
+  set(NOTIFYCPP_HEADER
+      ${NOTIFYCPP_HEADER}
+      include/notify-cpp/kqueue.h
+      include/notify-cpp/kqueue_controller.h
+      include/notify-cpp/kqueue_event.h)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-set(NOTIFYCPP_HEADER
-    ${NOTIFYCPP_HEADER}
-    include/notify-cpp/fanotify_event.h
-    include/notify-cpp/inotify_event.h
-    include/notify-cpp/fanotify_controller.h
-    include/notify-cpp/inotify_controller.h
-    include/notify-cpp/fanotify.h
-    include/notify-cpp/inotify.h)
+  set(NOTIFYCPP_HEADER
+      ${NOTIFYCPP_HEADER}
+      include/notify-cpp/fanotify.h
+      include/notify-cpp/fanotify_controller.h
+      include/notify-cpp/fanotify_event.h
+      include/notify-cpp/inotify.h
+      include/notify-cpp/inotify_controller.h
+      include/notify-cpp/inotify_event.h)
 else()
 endif()
 
@@ -68,23 +69,24 @@ set(NOTIFYCPP_SOURCES
     source/event.cpp
     source/file_system_event.cpp
     source/notification.cpp
-    source/notify_controller.cpp
-    source/notify.cpp)
+    source/notify.cpp
+    source/notify_controller.cpp)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR ${CMAKE_SYSTEM_NAME} MATCHES "BSD")
-set(NOTIFYCPP_SOURCES
-    ${NOTIFYCPP_SOURCES}
-    source/kqueue_controller.cpp
-    source/kqueue.cpp)
+  set(NOTIFYCPP_SOURCES
+      ${NOTIFYCPP_SOURCES}
+      source/kqueue.cpp
+      source/kqueue_controller.cpp
+      source/kqueue_event.cpp)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-set(NOTIFYCPP_SOURCES
-    ${NOTIFYCPP_SOURCES}
-    source/fanotify_controller.cpp
-    source/inotify_controller.cpp
-    source/fanotify_event.cpp
-    source/inotify_event.cpp
-    source/fanotify.cpp
-    source/inotify.cpp)
+  set(NOTIFYCPP_SOURCES
+      ${NOTIFYCPP_SOURCES}
+      source/fanotify.cpp
+      source/fanotify_controller.cpp
+      source/fanotify_event.cpp
+      source/inotify.cpp
+      source/inotify_controller.cpp
+      source/inotify_event.cpp)
 else()
 endif()
 

@@ -2,9 +2,6 @@ project(InotifyUnitTest)
 
 find_package(Threads REQUIRED)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR ${CMAKE_SYSTEM_NAME} MATCHES "BSD")
-
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 add_executable(event_handler_unit_test main.cpp event_handler_test.cpp)
 target_link_libraries(
         event_handler_unit_test
@@ -13,6 +10,20 @@ target_link_libraries(
 target_compile_definitions(event_handler_unit_test PRIVATE DOCTEST_CONFIG_DOUBLE_STRINGIFY=1)
 target_include_directories(event_handler_unit_test PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/../../include/")
+add_test(NAME event_handler_unit_test  COMMAND event_handler_unit_test)
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR ${CMAKE_SYSTEM_NAME} MATCHES "BSD")
+
+add_executable(kqueue_unit_test main.cpp kqueue_controller_test.cpp)
+target_link_libraries(
+  kqueue_unit_test
+  PUBLIC notify-cpp-shared Threads::Threads ${CMAKE_THREAD_LIBS_INIT}
+)
+target_include_directories(kqueue_unit_test PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../include/")
+add_test(NAME kqueue_unit_test COMMAND kqueue_unit_test)
+
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 add_executable(inotify_unit_test main.cpp inotify_controller_test.cpp)
 target_link_libraries(
@@ -32,7 +43,6 @@ target_compile_definitions(fanotify_unit_test PRIVATE DOCTEST_CONFIG_DOUBLE_STRI
 target_include_directories(fanotify_unit_test PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/../../include/")
 
-add_test(NAME event_handler_unit_test  COMMAND event_handler_unit_test)
 add_test(NAME inotify_unit_test COMMAND inotify_unit_test)
 
 add_custom_command(TARGET fanotify_unit_test POST_BUILD
