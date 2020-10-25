@@ -27,7 +27,7 @@
 
 namespace notifycpp {
 KqueueEventHandler::KqueueEventHandler(const Event e)
-    : _Events(e)
+    : EventHandler(e)
 {
 }
 
