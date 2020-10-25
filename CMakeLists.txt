@@ -36,6 +36,8 @@ CHECK_CXX_SYMBOL_EXISTS(std::filesystem::path::preferred_separator
                         filesystem
                         CXX_FILESYSTEM)
 
+set(CMAKE_CXX_FLAGS_RELEASE "-w -D_FORTIFY_SOURCE=2")
+#set(CMAKE_CXX_FLAGS_RELEASE "-w -D_FORTIFY_SOURCE=2" CACHE STRING "" FORCE)
 if (NOT CXX_FILESYSTEM)
     message(FATAL_ERROR "Missing C++17 std::filesystem feature")
 endif()

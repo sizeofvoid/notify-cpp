@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2020 Rafael Sadowski <rafael@sizeofvoid.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,6 +26,7 @@
 #include <notify-cpp/notify.h>
 
 #include <filesystem>
+#include <map>
 
 /**
  * @brief C++ wrapper for kqueue interface
@@ -35,12 +36,18 @@ namespace notifycpp {
 class Kqueue : public Notify {
 public:
     Kqueue();
-    virtual ~Kqueue() = default;
+    virtual ~Kqueue();
 
     virtual void watchMountPoint(const FileSystemEvent&);
     virtual void watchFile(const FileSystemEvent&) override;
     virtual void unwatch(const FileSystemEvent&) override;
     virtual TFileSystemEventPtr getNextEvent() override;
     virtual std::uint32_t getEventMask(const Event) const override;
+private:
+    void setup();
+    int open(const FileSystemEvent&);
+    std::filesystem::path wdToPath(int) const;
+    int _KqueueFd = -1;
+    std::map<int, std::filesystem::path> mDirectorieMap;
 };
 }

@@ -22,6 +22,11 @@
 
 #include <notify-cpp/kqueue_event.h>
 
+
+#include <sys/param.h>
+#include <sys/types.h>
+#include <sys/event.h>
+
 #include <cassert>
 #include <string>
 
@@ -40,11 +45,39 @@ KqueueEventHandler::convertToEvents(const Event event) const
 std::uint32_t
 KqueueEventHandler::getEvent(const Event e) const
 {
-    return {};
+    switch (e) {
+    case Event::access:
+    case Event::modify:
+    case Event::attrib:
+        return NOTE_WRITE;
+    case Event::close_nowrite:
+    case Event::open:
+        return 0;
+    case Event::moved_from:
+    case Event::moved_to:
+    case Event::create:
+        return 0;
+    case Event::delete_sub:
+    case Event::delete_self:
+        return NOTE_DELETE;
+    case Event::move_self:
+        return 0;
+    case Event::close:
+        return NOTE_ATTRIB;
+    case Event::move:
+    case Event::all:
+    case Event::none:
+        return 0;
+    }
+    return 0;
 }
 
 Event KqueueEventHandler::get(std::uint32_t e) const
 {
-    return {};
+    switch (e) {
+    case NOTE_WRITE:
+        return Event::none;
+    }
+    return Event::none;
 }
 }
