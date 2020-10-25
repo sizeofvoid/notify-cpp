@@ -31,7 +31,7 @@
 
 namespace notifycpp {
 InotifyEventHandler::InotifyEventHandler(const Event e)
-    : _Events(e)
+    : EventHandler(e)
 {
 }
 

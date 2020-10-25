@@ -31,7 +31,7 @@
 
 namespace notifycpp {
 FanotifyEventHandler::FanotifyEventHandler(const Event e)
-    : _Events(e)
+    : EventHandler(e)
 {
 }
 
