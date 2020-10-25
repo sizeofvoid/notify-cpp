@@ -21,6 +21,7 @@
  * SOFTWARE.
  */
 #include <notify-cpp/inotify.h>
+
 #include <notify-cpp/event.h>
 #include <notify-cpp/notify_controller.h>
 

@@ -42,10 +42,11 @@ static const std::array<std::uint32_t, 12> AllFanFlags = {{FAN_ACCESS,
     FAN_ENABLE_AUDIT}};
 #endif
 
-class FanotifyEventHandler : EventHandler {
+class FanotifyEventHandler : public EventHandler {
 public:
     FanotifyEventHandler(const Event);
     FanotifyEventHandler() = default;
+    ~FanotifyEventHandler() = default;
 
     virtual std::uint32_t convertToEvents(const Event) const;
     virtual std::uint32_t getEvent(const Event) const;

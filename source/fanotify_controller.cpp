@@ -21,7 +21,8 @@
  * SOFTWARE.
  */
 
-#include <notify-cpp/notify_controller.h>
+#include <notify-cpp/fanotify_controller.h>
+#include <notify-cpp/fanotify.h>
 
 namespace notifycpp {
 
@@ -34,118 +35,5 @@ NotifyController& FanotifyController::watchMountPoint(const std::filesystem::pat
 {
     static_cast<Fanotify*>(_Notify)->watchMountPoint(p);
     return *this;
-}
-
-InotifyController::InotifyController()
-    : NotifyController(new Inotify)
-{
-}
-
-NotifyController::NotifyController(Notify* n)
-    : _Notify(n)
-{
-}
-
-NotifyController&
-NotifyController::watchFile(const FileSystemEvent& fse)
-{
-    _Notify->watchFile(fse);
-    return *this;
-}
-
-NotifyController&
-NotifyController::watchDirectory(const FileSystemEvent& fse)
-{
-    static_cast<Inotify*>(_Notify)->watchDirectory(fse);
-    return *this;
-}
-
-NotifyController&
-NotifyController::watchPathRecursively(const FileSystemEvent& fse)
-{
-    _Notify->watchPathRecursively(fse);
-    return *this;
-}
-
-NotifyController& NotifyController::unwatch(const std::filesystem::path& f)
-{
-    _Notify->unwatch(f);
-    return *this;
-}
-
-NotifyController& NotifyController::ignore(const std::filesystem::path& p)
-{
-    _Notify->ignore(p);
-    return *this;
-}
-NotifyController& NotifyController::ignoreOnce(const std::filesystem::path& p)
-{
-    _Notify->ignoreOnce(p);
-    return *this;
-}
-
-NotifyController& NotifyController::onEvent(Event event, EventObserver eventObserver)
-{
-    mEventObserver[event] = eventObserver;
-    return *this;
-}
-
-NotifyController& NotifyController::onEvents(std::set<Event> events, EventObserver eventObserver)
-{
-    for (auto event : events)
-        mEventObserver[event] = eventObserver;
-    return *this;
-}
-
-NotifyController&
-NotifyController::onUnexpectedEvent(EventObserver eventObserver)
-{
-    mUnexpectedEventObserver = eventObserver;
-    return *this;
-}
-
-void NotifyController::runOnce()
-{
-    auto fileSystemEvent = _Notify->getNextEvent();
-    if (!fileSystemEvent) {
-        return;
-    }
-
-    const Event event = fileSystemEvent->getEvent();
-    const auto observers = findObserver(event);
-
-    if (observers.empty()) {
-        if (mUnexpectedEventObserver) {
-            mUnexpectedEventObserver({event, fileSystemEvent->getPath()});
-        }
-    }
-    else {
-        for (const auto& observerEvent : observers) {
-            /* handle observed processes */
-            auto eventObserver = observerEvent.second;
-            eventObserver({observerEvent.first, fileSystemEvent->getPath()});
-        }
-    }
-}
-
-void NotifyController::run()
-{
-    while (!_Notify->hasStopped())
-        runOnce();
-}
-
-void NotifyController::stop()
-{
-    _Notify->stop();
-}
-
-std::vector<std::pair<Event, EventObserver>>
-NotifyController::findObserver(Event e) const
-{
-    std::vector<std::pair<Event, EventObserver>> observers;
-    for (auto const& event2Observer : mEventObserver)
-        if ((event2Observer.first & e) == e)
-            observers.emplace_back(event2Observer.first, event2Observer.second);
-    return observers;
 }
 }

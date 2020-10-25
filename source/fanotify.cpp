@@ -22,6 +22,7 @@
  */
 
 #include <notify-cpp/fanotify.h>
+#include <notify-cpp/fanotify_event.h>
 
 #include <dirent.h>
 #include <errno.h>
@@ -45,7 +46,7 @@
 namespace notifycpp {
 
 Fanotify::Fanotify()
-    : Notify()
+    : Notify(std::shared_ptr<FanotifyEventHandler>(new FanotifyEventHandler))
 {
     initFanotify();
 }
@@ -176,7 +177,7 @@ TFileSystemEventPtr Fanotify::getNextEvent()
                     const std::string filename = getFilePath(metadata->fd);
                     const std::filesystem::path path(filename);
                     if (!filename.empty() && !isIgnoredOnce(path)) {
-                        for (const Event event : _EventHandler.getFanotifyEvents(static_cast<uint32_t>(metadata->mask)))
+                        for (const Event event : std::static_pointer_cast<FanotifyEventHandler>(_EventHandler)->getEvents(static_cast<uint32_t>(metadata->mask)))
                             if (event != Event::none)
                                 _Queue.push(std::make_shared<FileSystemEvent>(path , event));
                         close(metadata->fd);
@@ -201,6 +202,6 @@ TFileSystemEventPtr Fanotify::getNextEvent()
 std::uint32_t
 Fanotify::getEventMask(const Event event) const
 {
-    return _EventHandler.convertToFanotifyEvents(event);
+    return _EventHandler->convertToEvents(event);
 }
 }

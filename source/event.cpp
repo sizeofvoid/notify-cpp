@@ -33,7 +33,7 @@ EventHandler::EventHandler(const Event e)
 }
 
 std::string
-EventHandler::toString(const Event event)
+toString(const Event event)
 {
     const auto getString = [](Event myEvent) -> std::string {
         switch (myEvent) {
@@ -86,5 +86,11 @@ EventHandler::toString(const Event event)
         }
     }
     return events;
+}
+
+std::ostream& operator<<(std::ostream& stream, const Event& event)
+{
+    stream << toString(event);
+    return stream;
 }
 }

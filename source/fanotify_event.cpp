@@ -38,7 +38,7 @@ FanotifyEventHandler::FanotifyEventHandler(const Event e)
 std::uint32_t
 FanotifyEventHandler::convertToEvents(const Event event) const
 {
-    return convert(event, std::bind(&FanotifyEventHandler::getFanotifyEvent, this, std::placeholders::_1));
+    return convert(event, std::bind(&FanotifyEventHandler::getEvent, this, std::placeholders::_1));
 }
 
 
@@ -134,7 +134,7 @@ std::vector<Event> FanotifyEventHandler::getEvents(std::uint32_t e) const
     for (auto const event : AllFanFlags) {
         std::uint32_t ie = static_cast<std::uint32_t>(event);
         if ((e & ie) == ie) {
-            events.push_back(getFanotify(ie));
+            events.push_back(get(ie));
         }
     }
     return events;

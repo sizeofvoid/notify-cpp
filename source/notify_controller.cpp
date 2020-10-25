@@ -25,22 +25,6 @@
 
 namespace notifycpp {
 
-FanotifyController::FanotifyController()
-    : NotifyController(new Fanotify)
-{
-}
-
-NotifyController& FanotifyController::watchMountPoint(const std::filesystem::path& p)
-{
-    static_cast<Fanotify*>(_Notify)->watchMountPoint(p);
-    return *this;
-}
-
-InotifyController::InotifyController()
-    : NotifyController(new Inotify)
-{
-}
-
 NotifyController::NotifyController(Notify* n)
     : _Notify(n)
 {
@@ -50,13 +34,6 @@ NotifyController&
 NotifyController::watchFile(const FileSystemEvent& fse)
 {
     _Notify->watchFile(fse);
-    return *this;
-}
-
-NotifyController&
-NotifyController::watchDirectory(const FileSystemEvent& fse)
-{
-    static_cast<Inotify*>(_Notify)->watchDirectory(fse);
     return *this;
 }
 
