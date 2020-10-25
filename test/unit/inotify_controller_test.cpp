@@ -21,7 +21,8 @@
  * SOFTWARE.
  */
 #include <notify-cpp/inotify.h>
-#include <notify-cpp/notify_controller.h>
+#include <notify-cpp/inotify_controller.h>
+#include <notify-cpp/inotify_event.h>
 
 #include <boost/test/unit_test.hpp>
 

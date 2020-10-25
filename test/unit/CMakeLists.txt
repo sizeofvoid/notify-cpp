@@ -10,7 +10,6 @@ endif()
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR ${CMAKE_SYSTEM_NAME} MATCHES "BSD")
 
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
 add_executable(event_handler_unit_test main.cpp event_handler_test.cpp)
 target_link_libraries(
         event_handler_unit_test

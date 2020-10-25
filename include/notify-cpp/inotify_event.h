@@ -15,16 +15,15 @@
 
 namespace notifycpp {
 
-class InotifyEventHandler : EventHandler {
+class InotifyEventHandler : public EventHandler {
 public:
     InotifyEventHandler(const Event);
     InotifyEventHandler() = default;
+    ~InotifyEventHandler() = default;
 
     virtual std::uint32_t convertToEvents(const Event) const;
     virtual std::uint32_t getEvent(const Event) const;
-    virtual std::vector<Event> getEvents(std::uint32_t) const;
     virtual Event get(std::uint32_t) const;
-    virtual std::string toString(std::uint32_t) const;
 
 private:
     std::uint32_t convert(const Event, std::function<std::uint32_t(Event)>) const;

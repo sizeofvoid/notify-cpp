@@ -1,4 +1,5 @@
 #include <notify-cpp/inotify.h>
+#include <notify-cpp/inotify_event.h>
 
 #include <algorithm>
 #include <functional>
@@ -14,7 +15,8 @@
 
 namespace notifycpp {
 Inotify::Inotify()
-    : mError(0)
+    : Notify(std::shared_ptr<InotifyEventHandler>(new InotifyEventHandler))
+    , mError(0)
     , mInotifyFd(0)
 {
     // Initialize inotify
@@ -179,7 +181,7 @@ TFileSystemEventPtr Inotify::getNextEvent()
             const auto path = wdToPath(event->wd);
             if (!isIgnoredOnce(path)) {
                 _Queue.push(std::make_shared<FileSystemEvent>(path,
-                                                              _EventHandler.getInotify(
+                                                              _EventHandler->get(
                                                                       static_cast<uint32_t>(event->mask))));
             }
             i += EVENT_SIZE + event->len;
@@ -199,6 +201,6 @@ TFileSystemEventPtr Inotify::getNextEvent()
 std::uint32_t
 Inotify::getEventMask(const Event event) const
 {
-    return _EventHandler.convertToInotifyEvents(event);
+    return _EventHandler->convertToEvents(event);
 }
 }

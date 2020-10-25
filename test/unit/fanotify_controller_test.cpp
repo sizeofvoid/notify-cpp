@@ -20,7 +20,8 @@
  * SOFTWARE.
  */
 #include <notify-cpp/fanotify.h>
-#include <notify-cpp/notify_controller.h>
+#include <notify-cpp/fanotify_controller.h>
+#include <notify-cpp/fanotify_event.h>
 
 #include "filesystem_event_helper.hpp"
 

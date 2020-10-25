@@ -1,10 +1,11 @@
 #pragma once
 
+#include <array>
 #include <type_traits>
 #include <vector>
-#include <array>
 
 namespace notifycpp {
+
 template <typename Enum>
 struct EnableBitMaskOperators {
     static const bool enable = false;
@@ -84,12 +85,12 @@ public:
 
     virtual std::uint32_t convertToEvents(const Event) const = 0;
     virtual std::uint32_t getEvent(const Event) const = 0;
-    virtual std::vector<Event> getEvents(std::uint32_t) const = 0;
     virtual Event get(std::uint32_t) const = 0;
-    virtual std::string toString(std::uint32_t) const = 0;
-    std::string toString(const Event);
 
 protected:
     const Event _Events = Event::all;
 };
+
+std::string toString(const Event);
+std::ostream& operator<<(std::ostream&, const Event&);
 }

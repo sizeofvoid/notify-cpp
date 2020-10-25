@@ -55,6 +55,8 @@ set(NOTIFYCPP_HEADER
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 set(NOTIFYCPP_HEADER
     ${NOTIFYCPP_HEADER}
+    include/notify-cpp/fanotify_event.h
+    include/notify-cpp/inotify_event.h
     include/notify-cpp/fanotify_controller.h
     include/notify-cpp/inotify_controller.h
     include/notify-cpp/fanotify.h
@@ -66,6 +68,7 @@ set(NOTIFYCPP_SOURCES
     source/event.cpp
     source/file_system_event.cpp
     source/notification.cpp
+    source/notify_controller.cpp
     source/notify.cpp)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR ${CMAKE_SYSTEM_NAME} MATCHES "BSD")
@@ -78,6 +81,8 @@ set(NOTIFYCPP_SOURCES
     ${NOTIFYCPP_SOURCES}
     source/fanotify_controller.cpp
     source/inotify_controller.cpp
+    source/fanotify_event.cpp
+    source/inotify_event.cpp
     source/fanotify.cpp
     source/inotify.cpp)
 else()
@@ -123,9 +128,9 @@ foreach (TYPE IN ITEMS STATIC SHARED)
     # XXX readlink
     #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pedantic " CACHE STRING "Set C++ Compiler Flags" FORCE)
     target_compile_features(notify-cpp-${type} PRIVATE cxx_std_17)
-    target_compile_options(notify-cpp-${type} PRIVATE "-Wall")
-    target_compile_options(notify-cpp-${type} PRIVATE "-pipe")
-    target_compile_options(notify-cpp-${type} PRIVATE "-fexceptions")
+    #target_compile_options(notify-cpp-${type} PRIVATE "-Wall")
+    #target_compile_options(notify-cpp-${type} PRIVATE "-pipe")
+    #   target_compile_options(notify-cpp-${type} PRIVATE "-fexceptions")
 
   #target_compile_options(notify-cpp-${type} PUBLIC
   #    $<$<CONFIG:RELEASE>:${}>
