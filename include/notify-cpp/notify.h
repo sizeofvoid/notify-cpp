@@ -59,7 +59,6 @@ public:
     void watchPathRecursively(const FileSystemEvent&);
 
 protected:
-
     bool checkWatchFile(const FileSystemEvent&) const;
     bool checkWatchDirectory(const FileSystemEvent&) const;
     bool isIgnored(const std::filesystem::path&) const;

@@ -21,8 +21,8 @@
  * SOFTWARE.
  */
 
-#include <notify-cpp/fanotify_controller.h>
 #include <notify-cpp/fanotify.h>
+#include <notify-cpp/fanotify_controller.h>
 
 namespace notifycpp {
 

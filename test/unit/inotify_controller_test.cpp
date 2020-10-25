@@ -131,12 +131,11 @@ TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldIgnoreFileOnce")
 {
     size_t counter = 0;
     InotifyController notifier = InotifyController();
-    notifier.watchFile(testFileOne_).ignoreOnce(testFileOne_).onEvent(
-            Event::open, [&](Notification notification) {
-                ++counter;
-                if (counter == 1)
-                    _promisedCounter.set_value(counter);
-            });
+    notifier.watchFile(testFileOne_).ignoreOnce(testFileOne_).onEvent(Event::open, [&](Notification notification) {
+        ++counter;
+        if (counter == 1)
+            _promisedCounter.set_value(counter);
+    });
 
     std::thread thread([&notifier]() { notifier.run(); });
 
@@ -171,14 +170,13 @@ TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldWatchPathRecursively")
 {
     InotifyController notifier = InotifyController();
     notifier.watchPathRecursively(testDirectory_)
-                        .onEvent(Event::open, [&](Notification notification) {
-                            switch (notification.getEvent()) {
-                            case Event::open:
-                                promisedOpen_.set_value(notification);
-                                break;
-                            }
-
-                        });
+        .onEvent(Event::open, [&](Notification notification) {
+            switch (notification.getEvent()) {
+            case Event::open:
+                promisedOpen_.set_value(notification);
+                break;
+            }
+        });
 
     std::thread thread([&notifier]() { notifier.runOnce(); });
 
@@ -228,12 +226,11 @@ TEST_CASE_FIXTURE(FilesystemEventHelper, "countEvents")
 {
     size_t counter = 0;
     InotifyController notifier = InotifyController();
-    notifier.watchFile(testFileOne_).onEvent(
-            Event::open, [&](Notification notification) {
-                ++counter;
-                if (counter == 2)
-                    _promisedCounter.set_value(counter);
-            });
+    notifier.watchFile(testFileOne_).onEvent(Event::open, [&](Notification notification) {
+        ++counter;
+        if (counter == 2)
+            _promisedCounter.set_value(counter);
+    });
 
     std::thread thread([&notifier]() { notifier.run(); });
 

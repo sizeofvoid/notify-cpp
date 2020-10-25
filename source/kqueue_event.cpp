@@ -22,8 +22,8 @@
 
 #include <notify-cpp/kqueue_event.h>
 
-#include <string>
 #include <cassert>
+#include <string>
 
 namespace notifycpp {
 KqueueEventHandler::KqueueEventHandler(const Event e)
@@ -37,20 +37,18 @@ KqueueEventHandler::convertToEvents(const Event event) const
     return {};
 }
 
-
 std::uint32_t
 KqueueEventHandler::getEvent(const Event e) const
 {
     return {};
 }
 
-
 Event KqueueEventHandler::get(std::uint32_t e) const
 {
     return {};
 }
 std::vector<Event>
-KqueueEventHandler::getEvents(std::uint32_t) const
+    KqueueEventHandler::getEvents(std::uint32_t) const
 {
     return {};
 }

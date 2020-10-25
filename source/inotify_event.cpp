@@ -41,7 +41,6 @@ InotifyEventHandler::convertToEvents(const Event event) const
     return convert(event, std::bind(&InotifyEventHandler::getEvent, this, std::placeholders::_1));
 }
 
-
 std::uint32_t
 InotifyEventHandler::getEvent(const Event e) const
 {
@@ -81,7 +80,6 @@ InotifyEventHandler::getEvent(const Event e) const
     }
     return 0;
 }
-
 
 Event InotifyEventHandler::get(std::uint32_t e) const
 {
