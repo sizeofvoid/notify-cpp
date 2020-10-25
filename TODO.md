@@ -2,6 +2,3 @@
 - https://scan.coverity.com
 - Check bugfixes from upstream
 - Debian packges
-- Impl. kqueue support
-  - MacOS
-  - OpenBSD
