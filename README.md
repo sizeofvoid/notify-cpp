@@ -6,7 +6,6 @@ __notify-cpp__ is a C++17 wrapper for linux fanotify and inotify. It lets you
 watch for filesystem events on your filesystem tree. It's based on the work of
 __erikzenker/inotify-cpp__.
 
-
 ## How to use notif-cpp
 
 ### A simple file monitor with a [inotify(7)](http://man7.org/linux/man-pages/man7/inotify.7.html) or [fanotify(7)](http://man7.org/linux/man-pages/man7/fanotify.7.html) backend.
