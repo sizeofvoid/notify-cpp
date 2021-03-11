@@ -97,9 +97,6 @@ foreach (TYPE IN ITEMS STATIC SHARED)
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/notify-cpp/>)
 
-  #target_compile_options(notify-cpp-${type} PUBLIC
-  #    $<$<CONFIG:RELEASE>:${}>
-  #    $<$<CONFIG:DEBUG:${}>)
   endif()
 endforeach()
 
