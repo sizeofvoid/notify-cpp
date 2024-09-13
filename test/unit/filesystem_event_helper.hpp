@@ -23,7 +23,7 @@
 
 #include <notify-cpp/notify_controller.h>
 
-#include <boost/test/unit_test.hpp>
+#include "doctest.h"
 
 #include <chrono>
 #include <filesystem>
@@ -36,7 +36,7 @@ void openFile(const std::filesystem::path& file)
 {
     std::ofstream stream;
     stream.open(file.string(), std::ifstream::out);
-    BOOST_CHECK(stream.is_open());
+    CHECK(stream.is_open());
     stream << "Writing this to a file.\n";
     stream.close();
 }

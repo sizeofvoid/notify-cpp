@@ -21,26 +21,26 @@
  */
 #include <notify-cpp/event.h>
 
-#include <boost/test/unit_test.hpp>
+#include "doctest.h"
 
 using namespace notifycpp;
 
-BOOST_AUTO_TEST_CASE(EventOperatorTest)
+TEST_CASE("EventOperatorTest")
 {
-    BOOST_CHECK_EQUAL((Event::all & Event::close_write), Event::close_write);
-    BOOST_CHECK_EQUAL((Event::close & Event::close_write), Event::close_write);
-    BOOST_CHECK_EQUAL((Event::all & Event::close), Event::close);
-    BOOST_CHECK_EQUAL((Event::all & Event::access | Event::modify), Event::access | Event::modify);
-    BOOST_CHECK_EQUAL((Event::all & Event::moved_from), Event::moved_from);
-    BOOST_CHECK_EQUAL((Event::move & Event::moved_from), Event::moved_from);
-    BOOST_CHECK(!((Event::move & Event::open) == Event::open));
+    CHECK_EQ((Event::all & Event::close_write),  Event::close_write);
+    CHECK_EQ((Event::close & Event::close_write), Event::close_write);
+    CHECK_EQ((Event::all & Event::close), Event::close);
+    CHECK_EQ((Event::all & Event::access | Event::modify), Event::access | Event::modify);
+    CHECK_EQ((Event::all & Event::moved_from), Event::moved_from);
+    CHECK_EQ((Event::move & Event::moved_from), Event::moved_from);
+    CHECK_FALSE((Event::move & Event::open) == Event::open);
 }
 
-BOOST_AUTO_TEST_CASE(EventToStringTest)
+TEST_CASE("EventToStringTest")
 {
-    BOOST_CHECK_EQUAL(toString(Event::all), std::string("access,modify,attrib,close_write,close_nowrite,open,moved_from,moved_to,create,delete,delete_self,move_self,close,move,all"));
+    CHECK_EQ(toString(Event::all), std::string("access,modify,attrib,close_write,close_nowrite,open,moved_from,moved_to,create,delete,delete_self,move_self,close,move,all"));
 
-    BOOST_CHECK_EQUAL(toString(Event::access), std::string("access"));
-    BOOST_CHECK_EQUAL(toString(Event::access | Event::close_nowrite), std::string("access,close_nowrite"));
-    BOOST_CHECK_EQUAL(toString(Event::close_nowrite| Event::access), std::string("access,close_nowrite"));
+    CHECK_EQ(toString(Event::access), std::string("access"));
+    CHECK_EQ(toString(Event::access | Event::close_nowrite), std::string("access,close_nowrite"));
+    CHECK_EQ(toString(Event::close_nowrite| Event::access), std::string("access,close_nowrite"));
 }
