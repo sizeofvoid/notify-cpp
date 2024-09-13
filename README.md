@@ -74,7 +74,7 @@ CMake build option:
   - `-DENABLE_SHARED_LIBS=OFF`
 - Enable build and install static libraries. Default: Off
   - `-DENABLE_STATIC_LIBS=ON`
-- Enable build the tests. Default: On. Depend on Boost test
+- Enable build the tests. Default: On.
   - `-DENABLE_TEST=OFF`
 
 ```bash

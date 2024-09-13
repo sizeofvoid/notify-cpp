@@ -9,8 +9,7 @@ target_link_libraries(
 )
 target_compile_definitions(event_handler_unit_test PRIVATE DOCTEST_CONFIG_DOUBLE_STRINGIFY=1)
 target_include_directories(event_handler_unit_test PUBLIC
-        "${CMAKE_CURRENT_SOURCE_DIR}/../../include/"
-        "${Boost_INCLUDE_DIRS}")
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../include/")
 
 add_executable(inotify_unit_test main.cpp inotify_controller_test.cpp)
 target_link_libraries(
@@ -28,8 +27,7 @@ target_link_libraries(
 )
 target_compile_definitions(fanotify_unit_test PRIVATE DOCTEST_CONFIG_DOUBLE_STRINGIFY=1)
 target_include_directories(fanotify_unit_test PUBLIC
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../include/"
-    "${Boost_INCLUDE_DIRS}")
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../include/")
 
 add_test(NAME event_handler_unit_test  COMMAND event_handler_unit_test)
 add_test(NAME inotify_unit_test COMMAND inotify_unit_test)
