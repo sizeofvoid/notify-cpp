@@ -33,4 +33,9 @@ target_include_directories(fanotify_unit_test PUBLIC
 
 add_test(NAME event_handler_unit_test  COMMAND event_handler_unit_test)
 add_test(NAME inotify_unit_test COMMAND inotify_unit_test)
+
+add_custom_command(TARGET fanotify_unit_test POST_BUILD
+    COMMAND sudo setcap cap_sys_admin+ep $<TARGET_FILE:fanotify_unit_test>
+    COMMENT "fanotify  needs cap_sys_admin to run"
+)
 add_test(NAME fanotify_unit_test COMMAND fanotify_unit_test)
