@@ -1,17 +1,13 @@
 project(InotifyUnitTest)
 
 find_package(Threads REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system unit_test_framework)
-
-if (NOT DEFINED Boost_INCLUDE_DIRS OR NOT Boost_LIBRARIES)
-    message(FATAL_ERROR "Missing boost feature")
-endif()
 
 add_executable(event_handler_unit_test main.cpp event_handler_test.cpp)
 target_link_libraries(
         event_handler_unit_test
-        PUBLIC notify-cpp-shared stdc++fs Threads::Threads ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT}
+        PUBLIC notify-cpp-shared stdc++fs Threads::Threads ${CMAKE_THREAD_LIBS_INIT}
 )
+target_compile_definitions(event_handler_unit_test PRIVATE DOCTEST_CONFIG_DOUBLE_STRINGIFY=1)
 target_include_directories(event_handler_unit_test PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/../../include/"
         "${Boost_INCLUDE_DIRS}")
@@ -19,17 +15,18 @@ target_include_directories(event_handler_unit_test PUBLIC
 add_executable(inotify_unit_test main.cpp inotify_controller_test.cpp)
 target_link_libraries(
   inotify_unit_test
-  PUBLIC notify-cpp-shared stdc++fs Threads::Threads ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT}
+  PUBLIC notify-cpp-shared stdc++fs Threads::Threads ${CMAKE_THREAD_LIBS_INIT}
 )
+target_compile_definitions(inotify_unit_test PRIVATE DOCTEST_CONFIG_DOUBLE_STRINGIFY=1)
 target_include_directories(inotify_unit_test PUBLIC
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../include/"
-    "${Boost_INCLUDE_DIRS}")
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../include/")
 
 add_executable(fanotify_unit_test main.cpp fanotify_controller_test.cpp)
 target_link_libraries(
   fanotify_unit_test
-  PUBLIC notify-cpp-shared stdc++fs Threads::Threads ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT}
+  PUBLIC notify-cpp-shared stdc++fs Threads::Threads ${CMAKE_THREAD_LIBS_INIT}
 )
+target_compile_definitions(fanotify_unit_test PRIVATE DOCTEST_CONFIG_DOUBLE_STRINGIFY=1)
 target_include_directories(fanotify_unit_test PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/../../include/"
     "${Boost_INCLUDE_DIRS}")

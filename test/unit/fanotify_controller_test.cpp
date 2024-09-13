@@ -20,12 +20,14 @@
  * SOFTWARE.
  */
 #include <notify-cpp/fanotify.h>
+#include <notify-cpp/event.h>
 #include <notify-cpp/notify_controller.h>
 
 #include "filesystem_event_helper.hpp"
 
-#include <boost/test/unit_test.hpp>
+#include "doctest.h"
 
+#include <thread>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
@@ -35,7 +37,7 @@
 using namespace notifycpp;
 
 
-BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, FilesystemEventHelper)
+TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldNotifyOnMultipleEvents")
 {
     FanotifyController notifier = FanotifyController();
 
@@ -63,29 +65,29 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, FilesystemEventHelper)
 
     auto futureOpen = promisedOpen_.get_future();
     auto futureCloseNoWrite = promisedCloseNoWrite_.get_future();
-    BOOST_CHECK(futureOpen.wait_for(timeout_) == std::future_status::ready);
-    BOOST_CHECK(futureOpen.get().getEvent() == Event::open);
-    BOOST_CHECK(futureCloseNoWrite.wait_for(timeout_) == std::future_status::ready);
-    BOOST_CHECK(futureCloseNoWrite.get().getEvent() == Event::close_write);
+    CHECK(futureOpen.wait_for(timeout_) == std::future_status::ready);
+    CHECK_EQ(futureOpen.get().getEvent(), Event::open);
+    CHECK(futureCloseNoWrite.wait_for(timeout_) == std::future_status::ready);
+    CHECK(futureCloseNoWrite.get().getEvent() == Event::close_write);
     thread.join();
 }
 
-BOOST_AUTO_TEST_CASE(EventOperatorTest)
+TEST_CASE("EventOperatorTest")
 {
-    BOOST_CHECK((Event::all & Event::close_write) == Event::close_write);
-    BOOST_CHECK((Event::all & Event::moved_from) == Event::moved_from);
-    BOOST_CHECK((Event::move & Event::moved_from) == Event::moved_from);
-    BOOST_CHECK(!((Event::move & Event::open) == Event::open));
-    BOOST_CHECK(toString(Event::access) == std::string("access"));
+    CHECK_EQ((Event::all & Event::close_write), Event::close_write);
+    CHECK_EQ((Event::all & Event::moved_from), Event::moved_from);
+    CHECK_EQ((Event::move & Event::moved_from), Event::moved_from);
+    CHECK(!((Event::move & Event::open) != Event::open));
+    CHECK_EQ(toString(Event::access), std::string("access"));
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldNotAcceptNotExistingPaths, FilesystemEventHelper)
+TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldNotAcceptNotExistingPaths")
 {
-    BOOST_CHECK_THROW(FanotifyController().watchPathRecursively(std::filesystem::path("/not/existing/path/")), std::invalid_argument);
-    BOOST_CHECK_THROW(FanotifyController().watchFile(std::filesystem::path("/not/existing/file")), std::invalid_argument);
+    CHECK_THROWS_AS(FanotifyController().watchPathRecursively(std::filesystem::path("/not/existing/path/")), std::invalid_argument);
+    CHECK_THROWS_AS(FanotifyController().watchFile(std::filesystem::path("/not/existing/file")), std::invalid_argument);
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, FilesystemEventHelper)
+TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldNotifyOnOpenEvent")
 {
     NotifyController notifier = FanotifyController().watchFile({testFileOne_, Event::close}).onEvent(Event::close, [&](Notification notification) {
         promisedOpen_.set_value(notification);
@@ -96,16 +98,16 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnOpenEvent, FilesystemEventHelper)
     openFile(testFileOne_);
 
     auto futureOpenEvent = promisedOpen_.get_future();
-    BOOST_CHECK(futureOpenEvent.wait_for(timeout_) == std::future_status::ready);
+    CHECK(futureOpenEvent.wait_for(timeout_) == std::future_status::ready);
     const auto notify = futureOpenEvent.get();
-    BOOST_CHECK_EQUAL(notify.getEvent(), Event::close);
+    CHECK_EQ(notify.getEvent(), Event::close);
     auto fullpath = std::filesystem::current_path();
     fullpath /= testFileOne_;
-    BOOST_CHECK_EQUAL(notify.getPath(), fullpath);
+    CHECK_EQ(notify.getPath(), fullpath);
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldStopRunOnce, FilesystemEventHelper)
+TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldStopRunOnce")
 {
     NotifyController notifier = FanotifyController().watchFile(testFileOne_);
 
@@ -116,7 +118,7 @@ BOOST_FIXTURE_TEST_CASE(shouldStopRunOnce, FilesystemEventHelper)
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldStopRun, FilesystemEventHelper)
+TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldStopRun")
 {
     FanotifyController notifier = FanotifyController();
     notifier.watchFile(testFileOne_);
@@ -128,7 +130,7 @@ BOOST_FIXTURE_TEST_CASE(shouldStopRun, FilesystemEventHelper)
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldIgnoreFile, FilesystemEventHelper)
+TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldIgnoreFile")
 {
     NotifyController notifier = FanotifyController().ignore(testFileOne_).watchFile({testFileOne_, Event::close}).onEvent(Event::close, [&](Notification notification) {
         promisedOpen_.set_value(notification);
@@ -139,12 +141,12 @@ BOOST_FIXTURE_TEST_CASE(shouldIgnoreFile, FilesystemEventHelper)
     openFile(testFileOne_);
 
     auto futureOpenEvent = promisedOpen_.get_future();
-    BOOST_CHECK(futureOpenEvent.wait_for(timeout_) == std::future_status::timeout);
+    CHECK(futureOpenEvent.wait_for(timeout_) == std::future_status::timeout);
     notifier.stop();
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldUnwatchPath, FilesystemEventHelper)
+TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldUnwatchPath")
 {
     std::promise<Notification> timeoutObserved;
     std::chrono::milliseconds timeout(100);
@@ -155,12 +157,12 @@ BOOST_FIXTURE_TEST_CASE(shouldUnwatchPath, FilesystemEventHelper)
     std::thread thread([&notifier]() { notifier.runOnce(); });
 
     openFile(testFileOne_);
-    BOOST_CHECK(promisedOpen_.get_future().wait_for(timeout_) != std::future_status::ready);
+    CHECK(promisedOpen_.get_future().wait_for(timeout_) != std::future_status::ready);
     notifier.stop();
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldCallUserDefinedUnexpectedExceptionObserver, FilesystemEventHelper)
+TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldCallUserDefinedUnexpectedExceptionObserver")
 {
     std::promise<void> observerCalled;
 
@@ -173,11 +175,11 @@ BOOST_FIXTURE_TEST_CASE(shouldCallUserDefinedUnexpectedExceptionObserver, Filesy
 
     openFile(testFileOne_);
 
-    BOOST_CHECK(observerCalled.get_future().wait_for(timeout_) == std::future_status::ready);
+    CHECK(observerCalled.get_future().wait_for(timeout_) == std::future_status::ready);
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldWatchPathRecursively, FilesystemEventHelper)
+TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldWatchPathRecursively")
 {
     FanotifyController notifier = FanotifyController();
     notifier.watchPathRecursively(testDirectory_)
@@ -195,13 +197,13 @@ BOOST_FIXTURE_TEST_CASE(shouldWatchPathRecursively, FilesystemEventHelper)
     openFile(testFileOne_);
 
     auto futureOpen = promisedOpen_.get_future();
-    BOOST_CHECK(futureOpen.wait_for(timeout_) == std::future_status::ready);
+    CHECK(futureOpen.wait_for(timeout_) == std::future_status::ready);
 
     notifier.stop();
     thread.join();
 }
 
-BOOST_FIXTURE_TEST_CASE(shouldIgnoreFileOnce, FilesystemEventHelper)
+TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldIgnoreFileOnce")
 {
     size_t counter = 0;
     FanotifyController notifier = FanotifyController();
@@ -220,7 +222,7 @@ BOOST_FIXTURE_TEST_CASE(shouldIgnoreFileOnce, FilesystemEventHelper)
     openFile(testFileOne_);
 
     auto futureOpen = _promisedCounter.get_future();
-    BOOST_CHECK(futureOpen.wait_for(std::chrono::seconds(1)) == std::future_status::ready);
+    CHECK(futureOpen.wait_for(std::chrono::seconds(1)) == std::future_status::ready);
     notifier.stop();
     thread.join();
 }
