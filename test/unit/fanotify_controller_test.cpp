@@ -77,7 +77,7 @@ TEST_CASE("EventOperatorTest")
     CHECK_EQ((Event::all & Event::close_write), Event::close_write);
     CHECK_EQ((Event::all & Event::moved_from), Event::moved_from);
     CHECK_EQ((Event::move & Event::moved_from), Event::moved_from);
-    CHECK(!((Event::move & Event::open) != Event::open));
+    CHECK((Event::move & Event::open) != Event::open);
     CHECK_EQ(toString(Event::access), std::string("access"));
 }
 
