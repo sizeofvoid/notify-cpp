@@ -25,7 +25,7 @@
 
 #include "filesystem_event_helper.hpp"
 
-#include <boost/test/unit_test.hpp>
+#include "doctest.h"
 
 #include <chrono>
 #include <filesystem>
@@ -35,7 +35,7 @@
 
 using namespace notifycpp;
 
-BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, FilesystemEventHelper)
+TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldNotifyOnMultipleEvents")
 {
     KqueueController notifier = KqueueController();
 
@@ -63,9 +63,9 @@ BOOST_FIXTURE_TEST_CASE(shouldNotifyOnMultipleEvents, FilesystemEventHelper)
 
     auto futureOpen = promisedOpen_.get_future();
     auto futureCloseNoWrite = promisedCloseNoWrite_.get_future();
-    BOOST_CHECK(futureOpen.wait_for(timeout_) == std::future_status::ready);
-    BOOST_CHECK(futureOpen.get().getEvent() == Event::open);
-    BOOST_CHECK(futureCloseNoWrite.wait_for(timeout_) == std::future_status::ready);
-    BOOST_CHECK(futureCloseNoWrite.get().getEvent() == Event::close_write);
+    CHECK(futureOpen.wait_for(timeout_) == std::future_status::ready);
+    CHECK(futureOpen.get().getEvent() == Event::open);
+    CHECK(futureCloseNoWrite.wait_for(timeout_) == std::future_status::ready);
+    CHECK(futureCloseNoWrite.get().getEvent() == Event::close_write);
     thread.join();
 }

@@ -30,7 +30,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-
 # check c++17 filesystem feature
 CHECK_CXX_SYMBOL_EXISTS(std::filesystem::path::preferred_separator
                         filesystem
@@ -131,10 +130,6 @@ foreach (TYPE IN ITEMS STATIC SHARED)
 
     # XXX readlink
     #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pedantic " CACHE STRING "Set C++ Compiler Flags" FORCE)
-    target_compile_features(notify-cpp-${type} PRIVATE cxx_std_17)
-    #target_compile_options(notify-cpp-${type} PRIVATE "-Wall")
-    #target_compile_options(notify-cpp-${type} PRIVATE "-pipe")
-    #   target_compile_options(notify-cpp-${type} PRIVATE "-fexceptions")
 
   endif()
 endforeach()
