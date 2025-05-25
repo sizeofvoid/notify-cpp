@@ -45,7 +45,8 @@ set(NOTIFYCPP_HEADER
     include/notify-cpp/inotify.h
     include/notify-cpp/notification.h
     include/notify-cpp/notify_controller.h
-    include/notify-cpp/notify.h)
+    include/notify-cpp/notify.h
+    include/notify-cpp/util.h)
 
 set(NOTIFYCPP_SOURCES
     source/event.cpp
@@ -54,7 +55,8 @@ set(NOTIFYCPP_SOURCES
     source/inotify.cpp
     source/notification.cpp
     source/notify_controller.cpp
-    source/notify.cpp)
+    source/notify.cpp
+    source/util.cpp)
 
 # XXX readlink
 #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pedantic " CACHE STRING "Set C++ Compiler Flags" FORCE)
@@ -92,6 +94,15 @@ foreach (TYPE IN ITEMS STATIC SHARED)
     set_target_properties(notify-cpp-${type} PROPERTIES
         VERSION ${NOTIFYCPP_VERSION}
         SOVERSION ${NOTIFYCPP_VERSION_MAJOR})
+
+    if ("${TYPE}" STREQUAL "STATIC")
+      # export our kernel version constructor.
+      if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.13.0")
+        set_target_properties(notify-cpp-${type} PROPERTIES STATIC_LIBRARY_OPTIONS "-u __populateKernelVersion")
+      else()
+        set_target_properties(notify-cpp-${type} PROPERTIES STATIC_LIBRARY_FLAGS "-u __populateKernelVersion")
+      endif()
+    endif()
 
     target_include_directories(notify-cpp-${type} PUBLIC
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
