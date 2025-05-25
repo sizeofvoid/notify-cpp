@@ -24,6 +24,7 @@
 #include <notify-cpp/fanotify.h>
 #include <notify-cpp/inotify.h>
 #include <notify-cpp/notify_controller.h>
+#include <notify-cpp/internal/util.h>
 
 namespace notifycpp {
 
@@ -46,6 +47,7 @@ InotifyController::InotifyController()
 NotifyController::NotifyController(Notify* n)
     : _Notify(n)
 {
+    __populateKernelVersion();
 }
 
 NotifyController&

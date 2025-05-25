@@ -8,6 +8,7 @@
 #include <sys/fanotify.h>
 #include <type_traits>
 #include <vector>
+#include <notify-cpp/internal/util.h>
 
 namespace notifycpp {
 template <typename Enum>

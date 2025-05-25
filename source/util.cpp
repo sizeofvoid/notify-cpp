@@ -1,5 +1,5 @@
 
-#include <notify-cpp/util.h>
+#include <notify-cpp/internal/util.h>
 #include <sys/utsname.h> //for utsname and uname
 #include <cstdio>
 #include <linux/version.h>
@@ -11,7 +11,7 @@ namespace notifycpp
  
 
 }
-__attribute__((constructor)) extern "C" void __populateKernelVersion() 
+extern "C" __attribute__((constructor)) void __populateKernelVersion()
 {
     utsname kernelData;
     uint8_t major,minor,patch;

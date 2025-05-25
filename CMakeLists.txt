@@ -12,6 +12,7 @@ set(NOTIFYCPP_VERSION "${NOTIFYCPP_VERSION_MAJOR}.${NOTIFYCPP_VERSION_MINOR}.${N
 
 option(ENABLE_SHARED_LIBS "Enable build and install shared libraries" ON)
 option(ENABLE_STATIC_LIBS "Enable build and install static libraries" OFF)
+option(ENABLE_EXAMPLES "Enable building of samples" OFF)
 option(ENABLE_TEST "Enable build the tests" ON)
 
 
@@ -46,7 +47,7 @@ set(NOTIFYCPP_HEADER
     include/notify-cpp/notification.h
     include/notify-cpp/notify_controller.h
     include/notify-cpp/notify.h
-    include/notify-cpp/util.h)
+    include/notify-cpp/internal/util.h)
 
 set(NOTIFYCPP_SOURCES
     source/event.cpp
@@ -95,14 +96,6 @@ foreach (TYPE IN ITEMS STATIC SHARED)
         VERSION ${NOTIFYCPP_VERSION}
         SOVERSION ${NOTIFYCPP_VERSION_MAJOR})
 
-    if ("${TYPE}" STREQUAL "STATIC")
-      # export our kernel version constructor.
-      if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.13.0")
-        set_target_properties(notify-cpp-${type} PROPERTIES STATIC_LIBRARY_OPTIONS "-u __populateKernelVersion")
-      else()
-        set_target_properties(notify-cpp-${type} PROPERTIES STATIC_LIBRARY_FLAGS "-u __populateKernelVersion")
-      endif()
-    endif()
 
     target_include_directories(notify-cpp-${type} PUBLIC
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
@@ -170,4 +163,8 @@ install(FILES
 if (ENABLE_TEST)
     enable_testing()
     add_subdirectory(test)
+endif()
+
+if(ENABLE_EXAMPLES)
+  add_subdirectory(example/file_monitor_local)
 endif()
