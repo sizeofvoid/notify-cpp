@@ -82,7 +82,7 @@ CMake build option:
 # Configure
 mkdir build && cd bulid
 cmake -DCMAKE_INSTALL_PREFIX=/usr/local/ \
-      -DDENABLE_STATIC_LIBS=ON \
+      -DENABLE_STATIC_LIBS=ON \
       ..
 
 # Build
