@@ -86,18 +86,19 @@ bool Notify::isIgnored(const std::filesystem::path& p) const
 
 std::string Notify::getFilePath(int fd) const
 {
-    ssize_t len;
     char buffer[PATH_MAX];
 
     if (fd <= 0)
         return {};
 
-    sprintf(buffer, "/proc/self/fd/%d", fd);
-    if ((len = readlink(buffer, buffer, PATH_MAX - 1)) < 0)
+    std::string linkPath = "/proc/self/fd/" + std::to_string(fd);
+
+    ssize_t len = readlink(linkPath.c_str(), buffer, PATH_MAX - 1);
+    if (len < 0)
         return {};
 
     buffer[len] = '\0';
-    return std::string(buffer);
+    return std::string(buffer, len);
 }
 
 bool Notify::checkWatchFile(const FileSystemEvent& fse) const

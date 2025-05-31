@@ -110,7 +110,6 @@ struct EnableBitMaskOperators<Event> {
 
 class EventHandler {
 public:
-    EventHandler(const Event);
     EventHandler() = default;
 
     std::uint32_t convertToInotifyEvents(const Event) const;
@@ -131,7 +130,6 @@ public:
 
 private:
     std::uint32_t convert(const Event, std::function<std::uint32_t(Event)>) const;
-    const Event _Events = Event::all;
 };
 
 std::string toString(const Event);

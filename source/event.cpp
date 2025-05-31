@@ -31,10 +31,6 @@
 #include <cassert>
 
 namespace notifycpp {
-EventHandler::EventHandler(const Event e)
-    : _Events(e)
-{
-}
 
 std::uint32_t
 EventHandler::convertToInotifyEvents(const Event event) const

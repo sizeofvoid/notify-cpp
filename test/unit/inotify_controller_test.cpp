@@ -175,6 +175,8 @@ TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldWatchPathRecursively")
                             case Event::open:
                                 promisedOpen_.set_value(notification);
                                 break;
+                            default:
+                                break;
                             }
 
                         });
@@ -192,9 +194,6 @@ TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldWatchPathRecursively")
 
 TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldUnwatchPath")
 {
-    std::promise<Notification> timeoutObserved;
-    std::chrono::milliseconds timeout(100);
-
     InotifyController notifier = InotifyController();
     notifier.watchFile(testFileOne_).unwatch(testFileOne_);
 

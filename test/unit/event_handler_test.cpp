@@ -30,7 +30,7 @@ TEST_CASE("EventOperatorTest")
     CHECK_EQ((Event::all & Event::close_write),  Event::close_write);
     CHECK_EQ((Event::close & Event::close_write), Event::close_write);
     CHECK_EQ((Event::all & Event::close), Event::close);
-    CHECK_EQ((Event::all & Event::access | Event::modify), Event::access | Event::modify);
+    CHECK_EQ((Event::all & (Event::access | Event::modify)), Event::access | Event::modify);
     CHECK_EQ((Event::all & Event::moved_from), Event::moved_from);
     CHECK_EQ((Event::move & Event::moved_from), Event::moved_from);
     CHECK_FALSE((Event::move & Event::open) == Event::open);

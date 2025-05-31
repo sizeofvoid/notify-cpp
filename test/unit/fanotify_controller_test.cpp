@@ -148,9 +148,6 @@ TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldIgnoreFile")
 
 TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldUnwatchPath")
 {
-    std::promise<Notification> timeoutObserved;
-    std::chrono::milliseconds timeout(100);
-
     FanotifyController notifier = FanotifyController();
     notifier.watchFile(testFileOne_).unwatch(testFileOne_);
 
@@ -187,6 +184,8 @@ TEST_CASE_FIXTURE(FilesystemEventHelper, "shouldWatchPathRecursively")
                 switch (notification.getEvent()) {
                     case Event::open:
                         promisedOpen_.set_value(notification);
+                        break;
+                    default:
                         break;
                 }
 

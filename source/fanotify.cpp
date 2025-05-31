@@ -162,14 +162,14 @@ TFileSystemEventPtr Fanotify::getNextEvent()
 
         /* fanotify event received? */
         if (fds[FD_POLL_FANOTIFY].revents & POLLIN) {
-            char buffer[_fanotify_buffer_size];
+            std::vector<char> buffer(_fanotify_buffer_size);
             ssize_t length;
 
             /* Read from the FD. It will read all events available up to
              * the given buffer size. */
-            if ((length = read(fds[FD_POLL_FANOTIFY].fd, buffer, _fanotify_buffer_size)) > 0) {
+            if ((length = read(fds[FD_POLL_FANOTIFY].fd, buffer.data(), _fanotify_buffer_size)) > 0) {
 
-                auto metadata = reinterpret_cast<fanotify_event_metadata*>(buffer);
+                auto metadata = reinterpret_cast<fanotify_event_metadata*>(buffer.data());
 
                 while (FAN_EVENT_OK(metadata, length) && isRunning()) {
 

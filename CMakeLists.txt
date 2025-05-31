@@ -56,8 +56,8 @@ set(NOTIFYCPP_SOURCES
     source/notify_controller.cpp
     source/notify.cpp)
 
-# XXX readlink
-#set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pedantic " CACHE STRING "Set C++ Compiler Flags" FORCE)
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pedantic "
+     CACHE STRING "Set C++ Compiler Flags" FORCE)
 
 
 # Offer the user the choice of overriding the installation directories
