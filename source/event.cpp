@@ -25,6 +25,7 @@
 
 #include <sys/fanotify.h>
 #include <sys/inotify.h>
+#include <linux/version.h>
 
 #include <iostream>
 
@@ -80,6 +81,12 @@ EventHandler::getInotifyEvent(const Event e) const
         return IN_ALL_EVENTS;
     case Event::none:
         return 0;
+    case Event::q_overflow:
+    case Event::open_perm:
+    case Event::on_child:
+    case Event::ondir:
+        assert(!"None existing event");
+        return 0;
     }
     return 0;
 }
@@ -92,16 +99,21 @@ EventHandler::getFanotifyEvent(const Event e) const
         return FAN_ACCESS;
     case Event::modify:
         return FAN_MODIFY;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,1,0)
     case Event::attrib:
         assert(!"None existing event");
         return 0;
+#else
+    case Event::attrib:
+        return FAN_ATTRIB;
+#endif
     case Event::close_write:
         return FAN_CLOSE_WRITE;
     case Event::close_nowrite:
         return FAN_CLOSE_NOWRITE;
     case Event::open:
         return FAN_OPEN;
-
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,1,0)
     case Event::moved_from:
     case Event::moved_to:
     case Event::create:
@@ -110,15 +122,37 @@ EventHandler::getFanotifyEvent(const Event e) const
     case Event::move_self:
         assert(!"None existing event");
         return 0;
-
+#else
+    case Event::moved_from:
+        return FAN_MOVED_FROM;
+    case Event::moved_to:
+        return FAN_MOVED_TO;
+    case Event::create:
+        return FAN_CREATE;
+    case Event::delete_sub:
+        return FAN_DELETE;
+    case Event::delete_self:
+        return FAN_DELETE_SELF;
+    case Event::move_self:
+        return FAN_MOVE_SELF;
+#endif
     case Event::close:
         return FAN_CLOSE;
-
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,1,0)
     case Event::move:
     case Event::all:
     case Event::none:
         assert(!"None existing event");
         return 0;
+
+#else
+    case Event::move:
+        return FAN_MOVE;
+    case Event::all: //doesn't exist by itself, but its constituents are. Do we emulate this?
+    case Event::none:
+        assert(!"None existing event");
+        return 0;
+#endif
     }
     assert(!"None existing event");
     return 0;
@@ -161,6 +195,14 @@ toString(const Event event)
             return std::string("all");
         case Event::none:
             return std::string("none");
+        case Event::q_overflow:
+            return std::string("queue_overflow");
+        case Event::open_perm:
+            return std::string("open_perm");
+        case Event::ondir:
+            return std::string("ondir");
+        case Event::on_child:
+            return std::string("on_child");
         }
         assert(!"None existing event");
         return std::string("ERROR");
@@ -294,6 +336,14 @@ Event EventHandler::getFanotify(std::uint32_t e) const
          return Event::open;
         case FAN_CLOSE:
          return Event::close;
+        case FAN_Q_OVERFLOW:
+         return Event::q_overflow;
+        case FAN_OPEN_PERM:
+         return Event::open_perm;
+        case FAN_ONDIR:
+         return Event::ondir;
+        case FAN_EVENT_ON_CHILD:
+         return Event::on_child;
         /* TODO
         case FAN_Q_OVERFLOW:
         case FAN_OPEN_PERM:

@@ -46,8 +46,17 @@ enum class Event {
     delete_self = (1 << 10),
     move_self = (1 << 11),
 
+
+
     // undefined behaver
     none = (1 << 12),
+    //fanotify only.
+    q_overflow = (1 << 13),
+    open_perm = (1 << 14),
+    ondir = (1 << 15), 
+    on_child = (1 << 16),
+
+   
 
     // helper
     close = Event::close_write | Event::close_nowrite,
@@ -87,7 +96,7 @@ static const std::array<std::uint32_t, 12> AllFanFlags = {{FAN_ACCESS,
     FAN_ALL_CLASS_BITS,
     FAN_ENABLE_AUDIT}};
 #endif
-static const std::array<Event, 15> AllEvents = {Event::access,
+static const std::array<Event, 19> AllEvents = {Event::access,
     Event::modify,
     Event::attrib,
     Event::close_write,
@@ -101,6 +110,10 @@ static const std::array<Event, 15> AllEvents = {Event::access,
     Event::move_self,
     Event::close,
     Event::move,
+    Event::q_overflow,
+    Event::open_perm,
+    Event::ondir,
+    Event::on_child,
     Event::all};
 
 template <>

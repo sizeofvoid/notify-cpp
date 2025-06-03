@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include <linux/version.h>
 #include <sys/fanotify.h>
@@ -105,6 +106,15 @@ void Fanotify::watchFile(const FileSystemEvent& fse)
 
 void Fanotify::watch(const std::filesystem::path& path, unsigned int flags, const Event event)
 {
+    //FAN_EVENT_ON_CHILD is ignored with FAN_MARK_MOUNT. Notify the user on this.
+    if( ((flags & FAN_MARK_MOUNT)!=0) && ((event & Event::on_child) == Event::on_child))
+    {
+        std::stringstream errorStream;
+        errorStream << "watchMountPoint: Event::on_child has no effect on the mountpoint!'";
+        //
+        //throw std::runtime_error(errorStream.str());
+    }
+
     /* Add new fanotify mark */
     if (fanotify_mark(_FanotifyFd, flags, getEventMask(event), AT_FDCWD, path.c_str()) < 0) {
         std::stringstream errorStream;
