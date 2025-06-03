@@ -107,8 +107,6 @@ EventHandler::getFanotifyEvent(const Event e) const
     case Event::attrib:
         assert(!"None existing event");
         return 0;
-    case Event::attrib:
-        return FAN_ATTRIB;
 #else
     case Event::attrib:
         return FAN_ATTRIB;
